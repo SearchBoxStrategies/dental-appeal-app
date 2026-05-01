@@ -1,4 +1,4 @@
-import React from 'react';
+// just delete that line entirely
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
