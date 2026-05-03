@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { api } from '../lib/api';
+import api from '../lib/api'
 import { Appeal } from '../types';
 
 export default function AppealDetail() {
@@ -11,7 +11,7 @@ export default function AppealDetail() {
   const letterRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    api.get(`/appeals/${id}`).then((res) => setAppeal(res.data)).finally(() => setLoading(false));
+    api.get(`/appeals/${id}`).then((res: any) => setAppeal(res.data)).finally(() => setLoading(false));
   }, [id]);
 
   async function copyLetter() {
