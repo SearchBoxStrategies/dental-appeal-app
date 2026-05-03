@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { api } from '../lib/api';
+import api from '../lib/api';
 import { User, Practice } from '../types';
 
 interface AuthContextValue {
