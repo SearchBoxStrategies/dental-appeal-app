@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { api } from '../lib/api';
+import api from '../lib/api';
 import { Claim } from '../types';
 
 export default function ClaimDetail() {
@@ -12,7 +12,7 @@ export default function ClaimDetail() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    api.get(`/claims/${id}`).then((res) => setClaim(res.data)).finally(() => setLoading(false));
+    api.get(`/claims/${id}`).then((res: any) => setClaim(res.data)).finally(() => setLoading(false));
   }, [id]);
 
   async function generateAppeal() {
