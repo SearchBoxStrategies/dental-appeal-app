@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { api } from '../lib/api';
+import api from '../lib/api';
 import { Claim } from '../types';
 
 export default function Claims() {
@@ -9,7 +9,7 @@ export default function Claims() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get('/claims').then((res) => setClaims(res.data)).finally(() => setLoading(false));
+    api.get('/claims').then((res: any) => setClaims(res.data)).finally(() => setLoading(false));
   }, []);
 
   if (loading) return <div className="loading">Loading…</div>;
