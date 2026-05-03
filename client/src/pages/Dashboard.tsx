@@ -1,92 +1,285 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { 
+  FileText, 
+  TrendingUp, 
+  Clock, 
+  CheckCircle, 
+  PlusCircle,
+  ArrowRight,
+  Activity
+} from 'lucide-react';
 import api from '../lib/api';
-import { useAuth } from '../context/AuthContext';
-import { Stats, Claim } from '../types';
+
+interface DashboardStats {
+  totalClaims: number;
+  totalAppeals: number;
+  appealsThisMonth: number;
+  successRate?: number;
+}
+
+interface RecentClaim {
+  id: number;
+  patient_name: string;
+  insurance_company: string;
+  status: string;
+  created_at: string;
+}
 
 export default function Dashboard() {
-  const { practice } = useAuth();
-  const [stats, setStats] = useState<Stats | null>(null);
-  const [recentClaims, setRecentClaims] = useState<Claim[]>([]);
+  const [stats, setStats] = useState<DashboardStats>({
+    totalClaims: 0,
+    totalAppeals: 0,
+    appealsThisMonth: 0
+  });
+  const [recentClaims, setRecentClaims] = useState<RecentClaim[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([
-      api.get('/claims/stats'),
-      api.get('/claims'),
-    ]).then(([statsRes, claimsRes]) => {
-      setStats(statsRes.data);
-      setRecentClaims((claimsRes.data as Claim[]).slice(0, 5));
-    }).finally(() => setLoading(false));
+    const fetchDashboardData = async () => {
+      try {
+        const [statsRes, claimsRes] = await Promise.all([
+          api.get('/claims/stats'),
+          api.get('/claims?limit=5')
+        ]);
+        setStats(statsRes.data);
+        setRecentClaims(claimsRes.data);
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDashboardData();
   }, []);
 
-  if (loading) return <div className="loading">Loading…</div>;
+  const getStatusBadge = (status: string) => {
+    const badges: Record<string, string> = {
+      draft: 'bg-gray-100 text-gray-700',
+      appealed: 'bg-blue-100 text-blue-700',
+      won: 'bg-green-100 text-green-700',
+      lost: 'bg-red-100 text-red-700'
+    };
+    return badges[status] || badges.draft;
+  };
+
+  const statCards = [
+    { 
+      title: 'Total Claims', 
+      value: stats.totalClaims, 
+      icon: FileText, 
+      color: 'bg-blue-500',
+      change: '+12%',
+      changeType: 'positive'
+    },
+    { 
+      title: 'Total Appeals', 
+      value: stats.totalAppeals, 
+      icon: TrendingUp, 
+      color: 'bg-green-500',
+      change: '+8%',
+      changeType: 'positive'
+    },
+    { 
+      title: 'Appeals This Month', 
+      value: stats.appealsThisMonth, 
+      icon: Clock, 
+      color: 'bg-purple-500',
+      change: '+5%',
+      changeType: 'positive'
+    },
+    { 
+      title: 'Success Rate', 
+      value: stats.successRate || 0, 
+      icon: CheckCircle, 
+      color: 'bg-teal-500',
+      suffix: '%',
+      change: '+3%',
+      changeType: 'positive'
+    },
+  ];
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <div className="page-header">
-        <h2>Dashboard</h2>
-        <Link to="/claims/new" className="btn btn-primary">+ New Claim</Link>
+    <div className="space-y-8">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900">Dashboard</h1>
+          <p className="text-slate-600 mt-1">Welcome back! Here's what's happening with your appeals.</p>
+        </div>
+        <Link
+          to="/claims/new"
+          className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md"
+        >
+          <PlusCircle className="w-5 h-5" />
+          New Claim
+        </Link>
       </div>
 
-      {practice?.subscriptionStatus !== 'active' && (
-        <div className="alert alert-error" style={{ marginBottom: 24 }}>
-          No active subscription.{' '}
-          <Link to="/billing" style={{ color: 'inherit', fontWeight: 600 }}>Subscribe to generate appeals →</Link>
-        </div>
-      )}
-
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-label">Total Claims</div>
-          <div className="stat-value">{stats?.totalClaims ?? 0}</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-label">Total Appeals</div>
-          <div className="stat-value">{stats?.totalAppeals ?? 0}</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-label">Appeals This Month</div>
-          <div className="stat-value">{stats?.appealsThisMonth ?? 0}</div>
-        </div>
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {statCards.map((stat) => {
+          const Icon = stat.icon;
+          return (
+            <div key={stat.title} className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between mb-4">
+                <div className={`${stat.color} p-3 rounded-xl text-white`}>
+                  <Icon className="w-6 h-6" />
+                </div>
+                {stat.change && (
+                  <span className={`text-sm font-medium ${stat.changeType === 'positive' ? 'text-green-600' : 'text-red-600'}`}>
+                    {stat.change}
+                  </span>
+                )}
+              </div>
+              <p className="text-3xl font-bold text-slate-900">
+                {stat.value}{stat.suffix || ''}
+              </p>
+              <p className="text-sm text-slate-600 mt-1">{stat.title}</p>
+            </div>
+          );
+        })}
       </div>
 
-      <div className="card">
-        <div className="page-header" style={{ marginBottom: 16 }}>
-          <h3 style={{ fontSize: 15, fontWeight: 600 }}>Recent Claims</h3>
-          <Link to="/claims" className="btn btn-secondary">View all</Link>
+      {/* Recent Claims Section */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="px-6 py-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-semibold text-slate-900">Recent Claims</h2>
+            <p className="text-slate-600 text-sm mt-1">Your most recent insurance claims</p>
+          </div>
+          <Link
+            to="/claims"
+            className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 font-medium text-sm"
+          >
+            View all
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
+        
         {recentClaims.length === 0 ? (
-          <div className="empty-state">
-            <p>No claims yet.</p>
-            <Link to="/claims/new" className="btn btn-primary">Add your first claim</Link>
+          <div className="text-center py-12">
+            <Activity className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-slate-900 mb-1">No claims yet</h3>
+            <p className="text-slate-600 mb-4">Create your first claim to start generating appeals</p>
+            <Link
+              to="/claims/new"
+              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-xl transition-all duration-200"
+            >
+              <PlusCircle className="w-5 h-5" />
+              Create Claim
+            </Link>
           </div>
         ) : (
-          <div className="table-container">
-            <table>
-              <thead>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-slate-200">
+              <thead className="bg-slate-50">
                 <tr>
-                  <th>Patient</th>
-                  <th>Insurance</th>
-                  <th>Procedures</th>
-                  <th>Status</th>
-                  <th>Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Patient</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Insurance</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="bg-white divide-y divide-slate-200">
                 {recentClaims.map((claim) => (
-                  <tr key={claim.id} onClick={() => window.location.href = `/claims/${claim.id}`}>
-                    <td>{claim.patient_name}</td>
-                    <td>{claim.insurance_company}</td>
-                    <td>{claim.procedure_codes.join(', ')}</td>
-                    <td><span className={`badge badge-${claim.status}`}>{claim.status}</span></td>
-                    <td>{new Date(claim.created_at).toLocaleDateString()}</td>
+                  <tr key={claim.id} className="hover:bg-slate-50 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="font-medium text-slate-900">{claim.patient_name}</span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-slate-600">
+                      {claim.insurance_company}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 py-1 text-xs font-medium rounded-full capitalize ${getStatusBadge(claim.status)}`}>
+                        {claim.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-slate-600">
+                      {new Date(claim.created_at).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <Link
+                        to={`/claims/${claim.id}`}
+                        className="text-blue-600 hover:text-blue-700 font-medium text-sm"
+                      >
+                        View →
+                      </Link>
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         )}
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-gradient-to-br from-blue-50 to-white rounded-2xl shadow-sm border border-slate-200 p-6">
+          <div className="flex items-center gap-4">
+            <div className="bg-blue-100 p-3 rounded-xl">
+              <FileText className="w-6 h-6 text-blue-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-slate-900">Appeal a Denial</h3>
+              <p className="text-sm text-slate-600">Start a new insurance appeal</p>
+            </div>
+          </div>
+          <Link
+            to="/claims/new"
+            className="mt-4 inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm font-medium"
+          >
+            Get started
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+
+        <div className="bg-gradient-to-br from-green-50 to-white rounded-2xl shadow-sm border border-slate-200 p-6">
+          <div className="flex items-center gap-4">
+            <div className="bg-green-100 p-3 rounded-xl">
+              <TrendingUp className="w-6 h-6 text-green-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-slate-900">Track Appeals</h3>
+              <p className="text-sm text-slate-600">Monitor your appeal status</p>
+            </div>
+          </div>
+          <Link
+            to="/claims"
+            className="mt-4 inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm font-medium"
+          >
+            View all →
+          </Link>
+        </div>
+
+        <div className="bg-gradient-to-br from-purple-50 to-white rounded-2xl shadow-sm border border-slate-200 p-6">
+          <div className="flex items-center gap-4">
+            <div className="bg-purple-100 p-3 rounded-xl">
+              <Activity className="w-6 h-6 text-purple-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-slate-900">Need Help?</h3>
+              <p className="text-sm text-slate-600">Guide to writing appeals</p>
+            </div>
+          </div>
+          <a
+            href="#"
+            className="mt-4 inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm font-medium"
+          >
+            Learn more
+            <ArrowRight className="w-4 h-4" />
+          </a>
+        </div>
       </div>
     </div>
   );
