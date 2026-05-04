@@ -8,27 +8,19 @@ import NewClaim from './pages/NewClaim';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import Billing from './pages/Billing';
-
-// Protected route wrapper
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const token = localStorage.getItem('token');
-  if (!token) {
-    return <Navigate to="/login" replace />;
-  }
-  return <>{children}</>;
-}
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public routes */}
+        {/* Public routes - no layout */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         
-        {/* Protected routes (require login) */}
+        {/* Protected routes - with Layout (sidebar + header) */}
         <Route path="/dashboard" element={
           <ProtectedRoute>
             <Dashboard />
