@@ -1,10 +1,17 @@
 import axios, { InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 
+// Use absolute URL in production, relative in development
+const API_URL = import.meta.env.PROD 
+  ? 'https://api.dentalappeal.claims/api'
+  : '/api';
+
 const api = axios.create({
-  baseURL: 'https://api.dentalappeal.claims/api',
+  baseURL: API_URL,
 });
-console.log('✅ API configured with baseURL:', api.defaults.baseURL);
-// Request interceptor with correct typing
+
+console.log('API Base URL:', API_URL); // Debug log
+
+// Request interceptor
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = localStorage.getItem('token');
