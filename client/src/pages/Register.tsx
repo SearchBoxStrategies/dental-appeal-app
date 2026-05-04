@@ -55,11 +55,10 @@ export default function Register() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
       <div className="container mx-auto px-4 py-12">
-        {/* Logo & Header */}
+        {/* Logo */}
         <div className="text-center mb-10">
-          <img src="/logo.png" alt="DentalAppeal" className="w-16 h-16 object-contain mx-auto mb-4" />
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">DentalAppeal</h1>
+          <img src="/logo.png" alt="DentalAppeal" className="w-20 h-20 object-contain mx-auto mb-4" />
+          <h1 className="text-3xl font-bold text-gray-900">DentalAppeal</h1>
           <p className="text-gray-600">Start your free trial</p>
         </div>
 
