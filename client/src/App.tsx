@@ -1,41 +1,65 @@
-// just delete that line entirely
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
-import Layout from './components/Layout';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Claims from './pages/Claims';
-import NewClaim from './pages/NewClaim';
 import ClaimDetail from './pages/ClaimDetail';
-import AppealDetail from './pages/AppealDetail';
-import Billing from './pages/Billing';
+import NewClaim from './pages/NewClaim';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import Billing from './pages/Billing';
 
-export default function App() {
+// Protected route wrapper
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+  return <>{children}</>;
+}
+
+function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route element={<ProtectedRoute />}>
-            <Route element={<Layout />}>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/claims" element={<Claims />} />
-              <Route path="/claims/new" element={<NewClaim />} />
-              <Route path="/claims/:id" element={<ClaimDetail />} />
-              <Route path="/appeals/:id" element={<AppealDetail />} />
-              <Route path="/billing" element={<Billing />} />
-	      <Route path="/forgot-password" element={<ForgotPassword />} />
-	      <Route path="/reset-password/:token" element={<ResetPassword />} />
-            </Route>
-          </Route>
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+    <BrowserRouter>
+      <Routes>
+        {/* Public routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
+        
+        {/* Protected routes (require login) */}
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/claims" element={
+          <ProtectedRoute>
+            <Claims />
+          </ProtectedRoute>
+        } />
+        <Route path="/claims/new" element={
+          <ProtectedRoute>
+            <NewClaim />
+          </ProtectedRoute>
+        } />
+        <Route path="/claims/:id" element={
+          <ProtectedRoute>
+            <ClaimDetail />
+          </ProtectedRoute>
+        } />
+        <Route path="/billing" element={
+          <ProtectedRoute>
+            <Billing />
+          </ProtectedRoute>
+        } />
+        
+        {/* Default redirect */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
+
+export default App;
