@@ -1,12 +1,11 @@
 import axios, { InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 
-// HARDCODED for production - using your backend domain directly
+// Pointing directly to your working backend
 const api = axios.create({
   baseURL: 'https://api.dentalappeal.claims/api',
 });
 
-// Log to confirm it's working
-console.log('🔥 API Client initialized with URL:', api.defaults.baseURL);
+console.log('API Base URL:', api.defaults.baseURL);
 
 // Request interceptor
 api.interceptors.request.use(
