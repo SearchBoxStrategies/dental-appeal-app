@@ -41,8 +41,7 @@ export default function Login() {
       <div className="container mx-auto px-4 py-16 md:py-24">
         <div className="max-w-md mx-auto">
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl shadow-lg mb-4">
-              <Stethoscope className="w-8 h-8 text-white" />
+            <img src="/logo.png" alt="DentalAppeal" className="w-16 h-16 object-contain mx-auto mb-4" />
             </div>
             <h1 className="text-3xl font-bold text-gray-900">DentalAppeal</h1>
             <p className="text-gray-600">Insurance Appeal Management</p>
