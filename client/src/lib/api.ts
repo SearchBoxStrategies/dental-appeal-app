@@ -1,15 +1,12 @@
 import axios, { InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 
-// Use absolute URL in production, relative in development
-const API_URL = import.meta.env.PROD 
-  ? 'https://api.dentalappeal.claims/api'
-  : '/api';
-
+// HARDCODED for production - using your backend domain directly
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: 'https://api.dentalappeal.claims/api',
 });
 
-console.log('API Base URL:', API_URL); // Debug log
+// Log to confirm it's working
+console.log('🔥 API Client initialized with URL:', api.defaults.baseURL);
 
 // Request interceptor
 api.interceptors.request.use(
