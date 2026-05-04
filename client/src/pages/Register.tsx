@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Stethoscope, Mail, Lock, User, Building2, UserPlus } from 'lucide-react';
+import { Mail, Lock, User, Building2, UserPlus } from 'lucide-react';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -57,8 +57,7 @@ export default function Register() {
       <div className="container mx-auto px-4 py-12">
         {/* Logo & Header */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl shadow-lg mb-4">
-            <Stethoscope className="w-8 h-8 text-white" />
+          <img src="/logo.png" alt="DentalAppeal" className="w-16 h-16 object-contain mx-auto mb-4" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">DentalAppeal</h1>
           <p className="text-gray-600">Start your free trial</p>
