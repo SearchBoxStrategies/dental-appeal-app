@@ -1,7 +1,7 @@
 import axios, { InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://dental-appeal-backend.onrender.com/api',
+  baseURL: 'https://api.dentalappeal.claims/api',
 });
 
 // Request interceptor with correct typing
