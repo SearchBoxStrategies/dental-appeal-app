@@ -3,7 +3,7 @@ import axios, { InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 const api = axios.create({
   baseURL: 'https://api.dentalappeal.claims/api',
 });
-
+console.log('✅ API configured with baseURL:', api.defaults.baseURL);
 // Request interceptor with correct typing
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
