@@ -8,8 +8,6 @@ import {
   LogOut,
   Menu,
   X,
-  Stethoscope,
-  User,
   Settings,
   HelpCircle
 } from 'lucide-react';
