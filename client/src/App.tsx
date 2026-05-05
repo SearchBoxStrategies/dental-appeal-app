@@ -8,6 +8,7 @@ import NewClaim from './pages/NewClaim';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import Billing from './pages/Billing';
+import AdminDashboard from './pages/AdminDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -44,6 +45,18 @@ function App() {
         <Route path="/billing" element={
           <ProtectedRoute>
             <Billing />
+          </ProtectedRoute>
+        } />
+        
+        {/* Admin routes */}
+        <Route path="/admin" element={
+          <ProtectedRoute>
+            <AdminDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/clients/:id" element={
+          <ProtectedRoute>
+            <AdminDashboard />
           </ProtectedRoute>
         } />
         
