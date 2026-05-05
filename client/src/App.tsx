@@ -10,18 +10,19 @@ import ResetPassword from './pages/ResetPassword';
 import Billing from './pages/Billing';
 import AdminDashboard from './pages/AdminDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminRoute from './components/AdminRoute';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public routes - no layout */}
+        {/* Public routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         
-        {/* Protected routes - with Layout (sidebar + header) */}
+        {/* User protected routes */}
         <Route path="/dashboard" element={
           <ProtectedRoute>
             <Dashboard />
@@ -48,16 +49,16 @@ function App() {
           </ProtectedRoute>
         } />
         
-        {/* Admin routes */}
+        {/* Admin protected routes */}
         <Route path="/admin" element={
-          <ProtectedRoute>
+          <AdminRoute>
             <AdminDashboard />
-          </ProtectedRoute>
+          </AdminRoute>
         } />
         <Route path="/admin/clients/:id" element={
-          <ProtectedRoute>
+          <AdminRoute>
             <AdminDashboard />
-          </ProtectedRoute>
+          </AdminRoute>
         } />
         
         {/* Default redirect */}
