@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  Users, FileText, TrendingUp, Clock, CheckCircle, XCircle, 
-  Eye, Search, Download, Filter, Calendar, DollarSign, 
-  Mail, Edit, RefreshCw, ChevronDown, ChevronUp, Activity,
-  CreditCard, AlertCircle, UserCheck, UserX, Trash2
+  Users, FileText, TrendingUp, Clock, CheckCircle,
+  Eye, Search, Download, DollarSign,
+  Mail, Edit, RefreshCw, Activity,
+  UserCheck, UserX
 } from 'lucide-react';
 import api from '../lib/api';
 
@@ -40,13 +40,11 @@ interface ClientDetail extends Client {
     created_at: string;
     appeal_status?: string;
   }>;
-  paymentHistory?: Array<{
-    id: number;
-    amount: number;
-    status: string;
-    created_at: string;
-    payment_method: string;
-  }>;
+  paymentStats?: {
+    total_paid: number;
+    total_transactions: number;
+    last_payment_date: string;
+  };
 }
 
 export default function AdminDashboard() {
@@ -144,8 +142,8 @@ export default function AdminDashboard() {
       client.email,
       client.subscription_status,
       new Date(client.created_at).toLocaleDateString(),
-      client.total_claims || '0',
-      client.total_appeals || '0'
+      client.total_claims?.toString() || '0',
+      client.total_appeals?.toString() || '0'
     ]);
     
     const csvContent = [headers, ...rows].map(row => row.join(',')).join('\n');
