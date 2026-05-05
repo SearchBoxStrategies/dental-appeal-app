@@ -1,6 +1,7 @@
 import { Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import api from '../lib/api';
+import AdminLayout from './AdminLayout';
 
 interface AdminRouteProps {
   children: React.ReactNode;
@@ -14,7 +15,6 @@ export default function AdminRoute({ children }: AdminRouteProps) {
     const checkAdmin = async () => {
       try {
         const response = await api.get('/auth/me');
-        // You'll need to add is_admin to your /auth/me response
         setIsAdmin(response.data.user?.is_admin === true);
       } catch (error) {
         setIsAdmin(false);
@@ -37,5 +37,5 @@ export default function AdminRoute({ children }: AdminRouteProps) {
     return <Navigate to="/dashboard" replace />;
   }
 
-  return <>{children}</>;
+  return <AdminLayout>{children}</AdminLayout>;
 }
