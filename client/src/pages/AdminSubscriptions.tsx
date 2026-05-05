@@ -167,13 +167,11 @@ export default function AdminSubscriptions() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Subscriptions</h1>
         <p className="text-gray-600 mt-1">Manage client subscriptions and billing</p>
       </div>
 
-      {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl shadow-sm border p-5">
           <div className="flex items-center justify-between">
@@ -221,44 +219,6 @@ export default function AdminSubscriptions() {
         </div>
       </div>
 
-      {/* Secondary Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl shadow-sm border p-4">
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="text-sm text-gray-500">Trialing</p>
-              <p className="text-xl font-bold text-gray-900">{stats.total_trialing}</p>
-            </div>
-            <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-              <Clock className="w-4 h-4 text-blue-600" />
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm border p-4">
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="text-sm text-gray-500">Inactive/Cancelled</p>
-              <p className="text-xl font-bold text-gray-900">{stats.total_inactive}</p>
-            </div>
-            <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-              <XCircle className="w-4 h-4 text-gray-600" />
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm border p-4">
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="text-sm text-gray-500">Churn Rate</p>
-              <p className="text-xl font-bold text-gray-900">{stats.churn_rate}%</p>
-            </div>
-            <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
-              <AlertCircle className="w-4 h-4 text-red-600" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -300,7 +260,6 @@ export default function AdminSubscriptions() {
         </div>
       </div>
 
-      {/* Subscriptions Table */}
       <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -319,9 +278,7 @@ export default function AdminSubscriptions() {
             <tbody className="divide-y">
               {filteredSubscriptions.map((sub) => (
                 <tr key={sub.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4">
-                    <span className="font-medium text-gray-900">{sub.practice_name}</span>
-                  </td>
+                  <td className="px-6 py-4 font-medium text-gray-900">{sub.practice_name}</td>
                   <td className="px-6 py-4">
                     <div>
                       <p className="text-gray-900">{sub.name}</p>
@@ -339,16 +296,12 @@ export default function AdminSubscriptions() {
                       <p className="text-xs text-gray-500 mt-1">{getDaysRemaining(sub.current_period_end)}</p>
                     )}
                   </td>
-                  <td className="px-6 py-4">
-                    <span className="font-medium">{sub.plan || 'Professional'}</span>
-                  </td>
+                  <td className="px-6 py-4 font-medium">{sub.plan || 'Professional'}</td>
                   <td className="px-6 py-4">
                     <span className="font-semibold text-gray-900">{formatCurrency(sub.amount)}</span>
                     <p className="text-xs text-gray-500">/month</p>
                   </td>
-                  <td className="px-6 py-4 text-gray-600">
-                    {formatDate(sub.current_period_end)}
-                  </td>
+                  <td className="px-6 py-4 text-gray-600">{formatDate(sub.current_period_end)}</td>
                   <td className="px-6 py-4">
                     <div>
                       <p className="font-semibold text-gray-900">{formatCurrency(sub.total_paid || 0)}</p>
