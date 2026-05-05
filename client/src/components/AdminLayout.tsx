@@ -9,9 +9,6 @@ import {
   Menu,
   X,
   Shield,
-  Activity,
-  FileText,
-  Mail,
   BarChart3
 } from 'lucide-react';
 
