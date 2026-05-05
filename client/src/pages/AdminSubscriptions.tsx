@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { 
   CreditCard, 
   DollarSign, 
-  Calendar, 
   AlertCircle,
   CheckCircle,
   XCircle,
