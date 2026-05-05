@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  Users, FileText, TrendingUp, Clock, CheckCircle,
+  Users, FileText, TrendingUp, CheckCircle,
   Eye, Search, Download, DollarSign,
   Mail, Edit, RefreshCw, Activity,
   UserCheck, UserX
