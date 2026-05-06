@@ -1,116 +1,164 @@
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { CreditCard, CheckCircle, AlertCircle, ExternalLink } from 'lucide-react';
 import api from '../lib/api';
-import { useAuth } from '../context/AuthContext';
 
 export default function Billing() {
-  const { practice, refreshPractice } = useAuth();
-  const [searchParams] = useSearchParams();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  const success = searchParams.get('success') === 'true';
-  const canceled = searchParams.get('canceled') === 'true';
+  const [subscription, setSubscription] = useState({
+    status: 'inactive',
+    stripeCustomerId: null,
+    totalPaid: 0,
+    lastPaymentDate: null,
+  });
+  const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
-    if (success) {
-      // Refresh practice so subscription status reflects the webhook update
-      const poll = setInterval(async () => {
-        await refreshPractice();
-        if (practice?.subscriptionStatus === 'active') clearInterval(poll);
-      }, 2000);
-      setTimeout(() => clearInterval(poll), 30000);
+    fetchSubscriptionStatus();
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('success') === 'true') {
+      alert('Payment successful! Your subscription is now active.');
+      fetchSubscriptionStatus();
+    } else if (urlParams.get('canceled') === 'true') {
+      alert('Payment cancelled. You can try again anytime.');
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [success]);
+  }, []);
 
-  async function handleSubscribe() {
-    setError('');
-    setLoading(true);
+  const fetchSubscriptionStatus = async () => {
     try {
-      const { data } = await api.post('/billing/checkout');
-      window.location.href = data.url;
-    } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
-      setError(msg ?? 'Failed to start checkout');
+      const response = await api.get('/billing/subscription');
+      setSubscription(response.data);
+    } catch (error) {
+      console.error('Failed to fetch subscription:', error);
     } finally {
       setLoading(false);
     }
-  }
+  };
 
-  async function handleManage() {
-    setError('');
-    setLoading(true);
+  const handleSubscribe = async () => {
+    setActionLoading(true);
     try {
-      const { data } = await api.post('/billing/portal');
-      window.location.href = data.url;
-    } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
-      setError(msg ?? 'Failed to open billing portal');
+      const response = await api.post('/billing/checkout');
+      window.location.href = response.data.url;
+    } catch (error) {
+      console.error('Failed to create checkout session:', error);
+      alert('Something went wrong. Please try again.');
     } finally {
-      setLoading(false);
+      setActionLoading(false);
     }
+  };
+
+  const handleManageSubscription = async () => {
+    setActionLoading(true);
+    try {
+      const response = await api.post('/billing/portal');
+      window.location.href = response.data.url;
+    } catch (error) {
+      console.error('Failed to create portal session:', error);
+      alert('Something went wrong. Please try again.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
   }
 
-  const isActive = practice?.subscriptionStatus === 'active';
+  const isActive = subscription.status === 'active';
 
   return (
-    <div>
-      <div className="page-header">
-        <h2>Billing</h2>
+    <div className="max-w-4xl mx-auto space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Billing & Subscription</h1>
+        <p className="text-gray-600 mt-1">Manage your subscription and payment methods</p>
       </div>
 
-      {success && (
-        <div className="alert alert-success">
-          Subscription activated! You can now generate appeal letters.
-        </div>
-      )}
-      {canceled && (
-        <div className="alert alert-error">
-          Checkout was canceled. Your subscription was not changed.
-        </div>
-      )}
-      {error && <div className="alert alert-error">{error}</div>}
-
-      <div className="card billing-card">
-        <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 16 }}>Subscription</h3>
-
-        <div className="billing-status">
-          <span
-            className={`badge ${isActive ? 'badge-active' : 'badge-inactive'}`}
-            style={{ fontSize: 13, padding: '4px 12px' }}
-          >
-            {isActive ? 'Active' : 'Inactive'}
-          </span>
-          <span style={{ color: 'var(--gray-600)', fontSize: 13 }}>
-            {isActive
-              ? 'Your practice has full access to appeal generation.'
-              : 'Subscribe to start generating AI-powered appeal letters.'}
-          </span>
-        </div>
-
-        {!isActive && (
-          <div style={{ background: 'var(--blue-50)', border: '1px solid var(--blue-600)', borderRadius: 6, padding: 16, marginBottom: 20 }}>
-            <strong style={{ fontSize: 15 }}>DentalAppeal Pro</strong>
-            <ul style={{ marginTop: 8, paddingLeft: 20, color: 'var(--gray-700)', fontSize: 13, lineHeight: 2 }}>
-              <li>Unlimited AI-generated appeal letters</li>
-              <li>Claude-powered clinical justification</li>
-              <li>Full claim history and letter archive</li>
-              <li>Print and copy-ready formatted letters</li>
-            </ul>
+      <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+        <div className="p-6 border-b bg-gray-50">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Current Plan</h2>
+              <p className="text-sm text-gray-500">Professional Plan</p>
+            </div>
+            <div className="flex items-center gap-2">
+              {isActive ? (
+                <>
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <span className="text-green-700 font-medium">Active</span>
+                </>
+              ) : (
+                <>
+                  <AlertCircle className="w-5 h-5 text-yellow-600" />
+                  <span className="text-yellow-700 font-medium">Inactive</span>
+                </>
+              )}
+            </div>
           </div>
-        )}
-
-        <div className="billing-actions">
+        </div>
+        
+        <div className="p-6 space-y-4">
+          <div className="flex justify-between items-baseline">
+            <span className="text-3xl font-bold text-gray-900">$199</span>
+            <span className="text-gray-600">/month</span>
+          </div>
+          
+          <ul className="space-y-2 text-sm text-gray-600">
+            <li className="flex items-center gap-2">✓ Unlimited claim submissions</li>
+            <li className="flex items-center gap-2">✓ AI-powered appeal generation</li>
+            <li className="flex items-center gap-2">✓ CDT code selector</li>
+            <li className="flex items-center gap-2">✓ Priority support</li>
+          </ul>
+          
           {isActive ? (
-            <button className="btn btn-secondary btn-lg" onClick={handleManage} disabled={loading}>
-              {loading ? 'Loading…' : 'Manage Subscription'}
+            <button
+              onClick={handleManageSubscription}
+              disabled={actionLoading}
+              className="w-full flex items-center justify-center gap-2 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 rounded-lg transition-all"
+            >
+              {actionLoading ? (
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+              ) : (
+                <>
+                  <ExternalLink className="w-4 h-4" />
+                  Manage Subscription
+                </>
+              )}
             </button>
           ) : (
-            <button className="btn btn-primary btn-lg" onClick={handleSubscribe} disabled={loading}>
-              {loading ? 'Loading…' : 'Subscribe Now'}
+            <button
+              onClick={handleSubscribe}
+              disabled={actionLoading}
+              className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-all"
+            >
+              {actionLoading ? (
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+              ) : (
+                <>
+                  <CreditCard className="w-4 h-4" />
+                  Subscribe Now
+                </>
+              )}
             </button>
           )}
+        </div>
+      </div>
+
+      <div className="bg-gray-50 rounded-xl p-6">
+        <h3 className="font-semibold text-gray-900 mb-2">Frequently Asked Questions</h3>
+        <div className="space-y-3 text-sm text-gray-600">
+          <div>
+            <p className="font-medium text-gray-800">Can I cancel anytime?</p>
+            <p>Yes, you can cancel your subscription at any time through the Manage Subscription portal.</p>
+          </div>
+          <div>
+            <p className="font-medium text-gray-800">What payment methods are accepted?</p>
+            <p>We accept all major credit cards.</p>
+          </div>
         </div>
       </div>
     </div>
