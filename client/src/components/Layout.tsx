@@ -34,6 +34,7 @@ export default function Layout({ children }: LayoutProps) {
     { path: '/analytics', icon: TrendingUp, label: 'Analytics' },
     { path: '/settings/notifications', icon: Bell, label: 'Notifications' },
     { path: '/billing', icon: CreditCard, label: 'Billing' },
+    { path: '/bulk-upload', icon: Upload, label: 'Bulk Upload' },
   ];
 
   const handleLogout = () => {
