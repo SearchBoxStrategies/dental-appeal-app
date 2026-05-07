@@ -108,7 +108,45 @@ router.post('/', authenticate, async (req, res) => {
         data.amountDenied ?? null,
       ]
     );
-
+    // Validate claim before submission/generation
+router.post('/:id/validate', authenticate, async (req, res) => {
+  try {
+    const claimId = req.params.id;
+    const { rows: [claim] } = await db.query(
+      'SELECT * FROM claims WHERE id = $1 AND practice_id = $2',
+      [claimId, req.user!.practiceId]
+    );
+    
+    if (!claim) {
+      return res.status(404).json({ error: 'Claim not found' });
+    }
+    
+    const validation = await validateClaim(claim, claimId);
+    
+    // Store validation results
+    for (const warning of validation.warnings) {
+      await db.query(
+        `INSERT INTO claim_validations (claim_id, issue_found, issue_message, requires_attention)
+         VALUES ($1, $2, $3, $4)`,
+        [claimId, true, warning, validation.passed ? false : true]
+      );
+    }
+    
+    for (const error of validation.errors) {
+      await db.query(
+        `INSERT INTO claim_validations (claim_id, issue_found, issue_message, requires_attention)
+         VALUES ($1, $2, $3, $4)`,
+        [claimId, true, error, true]
+      );
+    }
+    
+    res.json(validation);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Validation failed' });
+  }
+});
+    
     res.status(201).json(claim);
   } catch (error) {
     if (error instanceof z.ZodError) {
