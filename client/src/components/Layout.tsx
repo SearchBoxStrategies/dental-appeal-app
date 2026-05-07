@@ -11,7 +11,8 @@ import {
   Settings,
   HelpCircle,
   Bell,
-  TrendingUp
+  TrendingUp,
+  Upload
 } from 'lucide-react';
 
 interface LayoutProps {
