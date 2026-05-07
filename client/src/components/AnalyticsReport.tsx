@@ -12,6 +12,9 @@ interface ReportData {
   successRate: number;
   amountRecovered: number;
   timeSaved: number;
+  avgResponseDays: number;
+  topPayer: string;
+  topPayerSuccessRate: number;
 }
 
 interface ChartData {
@@ -65,7 +68,6 @@ export default function AnalyticsReport() {
       link.remove();
     } catch (error) {
       console.error('Failed to download report:', error);
-      alert('Report download will be available soon');
     }
   };
 
@@ -168,7 +170,26 @@ export default function AnalyticsReport() {
         </div>
       </div>
 
-      {/* Detailed Stats */}
+      {/* Additional Stats Row */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white rounded-xl shadow-sm border p-4">
+          <p className="text-xs text-gray-500">Avg Response Time</p>
+          <p className="text-xl font-bold text-gray-900">{report.avgResponseDays}</p>
+          <p className="text-xs text-gray-400">days</p>
+        </div>
+        <div className="bg-white rounded-xl shadow-sm border p-4">
+          <p className="text-xs text-gray-500">Top Payer Success Rate</p>
+          <p className="text-xl font-bold text-gray-900">{report.topPayerSuccessRate}%</p>
+          <p className="text-xs text-gray-400">{report.topPayer}</p>
+        </div>
+        <div className="bg-white rounded-xl shadow-sm border p-4">
+          <p className="text-xs text-gray-500">Time Saved</p>
+          <p className="text-xl font-bold text-gray-900">{report.timeSaved}</p>
+          <p className="text-xs text-gray-400">hours</p>
+        </div>
+      </div>
+
+      {/* Detailed Breakdown */}
       <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
         <div className="px-6 py-4 border-b bg-gray-50">
           <h3 className="font-semibold text-gray-900">Detailed Breakdown</h3>
@@ -224,7 +245,7 @@ export default function AnalyticsReport() {
         </div>
       )}
 
-      {/* Recommendation */}
+      {/* Insight */}
       <div className="bg-blue-50 rounded-xl p-6 border border-blue-200">
         <h3 className="font-semibold text-blue-900 mb-2">💡 Insight</h3>
         <p className="text-blue-800 text-sm">
@@ -233,33 +254,5 @@ export default function AnalyticsReport() {
         </p>
       </div>
     </div>
-  
-<div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-  <div className="bg-white rounded-xl shadow-sm border p-4">
-    <p className="text-sm text-gray-500">Success Rate</p>
-    <p className="text-2xl font-bold text-green-600">{report.successRate}%</p>
-    <p className="text-xs text-gray-400">vs industry avg 45%</p>
-  </div>
-  <div className="bg-white rounded-xl shadow-sm border p-4">
-    <p className="text-sm text-gray-500">Avg Response Time</p>
-    <p className="text-2xl font-bold text-gray-900">32</p>
-    <p className="text-xs text-gray-400">days</p>
-  </div>
-  <div className="bg-white rounded-xl shadow-sm border p-4">
-    <p className="text-sm text-gray-500">Top Payer</p>
-    <p className="text-2xl font-bold text-gray-900">Delta</p>
-    <p className="text-xs text-gray-400">67% success rate</p>
-  </div>
-  <div className="bg-white rounded-xl shadow-sm border p-4">
-    <p className="text-sm text-gray-500">Time Saved</p>
-    <p className="text-2xl font-bold text-gray-900">{report.timeSaved}</p>
-    <p className="text-xs text-gray-400">hours this period</p>
-  </div>
-  <div className="bg-white rounded-xl shadow-sm border p-4">
-    <p className="text-sm text-gray-500">ROI on Investment</p>
-    <p className="text-2xl font-bold text-green-600">{((report.amountRecovered || 0) / 199).toFixed(1)}x</p>
-    <p className="text-xs text-gray-400">vs subscription cost</p>
-  </div>
-</div>
   );
 }
