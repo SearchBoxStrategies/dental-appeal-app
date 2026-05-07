@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { TrendingUp, FileText, Award, DollarSign, Download, Calendar, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { TrendingUp, FileText, Award, DollarSign, Download } from 'lucide-react';
 import api from '../lib/api';
 
 interface ReportData {
