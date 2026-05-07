@@ -48,9 +48,9 @@ export default function Layout({ children }: LayoutProps) {
     return false;
   };
 
-  const handleHelp = () => {
-    window.open('https://help.dentalappeal.claims', '_blank');
-  };
+const handleHelp = () => {
+  navigate('/help');
+};
 
   const handleSettings = () => {
     navigate('/settings/notifications');
