@@ -13,6 +13,7 @@ import {
   Bell,
   TrendingUp
 } from 'lucide-react';
+
 interface LayoutProps {
   children: React.ReactNode;
 }
@@ -27,13 +28,13 @@ export default function Layout({ children }: LayoutProps) {
   const userInitial = userName.charAt(0).toUpperCase();
 
   const navItems = [
-  { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { path: '/claims', icon: FileText, label: 'All Claims' },
-  { path: '/claims/new', icon: PlusCircle, label: 'New Claim' },
-  { path: '/analytics', icon: TrendingUp, label: 'Analytics' },
-  { path: '/settings/notifications', icon: Bell, label: 'Notifications' },
-  { path: '/billing', icon: CreditCard, label: 'Billing' },
-];
+    { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { path: '/claims', icon: FileText, label: 'All Claims' },
+    { path: '/claims/new', icon: PlusCircle, label: 'New Claim' },
+    { path: '/analytics', icon: TrendingUp, label: 'Analytics' },
+    { path: '/settings/notifications', icon: Bell, label: 'Notifications' },
+    { path: '/billing', icon: CreditCard, label: 'Billing' },
+  ];
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -45,6 +46,14 @@ export default function Layout({ children }: LayoutProps) {
     if (path === '/dashboard' && location.pathname === '/dashboard') return true;
     if (path !== '/dashboard' && location.pathname.startsWith(path)) return true;
     return false;
+  };
+
+  const handleHelp = () => {
+    window.open('https://help.dentalappeal.claims', '_blank');
+  };
+
+  const handleSettings = () => {
+    navigate('/settings/notifications');
   };
 
   return (
@@ -66,7 +75,7 @@ export default function Layout({ children }: LayoutProps) {
         <div className="flex items-center justify-between p-5 border-b border-slate-200">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center">
-              <img src="/logo.png" alt="DentalAppeal" className="h-8 w-auto" />
+              <img src="/logo.png" alt="DentalAppeal" className="w-6 h-6" />
             </div>
             <div>
               <h1 className="font-bold text-slate-900 text-lg">DentalAppeal</h1>
@@ -140,12 +149,24 @@ export default function Layout({ children }: LayoutProps) {
               <Menu className="w-5 h-5 text-slate-600" />
             </button>
             <div className="flex items-center gap-2 ml-auto">
-              <button className="p-2 rounded-lg hover:bg-slate-100">
+              {/* Help Button - Opens support page */}
+              <button
+                onClick={handleHelp}
+                className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
+                title="Help & Support"
+              >
                 <HelpCircle className="w-5 h-5 text-slate-500" />
               </button>
-              <button className="p-2 rounded-lg hover:bg-slate-100">
+              
+              {/* Settings Button - Navigate to notifications settings */}
+              <button
+                onClick={handleSettings}
+                className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
+                title="Settings"
+              >
                 <Settings className="w-5 h-5 text-slate-500" />
               </button>
+              
               <button
                 onClick={handleLogout}
                 className="lg:hidden p-2 rounded-lg hover:bg-slate-100"
