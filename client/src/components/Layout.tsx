@@ -26,11 +26,13 @@ export default function Layout({ children }: LayoutProps) {
   const userInitial = userName.charAt(0).toUpperCase();
 
   const navItems = [
-    { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { path: '/claims', icon: FileText, label: 'All Claims' },
-    { path: '/claims/new', icon: PlusCircle, label: 'New Claim' },
-    { path: '/billing', icon: CreditCard, label: 'Billing' },
-  ];
+  { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { path: '/claims', icon: FileText, label: 'All Claims' },
+  { path: '/claims/new', icon: PlusCircle, label: 'New Claim' },
+  { path: '/analytics', icon: TrendingUp, label: 'Analytics' },
+  { path: '/settings/notifications', icon: Bell, label: 'Notifications' },
+  { path: '/billing', icon: CreditCard, label: 'Billing' },
+];
 
   const handleLogout = () => {
     localStorage.removeItem('token');
