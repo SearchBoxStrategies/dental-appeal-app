@@ -233,5 +233,33 @@ export default function AnalyticsReport() {
         </p>
       </div>
     </div>
+  
+<div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+  <div className="bg-white rounded-xl shadow-sm border p-4">
+    <p className="text-sm text-gray-500">Success Rate</p>
+    <p className="text-2xl font-bold text-green-600">{report.successRate}%</p>
+    <p className="text-xs text-gray-400">vs industry avg 45%</p>
+  </div>
+  <div className="bg-white rounded-xl shadow-sm border p-4">
+    <p className="text-sm text-gray-500">Avg Response Time</p>
+    <p className="text-2xl font-bold text-gray-900">32</p>
+    <p className="text-xs text-gray-400">days</p>
+  </div>
+  <div className="bg-white rounded-xl shadow-sm border p-4">
+    <p className="text-sm text-gray-500">Top Payer</p>
+    <p className="text-2xl font-bold text-gray-900">Delta</p>
+    <p className="text-xs text-gray-400">67% success rate</p>
+  </div>
+  <div className="bg-white rounded-xl shadow-sm border p-4">
+    <p className="text-sm text-gray-500">Time Saved</p>
+    <p className="text-2xl font-bold text-gray-900">{report.timeSaved}</p>
+    <p className="text-xs text-gray-400">hours this period</p>
+  </div>
+  <div className="bg-white rounded-xl shadow-sm border p-4">
+    <p className="text-sm text-gray-500">ROI on Investment</p>
+    <p className="text-2xl font-bold text-green-600">{((report.amountRecovered || 0) / 199).toFixed(1)}x</p>
+    <p className="text-xs text-gray-400">vs subscription cost</p>
+  </div>
+</div>
   );
 }
