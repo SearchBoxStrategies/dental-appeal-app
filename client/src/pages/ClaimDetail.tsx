@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
   FileText, 
@@ -14,11 +14,7 @@ import {
   Activity,
   Download,
   Copy,
-  Printer,
-  Mail,
-  ExternalLink,
-  ChevronLeft,
-  ChevronRight
+  Printer
 } from 'lucide-react';
 import api from '../lib/api';
 import DocumentUpload from '../components/DocumentUpload';
