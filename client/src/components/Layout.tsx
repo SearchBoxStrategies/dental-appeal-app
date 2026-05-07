@@ -8,7 +8,6 @@ import {
   LogOut,
   Menu,
   X,
-  Stethoscope,
   Settings,
   HelpCircle,
   Bell,
