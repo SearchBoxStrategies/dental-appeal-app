@@ -14,6 +14,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
 import EmailPreferences from './components/EmailPreferences';
 import AnalyticsReport from './components/AnalyticsReport';
+import Help from './pages/Help';
 
 function App() {
   return (
