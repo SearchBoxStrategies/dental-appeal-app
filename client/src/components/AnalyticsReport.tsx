@@ -30,29 +30,27 @@ export default function AnalyticsReport() {
   const [period, setPeriod] = useState('month');
 
   useEffect(() => {
+    const fetchReport = async () => {
+      try {
+        const response = await api.get(`/analytics/report?period=${period}`);
+        setReport(response.data);
+      } catch (error) {
+        console.error('Failed to fetch report:', error);
+      }
+    };
+    const fetchChartData = async () => {
+      try {
+        const response = await api.get('/analytics/chart');
+        setChartData(response.data);
+      } catch (error) {
+        console.error('Failed to fetch chart data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchReport();
     fetchChartData();
   }, [period]);
-
-  const fetchReport = async () => {
-    try {
-      const response = await api.get(`/analytics/report?period=${period}`);
-      setReport(response.data);
-    } catch (error) {
-      console.error('Failed to fetch report:', error);
-    }
-  };
-
-  const fetchChartData = async () => {
-    try {
-      const response = await api.get('/analytics/chart');
-      setChartData(response.data);
-    } catch (error) {
-      console.error('Failed to fetch chart data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const downloadReport = async () => {
     try {
@@ -95,6 +93,7 @@ export default function AnalyticsReport() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex justify-between items-center flex-wrap gap-4">
         <div>
           <h2 className="text-xl font-semibold text-gray-900">Performance Report</h2>
@@ -121,6 +120,7 @@ export default function AnalyticsReport() {
         </div>
       </div>
 
+      {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl shadow-sm border p-5">
           <div className="flex items-center justify-between">
@@ -168,11 +168,11 @@ export default function AnalyticsReport() {
         </div>
       </div>
 
+      {/* Additional Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white rounded-xl shadow-sm border p-4">
           <p className="text-xs text-gray-500">Avg Response Time</p>
-          <p className="text-xl font-bold text-gray-900">{report.avgResponseDays}</p>
-          <p className="text-xs text-gray-400">days</p>
+          <p className="text-xl font-bold text-gray-900">{report.avgResponseDays} days</p>
         </div>
         <div className="bg-white rounded-xl shadow-sm border p-4">
           <p className="text-xs text-gray-500">Top Payer</p>
@@ -181,11 +181,11 @@ export default function AnalyticsReport() {
         </div>
         <div className="bg-white rounded-xl shadow-sm border p-4">
           <p className="text-xs text-gray-500">Time Saved</p>
-          <p className="text-xl font-bold text-gray-900">{report.timeSaved}</p>
-          <p className="text-xs text-gray-400">hours</p>
+          <p className="text-xl font-bold text-gray-900">{report.timeSaved} hours</p>
         </div>
       </div>
 
+      {/* Detailed Breakdown */}
       <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
         <div className="px-6 py-4 border-b bg-gray-50">
           <h3 className="font-semibold text-gray-900">Detailed Breakdown</h3>
@@ -209,7 +209,7 @@ export default function AnalyticsReport() {
               <span className="font-medium text-yellow-600">{report.pendingAppeals}</span>
             </div>
             <div className="flex justify-between py-2 border-b">
-              <span className="text-gray-600">Time Saved (est.)</span>
+              <span className="text-gray-600">Time Saved</span>
               <span className="font-medium">{report.timeSaved} hours</span>
             </div>
             <div className="flex justify-between py-2">
@@ -220,6 +220,7 @@ export default function AnalyticsReport() {
         </div>
       </div>
 
+      {/* Chart */}
       {chartData.length > 0 && (
         <div className="bg-white rounded-xl shadow-sm border p-6">
           <h3 className="font-semibold text-gray-900 mb-4">Monthly Performance</h3>
@@ -240,10 +241,11 @@ export default function AnalyticsReport() {
         </div>
       )}
 
+      {/* Insight */}
       <div className="bg-blue-50 rounded-xl p-6 border border-blue-200">
         <h3 className="font-semibold text-blue-900 mb-2">💡 Insight</h3>
         <p className="text-blue-800 text-sm">
-          Based on your success rate of {report.successRate}%, you're recovering significantly more than manual appeals ({Math.max(40, report.successRate - 15)}% vs {report.successRate}%).
+          Based on your success rate of {report.successRate}%, you're recovering significantly more than manual appeals.
           Continue submitting appeals within 14 days of denial for best results.
         </p>
       </div>
