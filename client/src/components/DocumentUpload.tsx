@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { useState, useRef } from 'react';
 import { Upload, X, FileText, Image, File } from 'lucide-react';
 import api from '../lib/api';
 
@@ -34,8 +33,8 @@ export default function DocumentUpload({ claimId, onUploadComplete }: DocumentUp
   };
 
   useEffect(() => {
-  fetchDocuments();
-}, [claimId]);
+    fetchDocuments();
+  }, [claimId]);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
