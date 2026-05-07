@@ -32,9 +32,9 @@ export default function DocumentUpload({ claimId, onUploadComplete }: DocumentUp
     }
   };
 
-  useState(() => {
-    fetchDocuments();
-  }, [claimId]);
+  useEffect(() => {
+  fetchDocuments();
+}, [claimId]);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
