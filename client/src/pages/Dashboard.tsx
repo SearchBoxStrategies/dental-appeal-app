@@ -7,7 +7,8 @@ import {
   CheckCircle, 
   PlusCircle,
   ArrowRight,
-  Activity
+  Activity,
+  DollarSign
 } from 'lucide-react';
 import api from '../lib/api';
 
@@ -15,6 +16,9 @@ interface DashboardStats {
   totalClaims: number;
   totalAppeals: number;
   appealsThisMonth: number;
+  activeAppeals?: number;
+  wonRate?: number;
+  estimatedRecovery?: number;
   successRate?: number;
 }
 
@@ -30,7 +34,11 @@ export default function Dashboard() {
   const [stats, setStats] = useState<DashboardStats>({
     totalClaims: 0,
     totalAppeals: 0,
-    appealsThisMonth: 0
+    appealsThisMonth: 0,
+    activeAppeals: 0,
+    wonRate: 0,
+    estimatedRecovery: 0,
+    successRate: 0
   });
   const [recentClaims, setRecentClaims] = useState<RecentClaim[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,7 +50,21 @@ export default function Dashboard() {
           api.get('/claims/stats'),
           api.get('/claims?limit=5')
         ]);
-        setStats(statsRes.data);
+        
+        // Calculate additional stats
+        const claims = claimsRes.data;
+        const activeAppeals = claims.filter((c: RecentClaim) => c.status === 'appealed' || c.status === 'under_review').length;
+        const wonClaims = claims.filter((c: RecentClaim) => c.status === 'won').length;
+        const resolvedClaims = claims.filter((c: RecentClaim) => c.status === 'won' || c.status === 'lost').length;
+        const wonRate = resolvedClaims > 0 ? (wonClaims / resolvedClaims) * 100 : 0;
+        
+        setStats({
+          ...statsRes.data,
+          activeAppeals,
+          wonRate: Math.round(wonRate),
+          estimatedRecovery: 0, // You can calculate from denied amounts
+          successRate: Math.round(wonRate)
+        });
         setRecentClaims(claimsRes.data);
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
@@ -57,8 +79,10 @@ export default function Dashboard() {
     const badges: Record<string, string> = {
       draft: 'bg-gray-100 text-gray-700',
       appealed: 'bg-blue-100 text-blue-700',
+      under_review: 'bg-yellow-100 text-yellow-700',
       won: 'bg-green-100 text-green-700',
-      lost: 'bg-red-100 text-red-700'
+      lost: 'bg-red-100 text-red-700',
+      paid: 'bg-purple-100 text-purple-700'
     };
     return badges[status] || badges.draft;
   };
@@ -69,7 +93,7 @@ export default function Dashboard() {
       value: stats.totalClaims, 
       icon: FileText, 
       color: 'bg-blue-500',
-      change: '+12%',
+      change: '+0%',
       changeType: 'positive'
     },
     { 
@@ -77,15 +101,15 @@ export default function Dashboard() {
       value: stats.totalAppeals, 
       icon: TrendingUp, 
       color: 'bg-green-500',
-      change: '+8%',
+      change: '+0%',
       changeType: 'positive'
     },
     { 
-      title: 'Appeals This Month', 
-      value: stats.appealsThisMonth, 
+      title: 'Active Appeals', 
+      value: stats.activeAppeals || 0, 
       icon: Clock, 
-      color: 'bg-purple-500',
-      change: '+5%',
+      color: 'bg-yellow-500',
+      change: '+0%',
       changeType: 'positive'
     },
     { 
@@ -94,7 +118,7 @@ export default function Dashboard() {
       icon: CheckCircle, 
       color: 'bg-teal-500',
       suffix: '%',
-      change: '+3%',
+      change: '+0%',
       changeType: 'positive'
     },
   ];
@@ -147,6 +171,46 @@ export default function Dashboard() {
             </div>
           );
         })}
+      </div>
+
+      {/* Additional Stats Row */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-gradient-to-br from-purple-50 to-white rounded-2xl shadow-sm border border-slate-200 p-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-slate-500">This Month</p>
+              <p className="text-2xl font-bold text-slate-900">{stats.appealsThisMonth}</p>
+              <p className="text-xs text-slate-500">appeals filed</p>
+            </div>
+            <div className="bg-purple-100 p-3 rounded-xl">
+              <Activity className="w-5 h-5 text-purple-600" />
+            </div>
+          </div>
+        </div>
+        <div className="bg-gradient-to-br from-green-50 to-white rounded-2xl shadow-sm border border-slate-200 p-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-slate-500">Success Rate</p>
+              <p className="text-2xl font-bold text-slate-900">{stats.successRate || 0}%</p>
+              <p className="text-xs text-slate-500">of resolved appeals</p>
+            </div>
+            <div className="bg-green-100 p-3 rounded-xl">
+              <CheckCircle className="w-5 h-5 text-green-600" />
+            </div>
+          </div>
+        </div>
+        <div className="bg-gradient-to-br from-blue-50 to-white rounded-2xl shadow-sm border border-slate-200 p-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-slate-500">Est. Recovery</p>
+              <p className="text-2xl font-bold text-slate-900">$0</p>
+              <p className="text-xs text-slate-500">from won appeals</p>
+            </div>
+            <div className="bg-blue-100 p-3 rounded-xl">
+              <DollarSign className="w-5 h-5 text-blue-600" />
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Recent Claims Section */}
