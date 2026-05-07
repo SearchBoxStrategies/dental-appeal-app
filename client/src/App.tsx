@@ -46,6 +46,16 @@ function App() {
             <ClaimDetail />
           </ProtectedRoute>
         } />
+        <Route path="/settings/notifications" element={
+          <ProtectedRoute>
+            <EmailPreferences />
+          </ProtectedRoute>
+        } />
+        <Route path="/analytics" element={
+          <ProtectedRoute>
+            <AnalyticsReport />
+          </ProtectedRoute>
+        } />
         <Route path="/billing" element={
           <ProtectedRoute>
             <Billing />
