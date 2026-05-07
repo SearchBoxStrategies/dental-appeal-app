@@ -95,7 +95,6 @@ export default function AnalyticsReport() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex justify-between items-center flex-wrap gap-4">
         <div>
           <h2 className="text-xl font-semibold text-gray-900">Performance Report</h2>
@@ -122,7 +121,6 @@ export default function AnalyticsReport() {
         </div>
       </div>
 
-      {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl shadow-sm border p-5">
           <div className="flex items-center justify-between">
@@ -170,7 +168,6 @@ export default function AnalyticsReport() {
         </div>
       </div>
 
-      {/* Additional Stats Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white rounded-xl shadow-sm border p-4">
           <p className="text-xs text-gray-500">Avg Response Time</p>
@@ -178,9 +175,9 @@ export default function AnalyticsReport() {
           <p className="text-xs text-gray-400">days</p>
         </div>
         <div className="bg-white rounded-xl shadow-sm border p-4">
-          <p className="text-xs text-gray-500">Top Payer Success Rate</p>
-          <p className="text-xl font-bold text-gray-900">{report.topPayerSuccessRate}%</p>
-          <p className="text-xs text-gray-400">{report.topPayer}</p>
+          <p className="text-xs text-gray-500">Top Payer</p>
+          <p className="text-xl font-bold text-gray-900">{report.topPayer}</p>
+          <p className="text-xs text-gray-400">{report.topPayerSuccessRate}% success</p>
         </div>
         <div className="bg-white rounded-xl shadow-sm border p-4">
           <p className="text-xs text-gray-500">Time Saved</p>
@@ -189,7 +186,6 @@ export default function AnalyticsReport() {
         </div>
       </div>
 
-      {/* Detailed Breakdown */}
       <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
         <div className="px-6 py-4 border-b bg-gray-50">
           <h3 className="font-semibold text-gray-900">Detailed Breakdown</h3>
@@ -224,7 +220,6 @@ export default function AnalyticsReport() {
         </div>
       </div>
 
-      {/* Chart Section */}
       {chartData.length > 0 && (
         <div className="bg-white rounded-xl shadow-sm border p-6">
           <h3 className="font-semibold text-gray-900 mb-4">Monthly Performance</h3>
@@ -245,7 +240,6 @@ export default function AnalyticsReport() {
         </div>
       )}
 
-      {/* Insight */}
       <div className="bg-blue-50 rounded-xl p-6 border border-blue-200">
         <h3 className="font-semibold text-blue-900 mb-2">💡 Insight</h3>
         <p className="text-blue-800 text-sm">
