@@ -1,4 +1,4 @@
-import { Mail, ExternalLink, BookOpen, MessageCircle } from 'lucide-react';
+import { Mail, ExternalLink, BookOpen, } from 'lucide-react';
 
 export default function Help() {
   return (
