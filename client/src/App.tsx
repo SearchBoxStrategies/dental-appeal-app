@@ -12,6 +12,8 @@ import AdminDashboard from './pages/AdminDashboard';
 import AdminSubscriptions from './pages/AdminSubscriptions';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
+import EmailPreferences from './components/EmailPreferences';
+import AnalyticsReport from './components/AnalyticsReport';
 
 function App() {
   return (
