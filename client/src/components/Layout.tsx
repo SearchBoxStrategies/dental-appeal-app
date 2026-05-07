@@ -8,10 +8,12 @@ import {
   LogOut,
   Menu,
   X,
+  Stethoscope,
   Settings,
-  HelpCircle
+  HelpCircle,
+  Bell,
+  TrendingUp
 } from 'lucide-react';
-
 interface LayoutProps {
   children: React.ReactNode;
 }
