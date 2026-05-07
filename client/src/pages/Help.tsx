@@ -1,4 +1,4 @@
-import { Mail, ExternalLink, BookOpen, } from 'lucide-react';
+import { Mail, BookOpen, FileText, TrendingUp, CheckCircle } from 'lucide-react';
 
 export default function Help() {
   return (
