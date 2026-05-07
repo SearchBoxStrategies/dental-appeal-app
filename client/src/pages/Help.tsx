@@ -1,4 +1,4 @@
-import { Mail, BookOpen, FileText, TrendingUp, CheckCircle } from 'lucide-react';
+import { Mail, BookOpen } from 'lucide-react';
 
 export default function Help() {
   return (
@@ -25,7 +25,7 @@ export default function Help() {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700"
           >
-            View Docs <ExternalLink className="w-4 h-4" />
+            View Documentation →
           </a>
         </div>
 
@@ -43,19 +43,71 @@ export default function Help() {
             href="mailto:support@dentalappeal.claims"
             className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700"
           >
-            support@dentalappeal.claims <Mail className="w-4 h-4" />
+            support@dentalappeal.claims →
           </a>
         </div>
       </div>
 
+      <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+        <div className="px-6 py-4 border-b bg-gray-50">
+          <h2 className="font-semibold text-gray-900">Quick Start Guide</h2>
+        </div>
+        <div className="p-6 space-y-4">
+          <div className="flex gap-3">
+            <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span className="text-blue-600 text-xs font-bold">1</span>
+            </div>
+            <div>
+              <p className="font-medium text-gray-900">Create a Claim</p>
+              <p className="text-sm text-gray-600">Enter patient information, insurance details, and procedure codes using the CDT selector.</p>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span className="text-blue-600 text-xs font-bold">2</span>
+            </div>
+            <div>
+              <p className="font-medium text-gray-900">Upload Supporting Documents</p>
+              <p className="text-sm text-gray-600">Add X-rays, clinical notes, or EOBs to strengthen your appeal.</p>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span className="text-blue-600 text-xs font-bold">3</span>
+            </div>
+            <div>
+              <p className="font-medium text-gray-900">Generate Appeal Letter</p>
+              <p className="text-sm text-gray-600">Click "Generate Appeal Letter" and let AI write a professional medical justification.</p>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span className="text-blue-600 text-xs font-bold">4</span>
+            </div>
+            <div>
+              <p className="font-medium text-gray-900">Track Status</p>
+              <p className="text-sm text-gray-600">Monitor your appeal from Draft to Won/Lost and receive email updates.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="bg-gray-50 rounded-xl p-6">
-        <h3 className="font-semibold text-gray-900 mb-2">Quick Tips</h3>
-        <ul className="space-y-2 text-sm text-gray-600">
-          <li>• Upload supporting documents (X-rays, EOBs) to strengthen your appeal</li>
-          <li>• Track your appeal status from the Claims page</li>
-          <li>• Generate AI-powered appeal letters with one click</li>
-          <li>• Review your success rate in the Analytics section</li>
-        </ul>
+        <h3 className="font-semibold text-gray-900 mb-2">Frequently Asked Questions</h3>
+        <div className="space-y-3">
+          <div>
+            <p className="font-medium text-gray-800">How do I win more appeals?</p>
+            <p className="text-sm text-gray-600">Upload all relevant clinical documentation (X-rays, notes, EOBs) before generating the appeal. Our AI uses this evidence to build stronger clinical justifications.</p>
+          </div>
+          <div>
+            <p className="font-medium text-gray-800">How long does an appeal take?</p>
+            <p className="text-sm text-gray-600">Insurance companies typically respond within 30-60 days. You can track the status in your Claims dashboard.</p>
+          </div>
+          <div>
+            <p className="font-medium text-gray-800">Can I cancel my subscription?</p>
+            <p className="text-sm text-gray-600">Yes, you can cancel anytime from the Billing page. Your subscription remains active until the end of your billing period.</p>
+          </div>
+        </div>
       </div>
     </div>
   );
