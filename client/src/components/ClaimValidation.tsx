@@ -16,7 +16,6 @@ interface ClaimValidationProps {
 
 export default function ClaimValidation({ claimId, onValidationComplete }: ClaimValidationProps) {
   const [validation, setValidation] = useState<ValidationResult | null>(null);
-  const [loading, setLoading] = useState(false);
   const [validating, setValidating] = useState(false);
 
   const runValidation = async () => {
