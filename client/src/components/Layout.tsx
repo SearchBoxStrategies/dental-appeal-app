@@ -33,9 +33,9 @@ export default function Layout({ children }: LayoutProps) {
     { path: '/claims', icon: FileText, label: 'All Claims' },
     { path: '/claims/new', icon: PlusCircle, label: 'New Claim' },
     { path: '/analytics', icon: TrendingUp, label: 'Analytics' },
+    { path: '/bulk-upload', icon: Upload, label: 'Bulk Upload' },
     { path: '/settings/notifications', icon: Bell, label: 'Notifications' },
     { path: '/billing', icon: CreditCard, label: 'Billing' },
-    { path: '/bulk-upload', icon: Upload, label: 'Bulk Upload' },
   ];
 
   const handleLogout = () => {
@@ -50,9 +50,9 @@ export default function Layout({ children }: LayoutProps) {
     return false;
   };
 
-const handleHelp = () => {
-  navigate('/help');
-};
+  const handleHelp = () => {
+    navigate('/help');
+  };
 
   const handleSettings = () => {
     navigate('/settings/notifications');
@@ -70,10 +70,11 @@ const handleHelp = () => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 z-50 h-full w-72 bg-white shadow-xl transition-transform duration-300 lg:translate-x-0 ${
+        className={`fixed top-0 left-0 z-50 h-full w-72 bg-white shadow-xl transition-transform duration-300 lg:translate-x-0 flex flex-col ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
+        {/* Logo Section */}
         <div className="flex items-center justify-between p-5 border-b border-slate-200">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center">
@@ -105,8 +106,8 @@ const handleHelp = () => {
           </div>
         </div>
 
-        {/* Navigation */}
-        <nav className="p-4 space-y-1">
+        {/* Navigation - Scrollable */}
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.path);
@@ -127,8 +128,8 @@ const handleHelp = () => {
           })}
         </nav>
 
-        {/* Bottom section */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-200 bg-white">
+        {/* Bottom section - Sign Out */}
+        <div className="mt-auto p-4 border-t border-slate-200 bg-white">
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-all duration-200"
@@ -151,7 +152,7 @@ const handleHelp = () => {
               <Menu className="w-5 h-5 text-slate-600" />
             </button>
             <div className="flex items-center gap-2 ml-auto">
-              {/* Help Button - Opens support page */}
+              {/* Help Button */}
               <button
                 onClick={handleHelp}
                 className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
@@ -160,7 +161,7 @@ const handleHelp = () => {
                 <HelpCircle className="w-5 h-5 text-slate-500" />
               </button>
               
-              {/* Settings Button - Navigate to notifications settings */}
+              {/* Settings Button */}
               <button
                 onClick={handleSettings}
                 className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
