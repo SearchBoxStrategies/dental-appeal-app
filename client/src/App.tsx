@@ -15,6 +15,7 @@ import AdminRoute from './components/AdminRoute';
 import EmailPreferences from './components/EmailPreferences';
 import AnalyticsReport from './components/AnalyticsReport';
 import Help from './pages/Help';
+import BulkUpload from './pages/BulkUpload';
 
 function App() {
   return (
@@ -67,6 +68,11 @@ function App() {
             <Billing />
           </ProtectedRoute>
         } />
+        <Route path="/bulk-upload" element={
+          <ProtectedRoute>
+            <BulkUpload />
+          </ProtectedRoute>
+        } />
         
         {/* Admin protected routes - with AdminLayout (dark sidebar) */}
         <Route path="/admin" element={
@@ -84,7 +90,7 @@ function App() {
             <AdminSubscriptions />
           </AdminRoute>
         } />
-        
+   
         {/* Default redirect */}
         <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>
