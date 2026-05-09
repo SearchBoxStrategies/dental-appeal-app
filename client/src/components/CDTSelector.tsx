@@ -54,7 +54,6 @@ export default function CDTSelector({ selectedCodes, onChange }: CDTSelectorProp
         }
         
         const customCode = otherCode.trim().toUpperCase();
-        const customDescription = otherDescription.trim() || 'Custom Procedure';
         
         // Check if code already exists in selected list
         if (selectedCodes.includes(customCode)) {
@@ -73,6 +72,16 @@ export default function CDTSelector({ selectedCodes, onChange }: CDTSelectorProp
 
     const removeCustomCode = (code: string) => {
         onChange(selectedCodes.filter(c => c !== code));
+    };
+
+    const getCodeDescription = (code: string): string => {
+        for (const category of Object.values(cdtGroups)) {
+            const found = category.find(c => c.code === code);
+            if (found) {
+                return found.description;
+            }
+        }
+        return '';
     };
 
     if (loading) {
@@ -184,17 +193,7 @@ export default function CDTSelector({ selectedCodes, onChange }: CDTSelectorProp
                     <p className="text-sm font-medium text-blue-800 mb-2">Selected Codes:</p>
                     <div className="flex flex-wrap gap-2">
                         {selectedCodes.map((code) => {
-                            // Check if it's a standard code or custom
-                            let isCustom = true;
-                            let description = '';
-                            for (const category of Object.values(cdtGroups)) {
-                                const found = category.find(c => c.code === code);
-                                if (found) {
-                                    isCustom = false;
-                                    description = found.description;
-                                    break;
-                                }
-                            }
+                            const description = getCodeDescription(code);
                             return (
                                 <span
                                     key={code}
