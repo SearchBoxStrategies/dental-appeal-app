@@ -7,7 +7,7 @@ export default function NewClaim() {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    
+
     const [formData, setFormData] = useState({
         patientName: '',
         patientDob: '',
@@ -43,10 +43,35 @@ export default function NewClaim() {
             if (response.status === 200 || response.status === 201) {
                 navigate('/claims');
             } else {
-                setError(response.data?.error || 'Failed to create claim');
+                // Ensure error is a string
+                const errorMsg = response.data?.error;
+                if (typeof errorMsg === 'string') {
+                    setError(errorMsg);
+                } else if (errorMsg && typeof errorMsg === 'object') {
+                    // Handle validation errors (Zod errors)
+                    if (Array.isArray(errorMsg)) {
+                        setError(errorMsg.map(e => e.message).join(', '));
+                    } else {
+                        setError(JSON.stringify(errorMsg));
+                    }
+                } else {
+                    setError('Failed to create claim');
+                }
             }
         } catch (err: any) {
-            setError(err.response?.data?.error || 'Network error. Please try again.');
+            // Ensure error is a string
+            const errorMsg = err.response?.data?.error;
+            if (typeof errorMsg === 'string') {
+                setError(errorMsg);
+            } else if (errorMsg && typeof errorMsg === 'object') {
+                if (Array.isArray(errorMsg)) {
+                    setError(errorMsg.map(e => e.message).join(', '));
+                } else {
+                    setError('Validation error. Please check your form.');
+                }
+            } else {
+                setError('Network error. Please try again.');
+            }
         } finally {
             setLoading(false);
         }
