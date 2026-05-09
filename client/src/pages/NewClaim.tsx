@@ -26,39 +26,88 @@ export default function NewClaim() {
         setLoading(true);
         setError('');
 
+        // Trim all string values
+        const patientName = formData.patientName.trim();
+        const patientDob = formData.patientDob;
+        const insuranceCompany = formData.insuranceCompany.trim();
+        const serviceDate = formData.serviceDate;
+        const denialReason = formData.denialReason.trim();
+        const policyNumber = formData.policyNumber?.trim() || null;
+        const claimNumber = formData.claimNumber?.trim() || null;
+
+        // Validation - Required fields
+        if (!patientName) {
+            setError('Patient name is required');
+            setLoading(false);
+            return;
+        }
+        if (!patientDob) {
+            setError('Date of birth is required');
+            setLoading(false);
+            return;
+        }
+        if (!insuranceCompany) {
+            setError('Insurance company is required');
+            setLoading(false);
+        }
+        if (!serviceDate) {
+            setError('Date of service is required');
+            setLoading(false);
+            return;
+        }
+        if (!denialReason) {
+            setError('Denial reason is required');
+            setLoading(false);
+            return;
+        }
+        if (formData.procedureCodes.length === 0) {
+            setError('At least one procedure code is required');
+            setLoading(false);
+            return;
+        }
+
+        // Convert amount fields safely
+        let amountClaimed = null;
+        let amountDenied = null;
+
+        if (formData.amountClaimed && formData.amountClaimed !== '') {
+            const parsed = parseFloat(formData.amountClaimed);
+            if (!isNaN(parsed) && parsed > 0) {
+                amountClaimed = parsed;
+            }
+        }
+
+        if (formData.amountDenied && formData.amountDenied !== '') {
+            const parsed = parseFloat(formData.amountDenied);
+            if (!isNaN(parsed) && parsed > 0) {
+                amountDenied = parsed;
+            }
+        }
+
+        const payload = {
+            patientName,
+            patientDob,
+            insuranceCompany,
+            serviceDate,
+            policyNumber,
+            claimNumber,
+            amountClaimed,
+            amountDenied,
+            procedureCodes: formData.procedureCodes,
+            denialReason,
+        };
+
         try {
-            // Convert amount fields properly
-            const amountClaimed = formData.amountClaimed ? parseFloat(formData.amountClaimed) : null;
-            const amountDenied = formData.amountDenied ? parseFloat(formData.amountDenied) : null;
+            const response = await api.post('/claims', payload);
 
-            const response = await api.post('/claims', {
-                patientName: formData.patientName,
-                patientDob: formData.patientDob,
-                insuranceCompany: formData.insuranceCompany,
-                serviceDate: formData.serviceDate,
-                policyNumber: formData.policyNumber || null,
-                claimNumber: formData.claimNumber || null,
-                amountClaimed: isNaN(amountClaimed as number) ? null : amountClaimed,
-                amountDenied: isNaN(amountDenied as number) ? null : amountDenied,
-                procedureCodes: formData.procedureCodes,
-                denialReason: formData.denialReason,
-            });
-
-            // Success on any 2xx status code (200, 201, etc.)
             if (response.status >= 200 && response.status < 300) {
                 navigate('/claims');
             } else {
-                const errorMsg = response.data?.error;
-                if (typeof errorMsg === 'string') {
-                    setError(errorMsg);
-                } else {
-                    setError('Failed to create claim');
-                }
+                setError(response.data?.error || 'Failed to create claim');
             }
         } catch (err: any) {
             console.error('Claim submission error:', err);
-            
-            // Handle different error formats
+
             if (err.response?.data?.error) {
                 const errorData = err.response.data.error;
                 if (typeof errorData === 'string') {
@@ -68,7 +117,7 @@ export default function NewClaim() {
                 } else if (errorData.message) {
                     setError(errorData.message);
                 } else {
-                    setError('Validation failed. Please check your form.');
+                    setError('Please check your form for errors');
                 }
             } else if (err.message === 'Network Error') {
                 setError('Network error. Please check your connection and try again.');
@@ -88,13 +137,13 @@ export default function NewClaim() {
     return (
         <div className="max-w-3xl mx-auto p-6">
             <h1 className="text-2xl font-bold mb-6">New Dental Claim</h1>
-            
+
             {error && (
                 <div className="bg-red-50 border border-red-500 text-red-700 p-3 rounded mb-4">
                     {error}
                 </div>
             )}
-            
+
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -108,7 +157,7 @@ export default function NewClaim() {
                             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                         />
                     </div>
-                    
+
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Date of Birth *</label>
                         <input
@@ -120,7 +169,7 @@ export default function NewClaim() {
                             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                         />
                     </div>
-                    
+
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Insurance Company *</label>
                         <input
@@ -133,7 +182,7 @@ export default function NewClaim() {
                             placeholder="e.g., Delta Dental"
                         />
                     </div>
-                    
+
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Date of Service *</label>
                         <input
@@ -145,7 +194,7 @@ export default function NewClaim() {
                             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                         />
                     </div>
-                    
+
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Policy Number</label>
                         <input
@@ -156,7 +205,7 @@ export default function NewClaim() {
                             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                         />
                     </div>
-                    
+
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Claim Number</label>
                         <input
@@ -167,22 +216,24 @@ export default function NewClaim() {
                             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                         />
                     </div>
-                    
+
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Amount Claimed ($)</label>
                         <input
                             type="number"
+                            step="0.01"
                             name="amountClaimed"
                             value={formData.amountClaimed}
                             onChange={handleChange}
                             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                         />
                     </div>
-                    
+
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Amount Denied ($)</label>
                         <input
                             type="number"
+                            step="0.01"
                             name="amountDenied"
                             value={formData.amountDenied}
                             onChange={handleChange}
@@ -190,15 +241,18 @@ export default function NewClaim() {
                         />
                     </div>
                 </div>
-                
+
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Procedure Codes *</label>
                     <CDTSelector
                         selectedCodes={formData.procedureCodes}
                         onChange={(codes) => setFormData(prev => ({ ...prev, procedureCodes: codes }))}
                     />
+                    {formData.procedureCodes.length === 0 && (
+                        <p className="text-xs text-red-500 mt-1">Please select at least one procedure code</p>
+                    )}
                 </div>
-                
+
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Denial Reason *</label>
                     <textarea
@@ -211,20 +265,20 @@ export default function NewClaim() {
                         placeholder="Paste the denial reason from the insurance EOB..."
                     />
                 </div>
-                
+
                 <div className="flex gap-4">
                     <button
                         type="submit"
                         disabled={loading}
-                        className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50"
+                        className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
                     >
                         {loading ? 'Saving...' : 'Submit Claim'}
                     </button>
-                    
+
                     <button
                         type="button"
                         onClick={() => navigate('/claims')}
-                        className="bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400"
+                        className="bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition-colors"
                     >
                         Cancel
                     </button>
