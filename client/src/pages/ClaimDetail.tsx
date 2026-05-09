@@ -38,7 +38,9 @@ interface Claim {
 
 interface Appeal {
   id: number;
-  generated_letter: string;
+  generated_letter?: string;
+  letter_content?: string;
+  content?: string;
   status: string;
   created_at: string;
   model_used?: string;
@@ -67,6 +69,11 @@ export default function ClaimDetail() {
   useEffect(() => {
     fetchClaimDetails();
   }, [id]);
+
+  const getLetterContent = (appeal: Appeal | null): string => {
+    if (!appeal) return '';
+    return appeal.generated_letter || appeal.letter_content || appeal.content || '';
+  };
 
   const fetchClaimDetails = async () => {
     try {
@@ -189,8 +196,9 @@ export default function ClaimDetail() {
   };
 
   const downloadLetter = () => {
-    if (!selectedAppeal?.generated_letter) return;
-    const blob = new Blob([selectedAppeal.generated_letter], { type: 'text/plain' });
+    const letterContent = getLetterContent(selectedAppeal);
+    if (!letterContent) return;
+    const blob = new Blob([letterContent], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -200,14 +208,15 @@ export default function ClaimDetail() {
   };
 
   const printLetter = () => {
-    if (!selectedAppeal?.generated_letter) return;
+    const letterContent = getLetterContent(selectedAppeal);
+    if (!letterContent) return;
     const printWindow = window.open('', '_blank');
     if (printWindow) {
       printWindow.document.write(`
         <html>
           <head><title>Appeal Letter - ${claim?.patient_name}</title></head>
           <body style="font-family: Arial, sans-serif; padding: 40px; line-height: 1.6;">
-            <pre style="white-space: pre-wrap; font-family: inherit;">${selectedAppeal.generated_letter}</pre>
+            <pre style="white-space: pre-wrap; font-family: inherit;">${letterContent.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
           </body>
         </html>
       `);
@@ -233,7 +242,7 @@ export default function ClaimDetail() {
   }
 
   const statusConfig = getStatusBadge(claim.status);
-  const hasAppeal = selectedAppeal !== null;
+  const hasAppeal = selectedAppeal !== null && getLetterContent(selectedAppeal) !== '';
 
   return (
     <div className="space-y-6">
@@ -427,7 +436,7 @@ export default function ClaimDetail() {
             </div>
             <div className="flex gap-2">
               <button
-                onClick={() => copyToClipboard(selectedAppeal.generated_letter)}
+                onClick={() => copyToClipboard(getLetterContent(selectedAppeal))}
                 className="flex items-center gap-1 text-gray-600 hover:text-gray-900 text-sm"
               >
                 <Copy className="w-4 h-4" />
@@ -445,7 +454,7 @@ export default function ClaimDetail() {
             <div className="p-6">
               <div className="bg-gray-50 rounded-lg p-6 max-h-[600px] overflow-y-auto">
                 <pre className="whitespace-pre-wrap font-sans text-gray-700 leading-relaxed">
-                  {selectedAppeal.generated_letter}
+                  {getLetterContent(selectedAppeal)}
                 </pre>
               </div>
             </div>
