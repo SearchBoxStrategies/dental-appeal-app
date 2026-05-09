@@ -32,8 +32,10 @@ export default function NewClaim() {
         const insuranceCompany = formData.insuranceCompany.trim();
         const serviceDate = formData.serviceDate;
         const denialReason = formData.denialReason.trim();
-        const policyNumber = formData.policyNumber?.trim() || null;
-        const claimNumber = formData.claimNumber?.trim() || null;
+        
+        // IMPORTANT: Use empty string instead of null
+        const policyNumber = formData.policyNumber?.trim() || '';
+        const claimNumber = formData.claimNumber?.trim() || '';
 
         // Validation - Required fields
         if (!patientName) {
@@ -49,6 +51,7 @@ export default function NewClaim() {
         if (!insuranceCompany) {
             setError('Insurance company is required');
             setLoading(false);
+            return;
         }
         if (!serviceDate) {
             setError('Date of service is required');
@@ -66,9 +69,9 @@ export default function NewClaim() {
             return;
         }
 
-        // Convert amount fields safely
-        let amountClaimed = null;
-        let amountDenied = null;
+        // Convert amount fields safely - use 0 instead of null
+        let amountClaimed = 0;
+        let amountDenied = 0;
 
         if (formData.amountClaimed && formData.amountClaimed !== '') {
             const parsed = parseFloat(formData.amountClaimed);
