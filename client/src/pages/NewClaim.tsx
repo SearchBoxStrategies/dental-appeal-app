@@ -27,6 +27,10 @@ export default function NewClaim() {
         setError('');
 
         try {
+            // Convert amount fields properly
+            const amountClaimed = formData.amountClaimed ? parseFloat(formData.amountClaimed) : null;
+            const amountDenied = formData.amountDenied ? parseFloat(formData.amountDenied) : null;
+
             const response = await api.post('/claims', {
                 patientName: formData.patientName,
                 patientDob: formData.patientDob,
@@ -34,43 +38,42 @@ export default function NewClaim() {
                 serviceDate: formData.serviceDate,
                 policyNumber: formData.policyNumber || null,
                 claimNumber: formData.claimNumber || null,
-                amountClaimed: formData.amountClaimed ? parseFloat(formData.amountClaimed) : null,
-                amountDenied: formData.amountDenied ? parseFloat(formData.amountDenied) : null,
+                amountClaimed: isNaN(amountClaimed as number) ? null : amountClaimed,
+                amountDenied: isNaN(amountDenied as number) ? null : amountDenied,
                 procedureCodes: formData.procedureCodes,
                 denialReason: formData.denialReason,
             });
 
-            if (response.status === 200 || response.status === 201) {
+            // Success on any 2xx status code (200, 201, etc.)
+            if (response.status >= 200 && response.status < 300) {
                 navigate('/claims');
             } else {
-                // Ensure error is a string
                 const errorMsg = response.data?.error;
                 if (typeof errorMsg === 'string') {
                     setError(errorMsg);
-                } else if (errorMsg && typeof errorMsg === 'object') {
-                    // Handle validation errors (Zod errors)
-                    if (Array.isArray(errorMsg)) {
-                        setError(errorMsg.map(e => e.message).join(', '));
-                    } else {
-                        setError(JSON.stringify(errorMsg));
-                    }
                 } else {
                     setError('Failed to create claim');
                 }
             }
         } catch (err: any) {
-            // Ensure error is a string
-            const errorMsg = err.response?.data?.error;
-            if (typeof errorMsg === 'string') {
-                setError(errorMsg);
-            } else if (errorMsg && typeof errorMsg === 'object') {
-                if (Array.isArray(errorMsg)) {
-                    setError(errorMsg.map(e => e.message).join(', '));
+            console.error('Claim submission error:', err);
+            
+            // Handle different error formats
+            if (err.response?.data?.error) {
+                const errorData = err.response.data.error;
+                if (typeof errorData === 'string') {
+                    setError(errorData);
+                } else if (Array.isArray(errorData)) {
+                    setError(errorData.map((e: any) => e.message).join(', '));
+                } else if (errorData.message) {
+                    setError(errorData.message);
                 } else {
-                    setError('Validation error. Please check your form.');
+                    setError('Validation failed. Please check your form.');
                 }
+            } else if (err.message === 'Network Error') {
+                setError('Network error. Please check your connection and try again.');
             } else {
-                setError('Network error. Please try again.');
+                setError('An unexpected error occurred. Please try again.');
             }
         } finally {
             setLoading(false);
