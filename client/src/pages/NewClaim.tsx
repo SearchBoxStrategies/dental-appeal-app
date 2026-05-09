@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CDTSelector from '../components/CDTSelector';
+import api from '../lib/api';
 
 export default function NewClaim() {
     const navigate = useNavigate();
@@ -26,36 +27,26 @@ export default function NewClaim() {
         setError('');
 
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch('/api/claims', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    patientName: formData.patientName,
-                    patientDob: formData.patientDob,
-                    insuranceCompany: formData.insuranceCompany,
-                    serviceDate: formData.serviceDate,
-                    policyNumber: formData.policyNumber || null,
-                    claimNumber: formData.claimNumber || null,
-                    amountClaimed: formData.amountClaimed ? parseFloat(formData.amountClaimed) : null,
-                    amountDenied: formData.amountDenied ? parseFloat(formData.amountDenied) : null,
-                    procedureCodes: formData.procedureCodes,
-                    denialReason: formData.denialReason,
-                })
+            const response = await api.post('/claims', {
+                patientName: formData.patientName,
+                patientDob: formData.patientDob,
+                insuranceCompany: formData.insuranceCompany,
+                serviceDate: formData.serviceDate,
+                policyNumber: formData.policyNumber || null,
+                claimNumber: formData.claimNumber || null,
+                amountClaimed: formData.amountClaimed ? parseFloat(formData.amountClaimed) : null,
+                amountDenied: formData.amountDenied ? parseFloat(formData.amountDenied) : null,
+                procedureCodes: formData.procedureCodes,
+                denialReason: formData.denialReason,
             });
 
-            const data = await response.json();
-            
-            if (response.ok) {
+            if (response.status === 200 || response.status === 201) {
                 navigate('/claims');
             } else {
-                setError(data.error || 'Failed to create claim');
+                setError(response.data?.error || 'Failed to create claim');
             }
-        } catch (err) {
-            setError('Network error. Please try again.');
+        } catch (err: any) {
+            setError(err.response?.data?.error || 'Network error. Please try again.');
         } finally {
             setLoading(false);
         }
