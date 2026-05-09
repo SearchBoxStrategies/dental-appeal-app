@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
+import api from '../lib/api';
 
 interface CDTGrouped {
     [category: string]: Array<{
         code: string;
         category: string;
         description: string;
-        full_descriptor: string;
     }>;
 }
 
@@ -18,19 +18,17 @@ export default function CDTSelector({ selectedCodes, onChange }: CDTSelectorProp
     const [cdtGroups, setCdtGroups] = useState<CDTGrouped>({});
     const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
+    const [error, setError] = useState('');
 
     useEffect(() => {
         const fetchCDTCodes = async () => {
             try {
-                const token = localStorage.getItem('token');
-                const response = await fetch('/api/cdt-codes', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const data = await response.json();
-                setCdtGroups(data);
+                const response = await api.get('/cdt-codes');
+                console.log('CDT Codes received:', response.data);
+                setCdtGroups(response.data);
             } catch (error) {
                 console.error('Error fetching CDT codes:', error);
+                setError('Failed to load procedure codes');
             } finally {
                 setLoading(false);
             }
@@ -46,74 +44,35 @@ export default function CDTSelector({ selectedCodes, onChange }: CDTSelectorProp
         }
     };
 
-    const toggleCategory = (category: string) => {
-        setExpandedCategory(expandedCategory === category ? null : category);
-    };
-
-    const filterGroups = () => {
-        if (!searchTerm.trim()) return cdtGroups;
-        
-        const filtered: CDTGrouped = {};
-        for (const [category, codes] of Object.entries(cdtGroups)) {
-            const matchingCodes = codes.filter(code => 
-                code.code.includes(searchTerm.toUpperCase()) ||
-                code.description.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-            if (matchingCodes.length > 0) {
-                filtered[category] = matchingCodes;
-            }
-        }
-        return filtered;
-    };
-
-    const filteredGroups = filterGroups();
-
     if (loading) {
-        return <div className="text-center py-4">Loading CDT codes...</div>;
+        return <div className="text-center py-4 text-gray-500">Loading procedure codes...</div>;
+    }
+
+    if (error) {
+        return <div className="text-center py-4 text-red-500">{error}</div>;
+    }
+
+    if (Object.keys(cdtGroups).length === 0) {
+        return <div className="text-center py-4 text-yellow-500">No procedure codes available</div>;
     }
 
     return (
-        <div className="cdt-selector border rounded-lg p-4 bg-gray-50">
-            <div className="mb-4">
-                <input
-                    type="text"
-                    placeholder="Search by code or description..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full p-2 border rounded-md"
-                />
-            </div>
-            
-            <div className="space-y-2 max-h-96 overflow-y-auto">
-                {Object.entries(filteredGroups).map(([category, codes]) => (
+        <div className="border rounded-lg p-4 bg-gray-50">
+            <div className="space-y-2">
+                {Object.entries(cdtGroups).map(([category, codes]) => (
                     <div key={category} className="border rounded-lg bg-white">
                         <button
-                            onClick={() => toggleCategory(category)}
+                            type="button"
+                            onClick={() => setExpandedCategory(expandedCategory === category ? null : category)}
                             className="w-full flex justify-between items-center p-3 font-semibold text-left hover:bg-gray-50"
                         >
-                            <span className="flex items-center gap-2">
-                                <span className="text-xl">
-                                    {category === 'Restorative' && '🦷'}
-                                    {category === 'Diagnostic' && '🔍'}
-                                    {category === 'Endodontic' && '⚙️'}
-                                    {category === 'Periodontic' && '😁'}
-                                    {category === 'Prosthodontic' && '🦷'}
-                                    {category === 'Implant' && '💉'}
-                                    {category === 'Oral Surgery' && '🔪'}
-                                    {category === 'Preventive' && '🧼'}
-                                    {category === 'Emergency' && '🚨'}
-                                    {category === 'Orthodontic' && '😬'}
-                                </span>
-                                {category}
-                            </span>
-                            <span className="transform transition-transform">
-                                {expandedCategory === category ? '▼' : '▶'}
-                            </span>
+                            <span>{category}</span>
+                            <span>{expandedCategory === category ? '▼' : '▶'}</span>
                         </button>
                         
                         {expandedCategory === category && (
-                            <div className="border-t p-3 space-y-2">
-                                {codes.map(code => (
+                            <div className="border-t p-3 space-y-2 max-h-60 overflow-y-auto">
+                                {codes.map((code) => (
                                     <label key={code.code} className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded cursor-pointer">
                                         <input
                                             type="checkbox"
@@ -132,7 +91,7 @@ export default function CDTSelector({ selectedCodes, onChange }: CDTSelectorProp
             </div>
             
             {selectedCodes.length > 0 && (
-                <div className="mt-4 p-2 bg-blue-50 rounded">
+                <div className="mt-4 p-2 bg-blue-50 rounded text-sm">
                     <strong>Selected:</strong> {selectedCodes.join(', ')}
                 </div>
             )}
