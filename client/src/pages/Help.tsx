@@ -193,7 +193,7 @@ export default function Help() {
             const Icon = tutorial.icon;
             const isExpanded = expandedSection === tutorial.id;
             return (
-              <div key={tutorial.id}>
+              <div key={tutorial.id} id={tutorial.id}>
                 <button
                   onClick={() => toggleSection(tutorial.id)}
                   className="w-full flex justify-between items-center p-4 hover:bg-gray-50 transition-colors text-left"
