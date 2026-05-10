@@ -16,6 +16,7 @@ import EmailPreferences from './components/EmailPreferences';
 import AnalyticsReport from './components/AnalyticsReport';
 import Help from './pages/Help';
 import BulkUpload from './pages/BulkUpload';
+import PracticeProfile from './components/PracticeProfile';
 
 function App() {
   return (
@@ -71,6 +72,11 @@ function App() {
         <Route path="/bulk-upload" element={
           <ProtectedRoute>
             <BulkUpload />
+          </ProtectedRoute>
+        } />
+        <Route path="/practice/profile" element={
+          <ProtectedRoute>
+            <PracticeProfile />
           </ProtectedRoute>
         } />
         
