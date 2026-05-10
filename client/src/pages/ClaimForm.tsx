@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import CDTSelector from './CDTSelector';
+import CDTSelector from '../components/CDTSelector';
 import api from '../lib/api';
 
 interface InsuranceCompany {
