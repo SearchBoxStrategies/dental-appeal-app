@@ -13,7 +13,7 @@ export default function NewClaim() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
+  const [insuranceCompanies, setInsuranceCompanies] = useState<InsuranceCompany[]>([]);
 
   const [formData, setFormData] = useState({
     patientName: '',
@@ -93,7 +93,7 @@ export default function NewClaim() {
     const { name, value } = e.target;
     
     if (name === 'insuranceCompany') {
-      const selected = insuranceCompanies.find(ic => ic.name === value);
+      const selected = insuranceCompanies.find((ic: InsuranceCompany) => ic.name === value);
       setFormData(prev => ({
         ...prev,
         insuranceCompany: value,
@@ -150,7 +150,7 @@ export default function NewClaim() {
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
             >
               <option value="">Select Insurance Company</option>
-              {insuranceCompanies.map(ic => (
+              {insuranceCompanies.map((ic: InsuranceCompany) => (
                 <option key={ic.id} value={ic.name}>
                   {ic.name}
                 </option>
@@ -221,7 +221,7 @@ export default function NewClaim() {
           <label className="block text-sm font-medium text-gray-700 mb-2">Procedure Codes *</label>
           <CDTSelector
             selectedCodes={formData.procedureCodes}
-            onChange={(codes) => setFormData(prev => ({ ...prev, procedureCodes: codes }))}
+            onChange={(codes: string[]) => setFormData(prev => ({ ...prev, procedureCodes: codes }))}
           />
           {formData.procedureCodes.length === 0 && (
             <p className="text-xs text-red-500 mt-1">Please select at least one procedure code</p>
