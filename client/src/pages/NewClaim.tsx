@@ -13,7 +13,7 @@ export default function NewClaim() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [insuranceCompanies, setInsuranceCompanies] = useState<InsuranceCompany[]>([]);
+
 
   const [formData, setFormData] = useState({
     patientName: '',
