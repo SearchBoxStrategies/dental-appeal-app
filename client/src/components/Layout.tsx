@@ -140,6 +140,17 @@ export default function Layout({ children }: LayoutProps) {
             <span className="font-medium">Sign Out</span>
           </button>
         </div>
+        // Add to your Layout.tsx footer or bottom section
+<div className="text-center text-xs text-gray-500 py-4 border-t">
+    <div className="flex justify-center space-x-4">
+        <Link to="/terms" className="hover:text-gray-700">Terms of Service</Link>
+        <span>|</span>
+        <Link to="/privacy" className="hover:text-gray-700">Privacy Policy</Link>
+        <span>|</span>
+        <Link to="/hipaa" className="hover:text-gray-700">HIPAA Compliance</Link>
+    </div>
+    <p class="mt-2">&copy; 2026 DentalAppeal. All rights reserved.</p>
+</div>
       </aside>
 
       {/* Main content */}
