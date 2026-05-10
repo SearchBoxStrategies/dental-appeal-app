@@ -17,6 +17,8 @@ import AnalyticsReport from './components/AnalyticsReport';
 import Help from './pages/Help';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
+import TermsOfService from './pages/TermsOfService';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 
 // Legal pages (public, no authentication required)
 import TermsOfService from './pages/TermsOfService';
