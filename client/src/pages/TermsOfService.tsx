@@ -44,9 +44,18 @@ export default function TermsOfService() {
 
             <hr className="my-8" />
             <p className="text-center text-gray-500 text-sm">
-              DentalAppeal — AI-Powered Dental Insurance Appeals<br />
-              &copy; 2026 Search Box Strategies. All rights reserved.
-            </p>
+  DentalAppeal — AI-Powered Dental Insurance Appeals<br />
+  © {new Date().getFullYear()}{' '}
+  <a 
+    href="https://searchboxstrategies.com" 
+    target="_blank" 
+    rel="noopener noreferrer"
+    className="text-blue-600 hover:underline"
+  >
+    Search Box Strategies
+  </a>
+  . All rights reserved.
+</p>
           </div>
         </div>
       </div>
