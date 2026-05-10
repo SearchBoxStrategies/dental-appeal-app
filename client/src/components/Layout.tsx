@@ -38,6 +38,7 @@ export default function Layout({ children }: LayoutProps) {
     { path: '/practice/profile', icon: Building2, label: 'Practice Profile' },
     { path: '/settings/notifications', icon: Bell, label: 'Notifications' },
     { path: '/billing', icon: CreditCard, label: 'Billing' },
+    { path: '/help', icon: HelpCircle, label: 'Help & Tutorials' },
   ];
 
   const handleLogout = () => {
