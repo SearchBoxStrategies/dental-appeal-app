@@ -221,7 +221,7 @@ export default function ClaimForm() {
           <label className="block text-sm font-medium text-gray-700 mb-2">Procedure Codes *</label>
           <CDTSelector
             selectedCodes={formData.procedureCodes}
-            onChange={(codes) => setFormData(prev => ({ ...prev, procedureCodes: codes }))}
+            onChange={(codes: string[]) => setFormData(prev => ({ ...prev, procedureCodes: codes }))}
           />
           {formData.procedureCodes.length === 0 && (
             <p className="text-xs text-red-500 mt-1">Please select at least one procedure code</p>
