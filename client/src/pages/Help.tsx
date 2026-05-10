@@ -1,112 +1,262 @@
-import { Mail, BookOpen } from 'lucide-react';
+import { useState } from 'react';
+import { 
+  Mail, BookOpen, FileText, TrendingUp, Upload, 
+  Building2, CreditCard, Bell, Shield, ChevronDown, 
+  ChevronUp, ExternalLink, CheckCircle, Video, 
+  FileQuestion, MessageCircle
+} from 'lucide-react';
 
 export default function Help() {
+  const [expandedSection, setExpandedSection] = useState<string | null>(null);
+
+  const tutorials = [
+    {
+      id: 'getting-started',
+      title: 'Getting Started',
+      icon: BookOpen,
+      steps: [
+        '1. Complete your Practice Profile with your business information',
+        '2. Add your NPI number and license information',
+        '3. Subscribe to the Professional plan ($199/month)',
+        '4. Start creating claims and generating appeal letters'
+      ]
+    },
+    {
+      id: 'claims',
+      title: 'Creating a Claim',
+      icon: FileText,
+      steps: [
+        '1. Click "New Claim" from the sidebar menu',
+        '2. Enter patient information (name, DOB, insurance)',
+        '3. Select procedure codes from the CDT selector',
+        '4. Paste the denial reason from the insurance EOB',
+        '5. Upload supporting documents (X-rays, clinical notes)',
+        '6. Click "Submit Claim"'
+      ]
+    },
+    {
+      id: 'cdt-codes',
+      title: 'CDT Code Selector',
+      icon: FileText,
+      steps: [
+        '1. Click on a category (e.g., "Restorative") to expand',
+        '2. Check the boxes next to the procedure codes you need',
+        '3. Use "Other" to add custom codes not in the list',
+        '4. Selected codes appear at the bottom of the selector'
+      ]
+    },
+    {
+      id: 'appeal-letter',
+      title: 'Generating an Appeal Letter',
+      icon: TrendingUp,
+      steps: [
+        '1. Go to an existing claim from the Claims list',
+        '2. Click "Validate" to check for issues',
+        '3. Fix any errors or warnings shown',
+        '4. Click "Generate Appeal Letter"',
+        '5. Wait 3-5 seconds for the AI to write the letter',
+        '6. Review, copy, download, or print the letter'
+      ]
+    },
+    {
+      id: 'documents',
+      title: 'Uploading Documents',
+      icon: Upload,
+      steps: [
+        '1. Go to a claim detail page',
+        '2. Scroll to "Supporting Documents" section',
+        '3. Click "Upload" and select your file (PDF, JPG, PNG)',
+        '4. Uploaded documents appear in the list',
+        '5. Click the X to delete a document'
+      ]
+    },
+    {
+      id: 'status-tracking',
+      title: 'Tracking Appeal Status',
+      icon: TrendingUp,
+      steps: [
+        '1. Go to the Claims list page',
+        '2. View status badges (Draft, Appeal Sent, Under Review, Won, Lost, Paid)',
+        '3. Click on a claim to see details',
+        '4. Update status from the dropdown on the claim detail page',
+        '5. Status changes trigger email notifications'
+      ]
+    },
+    {
+      id: 'analytics',
+      title: 'Analytics & Reports',
+      icon: TrendingUp,
+      steps: [
+        '1. Go to Analytics from the sidebar',
+        '2. View performance metrics (success rate, appeals won, etc.)',
+        '3. Change date range using the period selector',
+        '4. Click "Export CSV" to download your data'
+      ]
+    },
+    {
+      id: 'bulk-upload',
+      title: 'Bulk Claim Upload',
+      icon: Upload,
+      steps: [
+        '1. Go to Bulk Upload from the sidebar',
+        '2. Download the CSV template',
+        '3. Fill in your claims data following the template format',
+        '4. Upload the CSV file',
+        '5. Review the results (successful/failed counts)'
+      ]
+    },
+    {
+      id: 'practice-profile',
+      title: 'Practice Profile',
+      icon: Building2,
+      steps: [
+        '1. Go to Practice Profile from the sidebar',
+        '2. Fill in your practice information (name, address, phone, etc.)',
+        '3. Add your NPI number and license information',
+        '4. Click "Save Profile"',
+        '5. Your information will appear in all generated appeal letters'
+      ]
+    },
+    {
+      id: 'billing',
+      title: 'Billing & Subscription',
+      icon: CreditCard,
+      steps: [
+        '1. Go to Billing from the sidebar',
+        '2. View your current plan status',
+        '3. Click "Subscribe Now" to start your subscription',
+        '4. Use the test card 4242 4242 4242 4242 for testing',
+        '5. Click "Manage Subscription" to update payment method or cancel'
+      ]
+    },
+    {
+      id: 'notifications',
+      title: 'Email Notifications',
+      icon: Bell,
+      steps: [
+        '1. Go to Notifications from the sidebar',
+        '2. Toggle which emails you want to receive',
+        '3. Options include: Appeal Status Updates, Payment Receipts, Weekly Digest',
+        '4. Click "Save Preferences"'
+      ]
+    }
+  ];
+
+  const faqs = [
+    { q: 'How long does it take to generate an appeal letter?', a: 'Typically 3-5 seconds using Claude AI.' },
+    { q: 'What file types can I upload?', a: 'PDF, JPG, JPEG, PNG files up to 10MB.' },
+    { q: 'Do you guarantee appeal success?', a: 'No. Success depends on clinical justification and insurance policies.' },
+    { q: 'Is my data HIPAA compliant?', a: 'Yes. DentalAppeal is fully HIPAA-compliant with encryption and Business Associate Agreements.' },
+    { q: 'Can I cancel my subscription anytime?', a: 'Yes. Cancel anytime from the Billing page.' },
+    { q: 'How do I get support?', a: 'Email support@dentalappeal.claims for assistance.' }
+  ];
+
+  const toggleSection = (id: string) => {
+    setExpandedSection(expandedSection === id ? null : id);
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
+      {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Help & Support</h1>
-        <p className="text-gray-600 mt-1">Get help with DentalAppeal</p>
+        <p className="text-gray-600 mt-1">Tutorials, guides, and frequently asked questions</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl shadow-sm border p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <BookOpen className="w-5 h-5 text-blue-600" />
-            </div>
-            <h2 className="text-lg font-semibold">Documentation</h2>
-          </div>
-          <p className="text-gray-600 text-sm mb-4">
-            Read our comprehensive guides and API documentation.
-          </p>
-          <a
-            href="https://docs.dentalappeal.claims"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700"
-          >
-            View Documentation →
-          </a>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-              <Mail className="w-5 h-5 text-green-600" />
-            </div>
-            <h2 className="text-lg font-semibold">Contact Support</h2>
-          </div>
-          <p className="text-gray-600 text-sm mb-4">
-            Email our support team for assistance.
-          </p>
-          <a
-            href="mailto:support@dentalappeal.claims"
-            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700"
-          >
-            support@dentalappeal.claims →
-          </a>
-        </div>
+      {/* Quick Links */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <a href="#getting-started" className="bg-white rounded-xl shadow-sm border p-4 text-center hover:shadow-md transition-all">
+          <BookOpen className="w-6 h-6 text-blue-600 mx-auto mb-2" />
+          <span className="text-sm font-medium">Getting Started</span>
+        </a>
+        <a href="#claims" className="bg-white rounded-xl shadow-sm border p-4 text-center hover:shadow-md transition-all">
+          <FileText className="w-6 h-6 text-green-600 mx-auto mb-2" />
+          <span className="text-sm font-medium">Claims</span>
+        </a>
+        <a href="#analytics" className="bg-white rounded-xl shadow-sm border p-4 text-center hover:shadow-md transition-all">
+          <TrendingUp className="w-6 h-6 text-purple-600 mx-auto mb-2" />
+          <span className="text-sm font-medium">Analytics</span>
+        </a>
+        <a href="#billing" className="bg-white rounded-xl shadow-sm border p-4 text-center hover:shadow-md transition-all">
+          <CreditCard className="w-6 h-6 text-teal-600 mx-auto mb-2" />
+          <span className="text-sm font-medium">Billing</span>
+        </a>
       </div>
 
+      {/* Tutorials Section */}
       <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
         <div className="px-6 py-4 border-b bg-gray-50">
-          <h2 className="font-semibold text-gray-900">Quick Start Guide</h2>
+          <h2 className="font-semibold text-gray-900 flex items-center gap-2">
+            <Video className="w-5 h-5 text-blue-600" />
+            Tutorials & Guides
+          </h2>
         </div>
-        <div className="p-6 space-y-4">
-          <div className="flex gap-3">
-            <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-              <span className="text-blue-600 text-xs font-bold">1</span>
-            </div>
-            <div>
-              <p className="font-medium text-gray-900">Create a Claim</p>
-              <p className="text-sm text-gray-600">Enter patient information, insurance details, and procedure codes using the CDT selector.</p>
-            </div>
-          </div>
-          <div className="flex gap-3">
-            <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-              <span className="text-blue-600 text-xs font-bold">2</span>
-            </div>
-            <div>
-              <p className="font-medium text-gray-900">Upload Supporting Documents</p>
-              <p className="text-sm text-gray-600">Add X-rays, clinical notes, or EOBs to strengthen your appeal.</p>
-            </div>
-          </div>
-          <div className="flex gap-3">
-            <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-              <span className="text-blue-600 text-xs font-bold">3</span>
-            </div>
-            <div>
-              <p className="font-medium text-gray-900">Generate Appeal Letter</p>
-              <p className="text-sm text-gray-600">Click "Generate Appeal Letter" and let AI write a professional medical justification.</p>
-            </div>
-          </div>
-          <div className="flex gap-3">
-            <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-              <span className="text-blue-600 text-xs font-bold">4</span>
-            </div>
-            <div>
-              <p className="font-medium text-gray-900">Track Status</p>
-              <p className="text-sm text-gray-600">Monitor your appeal from Draft to Won/Lost and receive email updates.</p>
-            </div>
-          </div>
+        <div className="divide-y">
+          {tutorials.map((tutorial) => {
+            const Icon = tutorial.icon;
+            const isExpanded = expandedSection === tutorial.id;
+            return (
+              <div key={tutorial.id}>
+                <button
+                  onClick={() => toggleSection(tutorial.id)}
+                  className="w-full flex justify-between items-center p-4 hover:bg-gray-50 transition-colors text-left"
+                >
+                  <div className="flex items-center gap-3">
+                    <Icon className="w-5 h-5 text-gray-500" />
+                    <span className="font-medium text-gray-900">{tutorial.title}</span>
+                  </div>
+                  {isExpanded ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
+                </button>
+                {isExpanded && (
+                  <div className="px-4 pb-4 pl-12">
+                    <ul className="space-y-2 text-sm text-gray-600">
+                      {tutorial.steps.map((step, idx) => (
+                        <li key={idx} className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          {step}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      <div className="bg-gray-50 rounded-xl p-6">
-        <h3 className="font-semibold text-gray-900 mb-2">Frequently Asked Questions</h3>
-        <div className="space-y-3">
+      {/* FAQ Section */}
+      <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+        <div className="px-6 py-4 border-b bg-gray-50">
+          <h2 className="font-semibold text-gray-900 flex items-center gap-2">
+            <FileQuestion className="w-5 h-5 text-blue-600" />
+            Frequently Asked Questions
+          </h2>
+        </div>
+        <div className="divide-y">
+          {faqs.map((faq, idx) => (
+            <div key={idx} className="p-4">
+              <p className="font-medium text-gray-900 mb-1">{faq.q}</p>
+              <p className="text-sm text-gray-600">{faq.a}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Contact Support */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
+        <div className="flex items-center gap-4 flex-wrap justify-between">
           <div>
-            <p className="font-medium text-gray-800">How do I win more appeals?</p>
-            <p className="text-sm text-gray-600">Upload all relevant clinical documentation (X-rays, notes, EOBs) before generating the appeal. Our AI uses this evidence to build stronger clinical justifications.</p>
+            <h3 className="font-semibold text-blue-900 mb-1">Still need help?</h3>
+            <p className="text-blue-800 text-sm">Contact our support team for assistance</p>
           </div>
-          <div>
-            <p className="font-medium text-gray-800">How long does an appeal take?</p>
-            <p className="text-sm text-gray-600">Insurance companies typically respond within 30-60 days. You can track the status in your Claims dashboard.</p>
-          </div>
-          <div>
-            <p className="font-medium text-gray-800">Can I cancel my subscription?</p>
-            <p className="text-sm text-gray-600">Yes, you can cancel anytime from the Billing page. Your subscription remains active until the end of your billing period.</p>
-          </div>
+          <a
+            href="mailto:support@dentalappeal.claims"
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg transition-all shadow-sm"
+          >
+            <MessageCircle className="w-4 h-4" />
+            Contact Support
+          </a>
         </div>
       </div>
     </div>
