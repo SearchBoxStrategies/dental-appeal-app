@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Building2 } from 'lucide-react';
 import {
   LayoutDashboard,
   FileText,
@@ -29,14 +30,15 @@ export default function Layout({ children }: LayoutProps) {
   const userInitial = userName.charAt(0).toUpperCase();
 
   const navItems = [
-    { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { path: '/claims', icon: FileText, label: 'All Claims' },
-    { path: '/claims/new', icon: PlusCircle, label: 'New Claim' },
-    { path: '/analytics', icon: TrendingUp, label: 'Analytics' },
-    { path: '/bulk-upload', icon: Upload, label: 'Bulk Upload' },
-    { path: '/settings/notifications', icon: Bell, label: 'Notifications' },
-    { path: '/billing', icon: CreditCard, label: 'Billing' },
-  ];
+  { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { path: '/claims', icon: FileText, label: 'All Claims' },
+  { path: '/claims/new', icon: PlusCircle, label: 'New Claim' },
+  { path: '/analytics', icon: TrendingUp, label: 'Analytics' },
+  { path: '/bulk-upload', icon: Upload, label: 'Bulk Upload' },
+  { path: '/practice/profile', icon: Building2, label: 'Practice Profile' },
+  { path: '/settings/notifications', icon: Bell, label: 'Notifications' },
+  { path: '/billing', icon: CreditCard, label: 'Billing' },
+];
 
   const handleLogout = () => {
     localStorage.removeItem('token');
