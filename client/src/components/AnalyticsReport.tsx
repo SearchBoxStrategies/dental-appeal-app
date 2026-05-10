@@ -30,43 +30,60 @@ export default function AnalyticsReport() {
   const [period, setPeriod] = useState('month');
 
   useEffect(() => {
-    const fetchReport = async () => {
-      try {
-        const response = await api.get(`/analytics/report?period=${period}`);
-        setReport(response.data);
-      } catch (error) {
-        console.error('Failed to fetch report:', error);
-      }
-    };
-    const fetchChartData = async () => {
-      try {
-        const response = await api.get('/analytics/chart');
-        setChartData(response.data);
-      } catch (error) {
-        console.error('Failed to fetch chart data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchReport();
     fetchChartData();
   }, [period]);
 
-  const downloadReport = async () => {
+  const fetchReport = async () => {
     try {
-      const response = await api.get(`/analytics/report/export?period=${period}`, {
-        responseType: 'blob'
-      });
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `appeal_report_${period}_${new Date().toISOString().split('T')[0]}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
+      const response = await api.get(`/analytics/report?period=${period}`);
+      setReport(response.data);
     } catch (error) {
-      console.error('Failed to download report:', error);
+      console.error('Failed to fetch report:', error);
     }
+  };
+
+  const fetchChartData = async () => {
+    try {
+      const response = await api.get('/analytics/chart');
+      setChartData(response.data);
+    } catch (error) {
+      console.error('Failed to fetch chart data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const downloadReport = () => {
+    if (!report) return;
+    
+    // Create CSV content
+    const headers = ['Metric', 'Value'];
+    const rows = [
+      ['Period', report.period],
+      ['Total Claims', report.totalClaims],
+      ['Total Appeals', report.totalAppeals],
+      ['Won Appeals', report.wonAppeals],
+      ['Lost Appeals', report.lostAppeals],
+      ['Pending Appeals', report.pendingAppeals],
+      ['Success Rate', `${report.successRate}%`],
+      ['Amount Recovered', `$${report.amountRecovered.toLocaleString()}`],
+      ['Time Saved', `${report.timeSaved} hours`],
+      ['Avg Response Time', `${report.avgResponseDays} days`],
+      ['Top Payer', report.topPayer],
+      ['Top Payer Success Rate', `${report.topPayerSuccessRate}%`]
+    ];
+    
+    const csvContent = [headers, ...rows].map(row => row.join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `appeal_report_${period}_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   const getMaxValue = () => {
