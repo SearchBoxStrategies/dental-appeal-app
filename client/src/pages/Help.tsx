@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { 
   BookOpen, FileText, TrendingUp, Upload, 
   Building2, CreditCard, Bell, ChevronDown, 
@@ -8,6 +8,7 @@ import {
 
 export default function Help() {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const tutorials = [
     {
@@ -56,18 +57,6 @@ export default function Help() {
         '4. Click "Generate Appeal Letter"',
         '5. Wait 3-5 seconds for the AI to write the letter',
         '6. Review, copy, download, or print the letter'
-      ]
-    },
-    {
-      id: 'documents',
-      title: 'Uploading Documents',
-      icon: Upload,
-      steps: [
-        '1. Go to a claim detail page',
-        '2. Scroll to "Supporting Documents" section',
-        '3. Click "Upload" and select your file (PDF, JPG, PNG)',
-        '4. Uploaded documents appear in the list',
-        '5. Click the X to delete a document'
       ]
     },
     {
@@ -155,6 +144,19 @@ export default function Help() {
     setExpandedSection(expandedSection === id ? null : id);
   };
 
+  const scrollToSection = (id: string) => {
+    // Expand the section
+    setExpandedSection(id);
+    
+    // Scroll to the section after a short delay to allow the DOM to update
+    setTimeout(() => {
+      const element = sectionRefs.current[id];
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div>
@@ -162,25 +164,39 @@ export default function Help() {
         <p className="text-gray-600 mt-1">Tutorials, guides, and frequently asked questions</p>
       </div>
 
+      {/* Quick Links - Now with onClick handlers */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <a href="#getting-started" className="bg-white rounded-xl shadow-sm border p-4 text-center hover:shadow-md transition-all">
+        <button
+          onClick={() => scrollToSection('getting-started')}
+          className="bg-white rounded-xl shadow-sm border p-4 text-center hover:shadow-md transition-all cursor-pointer"
+        >
           <BookOpen className="w-6 h-6 text-blue-600 mx-auto mb-2" />
           <span className="text-sm font-medium">Getting Started</span>
-        </a>
-        <a href="#claims" className="bg-white rounded-xl shadow-sm border p-4 text-center hover:shadow-md transition-all">
+        </button>
+        <button
+          onClick={() => scrollToSection('claims')}
+          className="bg-white rounded-xl shadow-sm border p-4 text-center hover:shadow-md transition-all cursor-pointer"
+        >
           <FileText className="w-6 h-6 text-green-600 mx-auto mb-2" />
           <span className="text-sm font-medium">Claims</span>
-        </a>
-        <a href="#analytics" className="bg-white rounded-xl shadow-sm border p-4 text-center hover:shadow-md transition-all">
+        </button>
+        <button
+          onClick={() => scrollToSection('analytics')}
+          className="bg-white rounded-xl shadow-sm border p-4 text-center hover:shadow-md transition-all cursor-pointer"
+        >
           <TrendingUp className="w-6 h-6 text-purple-600 mx-auto mb-2" />
           <span className="text-sm font-medium">Analytics</span>
-        </a>
-        <a href="#billing" className="bg-white rounded-xl shadow-sm border p-4 text-center hover:shadow-md transition-all">
+        </button>
+        <button
+          onClick={() => scrollToSection('billing')}
+          className="bg-white rounded-xl shadow-sm border p-4 text-center hover:shadow-md transition-all cursor-pointer"
+        >
           <CreditCard className="w-6 h-6 text-teal-600 mx-auto mb-2" />
           <span className="text-sm font-medium">Billing</span>
-        </a>
+        </button>
       </div>
 
+      {/* Tutorials Section */}
       <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
         <div className="px-6 py-4 border-b bg-gray-50">
           <h2 className="font-semibold text-gray-900 flex items-center gap-2">
@@ -193,7 +209,11 @@ export default function Help() {
             const Icon = tutorial.icon;
             const isExpanded = expandedSection === tutorial.id;
             return (
-              <div key={tutorial.id} id={tutorial.id}>
+              <div 
+                key={tutorial.id} 
+                id={tutorial.id}
+                ref={(el) => sectionRefs.current[tutorial.id] = el}
+              >
                 <button
                   onClick={() => toggleSection(tutorial.id)}
                   className="w-full flex justify-between items-center p-4 hover:bg-gray-50 transition-colors text-left"
@@ -222,6 +242,7 @@ export default function Help() {
         </div>
       </div>
 
+      {/* FAQ Section */}
       <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
         <div className="px-6 py-4 border-b bg-gray-50">
           <h2 className="font-semibold text-gray-900 flex items-center gap-2">
@@ -239,6 +260,7 @@ export default function Help() {
         </div>
       </div>
 
+      {/* Contact Support */}
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
         <div className="flex items-center gap-4 flex-wrap justify-between">
           <div>
