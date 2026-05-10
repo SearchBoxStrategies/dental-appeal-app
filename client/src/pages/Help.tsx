@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { 
-  Mail, BookOpen, FileText, TrendingUp, Upload, 
-  Building2, CreditCard, Bell, Shield, ChevronDown, 
-  ChevronUp, ExternalLink, CheckCircle, Video, 
+  BookOpen, FileText, TrendingUp, Upload, 
+  Building2, CreditCard, Bell, ChevronDown, 
+  ChevronUp, CheckCircle, Video, 
   FileQuestion, MessageCircle
 } from 'lucide-react';
 
@@ -157,13 +157,11 @@ export default function Help() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Help & Support</h1>
         <p className="text-gray-600 mt-1">Tutorials, guides, and frequently asked questions</p>
       </div>
 
-      {/* Quick Links */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <a href="#getting-started" className="bg-white rounded-xl shadow-sm border p-4 text-center hover:shadow-md transition-all">
           <BookOpen className="w-6 h-6 text-blue-600 mx-auto mb-2" />
@@ -183,7 +181,6 @@ export default function Help() {
         </a>
       </div>
 
-      {/* Tutorials Section */}
       <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
         <div className="px-6 py-4 border-b bg-gray-50">
           <h2 className="font-semibold text-gray-900 flex items-center gap-2">
@@ -225,7 +222,6 @@ export default function Help() {
         </div>
       </div>
 
-      {/* FAQ Section */}
       <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
         <div className="px-6 py-4 border-b bg-gray-50">
           <h2 className="font-semibold text-gray-900 flex items-center gap-2">
@@ -243,7 +239,6 @@ export default function Help() {
         </div>
       </div>
 
-      {/* Contact Support */}
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
         <div className="flex items-center gap-4 flex-wrap justify-between">
           <div>
