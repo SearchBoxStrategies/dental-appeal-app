@@ -14,6 +14,8 @@ export default function NewClaim() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [insuranceCompanies, setInsuranceCompanies] = useState<InsuranceCompany[]>([]);
+  const [showOtherInput, setShowOtherInput] = useState(false);
+  const [otherInsuranceName, setOtherInsuranceName] = useState('');
 
   const [formData, setFormData] = useState({
     patientName: '',
@@ -51,10 +53,16 @@ export default function NewClaim() {
       const amountClaimed = formData.amountClaimed ? parseFloat(formData.amountClaimed) : null;
       const amountDenied = formData.amountDenied ? parseFloat(formData.amountDenied) : null;
 
+      // Use "Other" value if selected
+      let insuranceCompanyName = formData.insuranceCompany;
+      if (showOtherInput && otherInsuranceName.trim()) {
+        insuranceCompanyName = otherInsuranceName.trim();
+      }
+
       const response = await api.post('/claims', {
         patientName: formData.patientName.trim(),
         patientDob: formData.patientDob,
-        insuranceCompany: formData.insuranceCompany,
+        insuranceCompany: insuranceCompanyName,
         insuranceCompanyId: formData.insuranceCompanyId,
         serviceDate: formData.serviceDate,
         policyNumber: formData.policyNumber?.trim() || null,
@@ -93,12 +101,19 @@ export default function NewClaim() {
     const { name, value } = e.target;
     
     if (name === 'insuranceCompany') {
-      const selected = insuranceCompanies.find((ic: InsuranceCompany) => ic.name === value);
-      setFormData(prev => ({
-        ...prev,
-        insuranceCompany: value,
-        insuranceCompanyId: selected?.id || null
-      }));
+      if (value === 'other') {
+        setShowOtherInput(true);
+        setFormData(prev => ({ ...prev, insuranceCompany: '', insuranceCompanyId: null }));
+      } else {
+        setShowOtherInput(false);
+        setOtherInsuranceName('');
+        const selected = insuranceCompanies.find((ic: InsuranceCompany) => ic.name === value);
+        setFormData(prev => ({
+          ...prev,
+          insuranceCompany: value,
+          insuranceCompanyId: selected?.id || null
+        }));
+      }
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
@@ -145,7 +160,7 @@ export default function NewClaim() {
             <select
               name="insuranceCompany"
               required
-              value={formData.insuranceCompany}
+              value={showOtherInput ? 'other' : formData.insuranceCompany}
               onChange={handleChange}
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
             >
@@ -155,7 +170,21 @@ export default function NewClaim() {
                   {ic.name}
                 </option>
               ))}
+              <option value="other">Other (Not Listed)</option>
             </select>
+            
+            {showOtherInput && (
+              <div className="mt-2">
+                <input
+                  type="text"
+                  placeholder="Enter insurance company name"
+                  value={otherInsuranceName}
+                  onChange={(e) => setOtherInsuranceName(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500"
+                  required={showOtherInput}
+                />
+              </div>
+            )}
           </div>
 
           <div>
