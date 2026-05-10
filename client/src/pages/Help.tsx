@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { 
   BookOpen, FileText, TrendingUp, Upload, 
   Building2, CreditCard, Bell, ChevronDown, 
@@ -145,10 +145,7 @@ export default function Help() {
   };
 
   const scrollToSection = (id: string) => {
-    // Expand the section
     setExpandedSection(id);
-    
-    // Scroll to the section after a short delay to allow the DOM to update
     setTimeout(() => {
       const element = sectionRefs.current[id];
       if (element) {
@@ -164,7 +161,6 @@ export default function Help() {
         <p className="text-gray-600 mt-1">Tutorials, guides, and frequently asked questions</p>
       </div>
 
-      {/* Quick Links - Now with onClick handlers */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <button
           onClick={() => scrollToSection('getting-started')}
@@ -196,7 +192,6 @@ export default function Help() {
         </button>
       </div>
 
-      {/* Tutorials Section */}
       <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
         <div className="px-6 py-4 border-b bg-gray-50">
           <h2 className="font-semibold text-gray-900 flex items-center gap-2">
@@ -242,7 +237,6 @@ export default function Help() {
         </div>
       </div>
 
-      {/* FAQ Section */}
       <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
         <div className="px-6 py-4 border-b bg-gray-50">
           <h2 className="font-semibold text-gray-900 flex items-center gap-2">
@@ -260,7 +254,6 @@ export default function Help() {
         </div>
       </div>
 
-      {/* Contact Support */}
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
         <div className="flex items-center gap-4 flex-wrap justify-between">
           <div>
