@@ -20,10 +20,6 @@ import AdminRoute from './components/AdminRoute';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 
-// Legal pages (public, no authentication required)
-import TermsOfService from './pages/TermsOfService';
-import PrivacyPolicy from './pages/PrivacyPolicy';
-
 function App() {
   return (
     <BrowserRouter>
