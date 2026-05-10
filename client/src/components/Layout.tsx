@@ -149,7 +149,7 @@ export default function Layout({ children }: LayoutProps) {
         <span>|</span>
         <Link to="/hipaa" className="hover:text-gray-700">HIPAA Compliance</Link>
     </div>
-    <p class="mt-2">&copy; 2026 DentalAppeal. All rights reserved.</p>
+    <p className="mt-2">&copy; 2026 DentalAppeal. All rights reserved.</p>
 </div>
       </aside>
 
