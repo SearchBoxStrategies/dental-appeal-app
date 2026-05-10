@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Building2 } from 'lucide-react';
 import {
   LayoutDashboard,
   FileText,
@@ -13,7 +12,8 @@ import {
   HelpCircle,
   Bell,
   TrendingUp,
-  Upload
+  Upload,
+  Building2
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -30,15 +30,15 @@ export default function Layout({ children }: LayoutProps) {
   const userInitial = userName.charAt(0).toUpperCase();
 
   const navItems = [
-  { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { path: '/claims', icon: FileText, label: 'All Claims' },
-  { path: '/claims/new', icon: PlusCircle, label: 'New Claim' },
-  { path: '/analytics', icon: TrendingUp, label: 'Analytics' },
-  { path: '/bulk-upload', icon: Upload, label: 'Bulk Upload' },
-  { path: '/practice/profile', icon: Building2, label: 'Practice Profile' },
-  { path: '/settings/notifications', icon: Bell, label: 'Notifications' },
-  { path: '/billing', icon: CreditCard, label: 'Billing' },
-];
+    { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { path: '/claims', icon: FileText, label: 'All Claims' },
+    { path: '/claims/new', icon: PlusCircle, label: 'New Claim' },
+    { path: '/analytics', icon: TrendingUp, label: 'Analytics' },
+    { path: '/bulk-upload', icon: Upload, label: 'Bulk Upload' },
+    { path: '/practice/profile', icon: Building2, label: 'Practice Profile' },
+    { path: '/settings/notifications', icon: Bell, label: 'Notifications' },
+    { path: '/billing', icon: CreditCard, label: 'Billing' },
+  ];
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -61,7 +61,7 @@ export default function Layout({ children }: LayoutProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 flex flex-col">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div
@@ -140,21 +140,10 @@ export default function Layout({ children }: LayoutProps) {
             <span className="font-medium">Sign Out</span>
           </button>
         </div>
-        // Add to your Layout.tsx footer or bottom section
-<div className="text-center text-xs text-gray-500 py-4 border-t">
-    <div className="flex justify-center space-x-4">
-        <Link to="/terms" className="hover:text-gray-700">Terms of Service</Link>
-        <span>|</span>
-        <Link to="/privacy" className="hover:text-gray-700">Privacy Policy</Link>
-        <span>|</span>
-        <Link to="/hipaa" className="hover:text-gray-700">HIPAA Compliance</Link>
-    </div>
-    <p className="mt-2">&copy; 2026 DentalAppeal. All rights reserved.</p>
-</div>
       </aside>
 
-      {/* Main content */}
-      <main className="lg:ml-72">
+      {/* Main content - flex column to push footer down */}
+      <main className="lg:ml-72 flex flex-col min-h-screen">
         {/* Top header */}
         <header className="bg-white/80 backdrop-blur-sm sticky top-0 z-30 border-b border-slate-200">
           <div className="flex items-center justify-between px-6 py-4">
@@ -165,7 +154,6 @@ export default function Layout({ children }: LayoutProps) {
               <Menu className="w-5 h-5 text-slate-600" />
             </button>
             <div className="flex items-center gap-2 ml-auto">
-              {/* Help Button */}
               <button
                 onClick={handleHelp}
                 className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
@@ -173,8 +161,6 @@ export default function Layout({ children }: LayoutProps) {
               >
                 <HelpCircle className="w-5 h-5 text-slate-500" />
               </button>
-              
-              {/* Settings Button */}
               <button
                 onClick={handleSettings}
                 className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
@@ -182,7 +168,6 @@ export default function Layout({ children }: LayoutProps) {
               >
                 <Settings className="w-5 h-5 text-slate-500" />
               </button>
-              
               <button
                 onClick={handleLogout}
                 className="lg:hidden p-2 rounded-lg hover:bg-slate-100"
@@ -193,10 +178,24 @@ export default function Layout({ children }: LayoutProps) {
           </div>
         </header>
 
-        {/* Page content */}
-        <div className="p-6">
+        {/* Page content - grows to fill space */}
+        <div className="flex-1 p-6">
           {children}
         </div>
+
+        {/* Footer - at the bottom of the page, NOT in sidebar */}
+        <footer className="border-t border-slate-200 py-4 px-6 bg-white/50">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-gray-500">
+            <div className="flex gap-4">
+              <Link to="/terms" className="hover:text-gray-700">Terms of Service</Link>
+              <span>|</span>
+              <Link to="/privacy" className="hover:text-gray-700">Privacy Policy</Link>
+              <span>|</span>
+              <a href="mailto:support@dentalappeal.claims" className="hover:text-gray-700">Support</a>
+            </div>
+            <p>&copy; {new Date().getFullYear()} DentalAppeal. All rights reserved.</p>
+          </div>
+        </footer>
       </main>
     </div>
   );
