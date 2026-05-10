@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Building2, MapPin, Phone, Mail, Globe, FileText, Save, CheckCircle } from 'lucide-react';
+import { Building2, Phone, Mail, Globe, FileText, Save, CheckCircle } from 'lucide-react';
 import api from '../lib/api';
 
 interface PracticeProfile {
@@ -12,6 +12,7 @@ interface PracticeProfile {
   phone: string;
   fax: string;
   website: string;
+  email: string;
   npi_number: string;
   tax_id: string;
   provider_name: string;
@@ -30,6 +31,7 @@ export default function PracticeProfile() {
     phone: '',
     fax: '',
     website: '',
+    email: '',
     npi_number: '',
     tax_id: '',
     provider_name: '',
