@@ -44,11 +44,19 @@ export default function PrivacyPolicy() {
             <p>Email: <a href="mailto:privacy@dentalappeal.claims" className="text-blue-600">privacy@dentalappeal.claims</a></p>
 
             <hr className="my-8" />
-            <p className="text-center text-gray-500 text-sm">
-              DentalAppeal — AI-Powered Dental Insurance Appeals<br />
-              HIPAA-Compliant Platform for Dental Practices<br />
-              &copy; 2026 Search Box Strategies. All rights reserved.
-            </p>
+           <p className="text-center text-gray-500 text-sm">
+  DentalAppeal — AI-Powered Dental Insurance Appeals<br />
+  © {new Date().getFullYear()}{' '}
+  <a 
+    href="https://searchboxstrategies.com" 
+    target="_blank" 
+    rel="noopener noreferrer"
+    className="text-blue-600 hover:underline"
+  >
+    Search Box Strategies
+  </a>
+  . All rights reserved.
+</p>
           </div>
         </div>
       </div>
