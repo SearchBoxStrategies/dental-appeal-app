@@ -14,7 +14,6 @@ export default function NewClaim() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [insuranceCompanies, setInsuranceCompanies] = useState<InsuranceCompany[]>([]);
-  const [loadingInsurance, setLoadingInsurance] = useState(true);
 
   const [formData, setFormData] = useState({
     patientName: '',
@@ -40,8 +39,6 @@ export default function NewClaim() {
       setInsuranceCompanies(response.data);
     } catch (error) {
       console.error('Failed to fetch insurance companies:', error);
-    } finally {
-      setLoadingInsurance(false);
     }
   };
 
