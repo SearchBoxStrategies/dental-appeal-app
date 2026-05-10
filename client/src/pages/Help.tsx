@@ -145,13 +145,22 @@ export default function Help() {
   };
 
   const scrollToSection = (id: string) => {
+    // Expand the section
     setExpandedSection(id);
+    
+    // Scroll to the section after a short delay to allow the DOM to update
     setTimeout(() => {
       const element = sectionRefs.current[id];
       if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.scrollY - 100; // 100px offset from top
+        
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
       }
-    }, 100);
+    }, 150);
   };
 
   return (
