@@ -10,13 +10,17 @@ import ResetPassword from './pages/ResetPassword';
 import Billing from './pages/Billing';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminSubscriptions from './pages/AdminSubscriptions';
-import ProtectedRoute from './components/ProtectedRoute';
-import AdminRoute from './components/AdminRoute';
+import BulkUpload from './pages/BulkUpload';
+import PracticeProfile from './components/PracticeProfile';
 import EmailPreferences from './components/EmailPreferences';
 import AnalyticsReport from './components/AnalyticsReport';
 import Help from './pages/Help';
-import BulkUpload from './pages/BulkUpload';
-import PracticeProfile from './components/PracticeProfile';
+import ProtectedRoute from './components/ProtectedRoute';
+import AdminRoute from './components/AdminRoute';
+
+// Legal pages (public, no authentication required)
+import TermsOfService from './pages/TermsOfService';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 
 function App() {
   return (
@@ -27,11 +31,10 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
-        <Route path="/help" element={
-  <ProtectedRoute>
-    <Help />
-  </ProtectedRoute>
-} />
+        
+        {/* Legal routes - public access */}
+        <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
         
         {/* User protected routes - with Layout (sidebar + header) */}
         <Route path="/dashboard" element={
@@ -54,6 +57,16 @@ function App() {
             <ClaimDetail />
           </ProtectedRoute>
         } />
+        <Route path="/billing" element={
+          <ProtectedRoute>
+            <Billing />
+          </ProtectedRoute>
+        } />
+        <Route path="/practice/profile" element={
+          <ProtectedRoute>
+            <PracticeProfile />
+          </ProtectedRoute>
+        } />
         <Route path="/settings/notifications" element={
           <ProtectedRoute>
             <EmailPreferences />
@@ -64,19 +77,14 @@ function App() {
             <AnalyticsReport />
           </ProtectedRoute>
         } />
-        <Route path="/billing" element={
-          <ProtectedRoute>
-            <Billing />
-          </ProtectedRoute>
-        } />
         <Route path="/bulk-upload" element={
           <ProtectedRoute>
             <BulkUpload />
           </ProtectedRoute>
         } />
-        <Route path="/practice/profile" element={
+        <Route path="/help" element={
           <ProtectedRoute>
-            <PracticeProfile />
+            <Help />
           </ProtectedRoute>
         } />
         
@@ -96,7 +104,7 @@ function App() {
             <AdminSubscriptions />
           </AdminRoute>
         } />
-   
+        
         {/* Default redirect */}
         <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>
