@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, Building2, UserPlus } from 'lucide-react';
+import { Mail, Lock, User, Building2, UserPlus, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -12,18 +12,51 @@ export default function Register() {
     confirmPassword: ''
   });
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [passwordFocused, setPasswordFocused] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState('');
+
+  // Password validation criteria
+  const passwordCriteria = [
+    { label: 'At least 8 characters', test: (pwd: string) => pwd.length >= 8 },
+    { label: 'At least 1 uppercase letter', test: (pwd: string) => /[A-Z]/.test(pwd) },
+    { label: 'At least 1 lowercase letter', test: (pwd: string) => /[a-z]/.test(pwd) },
+    { label: 'At least 1 number', test: (pwd: string) => /[0-9]/.test(pwd) },
+    { label: 'At least 1 special character (!@#$%^&*)', test: (pwd: string) => /[!@#$%^&*]/.test(pwd) }
+  ];
+
+  const getPasswordStrength = (password: string): number => {
+    if (!password) return 0;
+    let score = 0;
+    if (password.length >= 8) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[a-z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[!@#$%^&*]/.test(password)) score++;
+    return score;
+  };
+
+  const passwordStrength = getPasswordStrength(formData.password);
+  const isPasswordValid = passwordStrength === 5;
+  const doPasswordsMatch = formData.password === formData.confirmPassword;
+  const isFormValid = formData.practiceName && formData.name && formData.email && isPasswordValid && doPasswordsMatch;
+
+  const getPasswordStrengthText = () => {
+    if (passwordStrength === 0) return '';
+    if (passwordStrength <= 2) return { text: 'Weak', color: 'text-red-600' };
+    if (passwordStrength <= 3) return { text: 'Medium', color: 'text-yellow-600' };
+    if (passwordStrength <= 4) return { text: 'Strong', color: 'text-blue-600' };
+    return { text: 'Very Strong', color: 'text-green-600' };
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isFormValid) return;
+    
     setLoading(true);
     setError('');
-
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      setLoading(false);
-      return;
-    }
+    setSuccess('');
 
     try {
       const response = await fetch('https://api.dentalappeal.claims/api/auth/register', {
@@ -39,9 +72,19 @@ export default function Register() {
       const data = await response.json();
 
       if (response.ok) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        navigate('/dashboard');
+        setRegisteredEmail(formData.email);
+        setSuccess('Verification email sent! Please check your inbox to complete registration.');
+        setFormData({
+          practiceName: '',
+          name: '',
+          email: '',
+          password: '',
+          confirmPassword: ''
+        });
+        // Auto redirect after 5 seconds
+        setTimeout(() => {
+          navigate('/login');
+        }, 5000);
       } else {
         setError(data.error || 'Registration failed');
       }
@@ -70,16 +113,37 @@ export default function Register() {
               <p className="text-gray-600 mt-2">Join thousands of dental practices</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-                  {error}
+            {/* Success Message */}
+            {success && (
+              <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
+                  <div>
+                    <p className="text-green-800 font-medium">Registration successful!</p>
+                    <p className="text-green-700 text-sm mt-1">{success}</p>
+                    <p className="text-green-600 text-xs mt-2">Redirecting to login...</p>
+                  </div>
                 </div>
-              )}
+              </div>
+            )}
 
+            {/* Error Message */}
+            {error && (
+              <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
+                  <div>
+                    <p className="text-red-800 font-medium">Registration failed</p>
+                    <p className="text-red-700 text-sm mt-1">{error}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Practice Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Practice Name *</label>
                   <div className="relative">
                     <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
@@ -94,7 +158,7 @@ export default function Register() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Your Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Your Name *</label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
@@ -110,7 +174,7 @@ export default function Register() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Email Address *</label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
@@ -126,7 +190,7 @@ export default function Register() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Password *</label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
@@ -134,14 +198,44 @@ export default function Register() {
                       required
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      onFocus={() => setPasswordFocused(true)}
+                      onBlur={() => setPasswordFocused(false)}
                       className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                      placeholder="••••••••"
+                      placeholder="Create a secure password"
                     />
                   </div>
+                  
+                  {/* Password Strength Indicator */}
+                  {formData.password && (
+                    <div className="mt-2">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs text-gray-500">Password strength:</span>
+                        <span className={`text-xs font-medium ${getPasswordStrengthText()?.color || 'text-gray-500'}`}>
+                          {getPasswordStrengthText()?.text || ''}
+                        </span>
+                      </div>
+                      <div className="flex gap-1">
+                        {[1, 2, 3, 4, 5].map((level) => (
+                          <div
+                            key={level}
+                            className={`h-1 flex-1 rounded-full transition-all ${
+                              level <= passwordStrength
+                                ? passwordStrength === 5
+                                  ? 'bg-green-500'
+                                  : passwordStrength >= 3
+                                  ? 'bg-blue-500'
+                                  : 'bg-red-500'
+                                : 'bg-gray-200'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Confirm Password *</label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
@@ -150,19 +244,54 @@ export default function Register() {
                       value={formData.confirmPassword}
                       onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                       className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                      placeholder="••••••••"
+                      placeholder="Confirm your password"
                     />
                   </div>
+                  {formData.confirmPassword && !doPasswordsMatch && (
+                    <p className="text-xs text-red-600 mt-1">Passwords do not match</p>
+                  )}
+                  {formData.confirmPassword && doPasswordsMatch && formData.password && (
+                    <p className="text-xs text-green-600 mt-1">✓ Passwords match</p>
+                  )}
                 </div>
               </div>
 
+              {/* Password Criteria - shown when focused */}
+              {passwordFocused && (
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <p className="text-sm font-medium text-gray-700 mb-2">Password must contain:</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {passwordCriteria.map((criteria, idx) => {
+                      const isValid = criteria.test(formData.password);
+                      return (
+                        <div key={idx} className="flex items-center gap-2">
+                          {isValid ? (
+                            <CheckCircle className="w-4 h-4 text-green-600" />
+                          ) : (
+                            <XCircle className="w-4 h-4 text-gray-400" />
+                          )}
+                          <span className={`text-xs ${isValid ? 'text-green-700' : 'text-gray-500'}`}>
+                            {criteria.label}
+                          </span>
+                        </div>
+                      );
+                      return null;
+                    })}
+                  </div>
+                </div>
+              )}
+
               <button
                 type="submit"
-                disabled={loading}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 flex items-center justify-center gap-2"
+                disabled={loading || !isFormValid}
+                className={`w-full font-semibold py-2.5 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 ${
+                  isFormValid
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm hover:shadow-md'
+                    : 'bg-gray-300 cursor-not-allowed text-gray-500'
+                }`}
               >
                 {loading ? (
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                 ) : (
                   <>
                     <UserPlus className="w-4 h-4" />
