@@ -1,18 +1,33 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, LogIn } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Mail, Lock, LogIn, AlertCircle, CheckCircle, Send } from 'lucide-react';
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [requiresVerification, setRequiresVerification] = useState(false);
+  const [unverifiedEmail, setUnverifiedEmail] = useState('');
+  const [resending, setResending] = useState(false);
+
+  // Check for verification success URL parameter
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('verified') === 'true') {
+      setSuccess('Email verified successfully! You can now log in.');
+    }
+  }, [location]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setSuccess('');
+    setRequiresVerification(false);
 
     try {
       const response = await fetch('https://api.dentalappeal.claims/api/auth/login', {
@@ -26,6 +41,10 @@ export default function Login() {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
         navigate('/dashboard');
+      } else if (response.status === 401 && data.requiresVerification) {
+        setRequiresVerification(true);
+        setUnverifiedEmail(data.email || email);
+        setError(`Please verify your email address before logging in. A verification link was sent to ${data.email || email}.`);
       } else {
         setError(data.error || 'Login failed');
       }
@@ -36,18 +55,44 @@ export default function Login() {
     }
   };
 
+  const handleResendVerification = async () => {
+    setResending(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const response = await fetch('https://api.dentalappeal.claims/api/auth/resend-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: unverifiedEmail || email })
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        setSuccess(`Verification email resent to ${unverifiedEmail || email}. Please check your inbox.`);
+        setRequiresVerification(false);
+      } else {
+        setError(data.error || 'Failed to resend verification email');
+      }
+    } catch (err) {
+      setError('Network error. Please try again.');
+    } finally {
+      setResending(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
       <div className="container mx-auto px-4 py-16 md:py-24">
         <div className="max-w-md mx-auto">
-          {/* Logo */}
-         <div className="text-center mb-8">
-    <div className="flex items-center justify-center gap-2 mb-4">
-        <img src="/logo.png" alt="DentalAppeal" className="w-12 h-12 object-contain" />
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">DentalAppeal</h1>
-    </div>
-    <p className="text-gray-600">Insurance Appeal Management</p>
-</div>
+          {/* Logo & Header */}
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <img src="/logo.png" alt="DentalAppeal" className="w-12 h-12 object-contain" />
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">DentalAppeal</h1>
+            </div>
+            <p className="text-gray-600">Insurance Appeal Management</p>
+          </div>
 
           {/* Login Card */}
           <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 md:p-8">
@@ -56,13 +101,56 @@ export default function Login() {
               <p className="text-gray-600 mt-2">Sign in to your account</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
-                  {error}
+            {/* Success Message (e.g., email verified) */}
+            {success && (
+              <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
+                  <div>
+                    <p className="text-green-800 font-medium">Success!</p>
+                    <p className="text-green-700 text-sm mt-1">{success}</p>
+                  </div>
                 </div>
-              )}
+              </div>
+            )}
 
+            {/* Error Message */}
+            {error && (
+              <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
+                  <div>
+                    <p className="text-red-800 font-medium">Error</p>
+                    <p className="text-red-700 text-sm mt-1">{error}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Verification Required Card */}
+            {requiresVerification && (
+              <div className="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="text-yellow-800 font-medium">Email not verified</p>
+                    <p className="text-yellow-700 text-sm mt-1">
+                      Please check your inbox for the verification link.
+                    </p>
+                    <button
+                      onClick={handleResendVerification}
+                      disabled={resending}
+                      className="mt-3 flex items-center gap-2 text-sm text-yellow-700 hover:text-yellow-800 font-medium disabled:opacity-50"
+                    >
+                      <Send className="w-3 h-3" />
+                      {resending ? 'Sending...' : 'Resend verification email'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Email address</label>
                 <div className="relative">
@@ -109,7 +197,7 @@ export default function Login() {
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {loading ? (
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                 ) : (
                   <>
                     <LogIn className="w-4 h-4" />
