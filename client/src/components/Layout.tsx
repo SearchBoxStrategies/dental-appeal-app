@@ -78,11 +78,15 @@ export default function Layout({ children }: LayoutProps) {
         }`}
       >
         {/* Logo Section */}
-        <div className="flex items-center justify-between p-5 border-b border-slate-200">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center">
-              <img src="/logo.png" alt="DentalAppeal" className="w-6 h-6" />
-            </div>
+        <div className="flex items-center gap-3">
+    <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center">
+        <img src="/logo.png" alt="DentalAppeal" className="w-6 h-6" />
+    </div>
+    <div>
+        <h1 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">DentalAppeal</h1>
+        <p className="text-xs text-slate-500">Professional Edition</p>
+    </div>
+</div>
             <div>
               <h1 className="font-bold text-slate-900 text-lg">DentalAppeal</h1>
               <p className="text-xs text-slate-500">Professional Edition</p>
