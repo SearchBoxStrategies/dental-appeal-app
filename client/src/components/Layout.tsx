@@ -87,12 +87,8 @@ export default function Layout({ children }: LayoutProps) {
         <p className="text-xs text-slate-500">Professional Edition</p>
     </div>
 </div>
-            <div>
-              <h1 className="font-bold text-slate-900 text-lg">DentalAppeal</h1>
-              <p className="text-xs text-slate-500">Professional Edition</p>
-            </div>
-          </div>
-          <button
+          
+                   <button
             onClick={() => setSidebarOpen(false)}
             className="lg:hidden text-slate-500 hover:text-slate-700"
           >
