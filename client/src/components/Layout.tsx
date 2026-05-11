@@ -62,7 +62,6 @@ export default function Layout({ children }: LayoutProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 flex flex-col">
-      {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
@@ -70,13 +69,11 @@ export default function Layout({ children }: LayoutProps) {
         />
       )}
 
-      {/* Sidebar */}
       <aside
         className={`fixed top-0 left-0 z-50 h-full w-72 bg-white shadow-xl transition-transform duration-300 lg:translate-x-0 flex flex-col ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        {/* Logo Section */}
         <div className="flex items-center justify-between p-5 border-b border-slate-200">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center">
@@ -95,7 +92,6 @@ export default function Layout({ children }: LayoutProps) {
           </button>
         </div>
 
-        {/* User profile */}
         <div className="p-5 border-b border-slate-100">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
@@ -108,7 +104,6 @@ export default function Layout({ children }: LayoutProps) {
           </div>
         </div>
 
-        {/* Navigation - Scrollable */}
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -130,7 +125,6 @@ export default function Layout({ children }: LayoutProps) {
           })}
         </nav>
 
-        {/* Bottom section - Sign Out */}
         <div className="mt-auto p-4 border-t border-slate-200 bg-white">
           <button
             onClick={handleLogout}
@@ -142,9 +136,7 @@ export default function Layout({ children }: LayoutProps) {
         </div>
       </aside>
 
-      {/* Main content */}
       <main className="lg:ml-72 flex flex-col min-h-screen">
-        {/* Top header */}
         <header className="bg-white/80 backdrop-blur-sm sticky top-0 z-30 border-b border-slate-200">
           <div className="flex items-center justify-between px-6 py-4">
             <button
@@ -178,12 +170,10 @@ export default function Layout({ children }: LayoutProps) {
           </div>
         </header>
 
-        {/* Page content */}
         <div className="flex-1 p-6">
           {children}
         </div>
 
-        {/* Footer */}
         <footer className="border-t border-slate-200 py-4 px-6 bg-white/50">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-gray-500">
             <div className="flex gap-4">
