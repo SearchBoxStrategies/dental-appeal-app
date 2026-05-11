@@ -38,7 +38,6 @@ export default function Layout({ children }: LayoutProps) {
     { path: '/practice/profile', icon: Building2, label: 'Practice Profile' },
     { path: '/settings/notifications', icon: Bell, label: 'Notifications' },
     { path: '/billing', icon: CreditCard, label: 'Billing' },
-    { path: '/help', icon: HelpCircle, label: 'Help & Tutorials' },
   ];
 
   const handleLogout = () => {
@@ -78,17 +77,17 @@ export default function Layout({ children }: LayoutProps) {
         }`}
       >
         {/* Logo Section */}
-        <div className="flex items-center gap-3">
-    <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center">
-        <img src="/logo.png" alt="DentalAppeal" className="w-6 h-6" />
-    </div>
-    <div>
-        <h1 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">DentalAppeal</h1>
-        <p className="text-xs text-slate-500">Professional Edition</p>
-    </div>
-</div>
-          
-                   <button
+        <div className="flex items-center justify-between p-5 border-b border-slate-200">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center">
+              <img src="/logo.png" alt="DentalAppeal" className="w-6 h-6" />
+            </div>
+            <div>
+              <h1 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">DentalAppeal</h1>
+              <p className="text-xs text-slate-500">Professional Edition</p>
+            </div>
+          </div>
+          <button
             onClick={() => setSidebarOpen(false)}
             className="lg:hidden text-slate-500 hover:text-slate-700"
           >
@@ -143,7 +142,7 @@ export default function Layout({ children }: LayoutProps) {
         </div>
       </aside>
 
-      {/* Main content - flex column to push footer down */}
+      {/* Main content */}
       <main className="lg:ml-72 flex flex-col min-h-screen">
         {/* Top header */}
         <header className="bg-white/80 backdrop-blur-sm sticky top-0 z-30 border-b border-slate-200">
@@ -179,38 +178,38 @@ export default function Layout({ children }: LayoutProps) {
           </div>
         </header>
 
-        {/* Page content - grows to fill space */}
+        {/* Page content */}
         <div className="flex-1 p-6">
           {children}
         </div>
 
-        {/* Footer - at the bottom of the page, NOT in sidebar */}
+        {/* Footer */}
         <footer className="border-t border-slate-200 py-4 px-6 bg-white/50">
-  <div className="flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-gray-500">
-    <div className="flex gap-4">
-      <Link to="/terms" className="hover:text-gray-700">Terms of Service</Link>
-      <span>|</span>
-      <Link to="/privacy" className="hover:text-gray-700">Privacy Policy</Link>
-      <span>|</span>
-      <a href="mailto:support@dentalappeal.claims" className="hover:text-gray-700">Support</a>
-    </div>
-    <div className="text-center">
-      <p>
-        © {new Date().getFullYear()}{' '}
-        <a 
-          href="https://searchboxstrategies.com" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="hover:text-gray-700 hover:underline transition-all"
-        >
-          Search Box Strategies
-        </a>
-        . All rights reserved.
-      </p>
-      <p className="text-xs text-gray-400">DentalAppeal is a product of Search Box Strategies.</p>
-    </div>
-  </div>
-</footer>
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-gray-500">
+            <div className="flex gap-4">
+              <Link to="/terms" className="hover:text-gray-700">Terms of Service</Link>
+              <span>|</span>
+              <Link to="/privacy" className="hover:text-gray-700">Privacy Policy</Link>
+              <span>|</span>
+              <a href="mailto:support@dentalappeal.claims" className="hover:text-gray-700">Support</a>
+            </div>
+            <div className="text-center">
+              <p>
+                © {new Date().getFullYear()}{' '}
+                <a 
+                  href="https://searchboxstrategies.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="hover:text-gray-700 hover:underline transition-all"
+                >
+                  Search Box Strategies
+                </a>
+                . All rights reserved.
+              </p>
+              <p className="text-xs text-gray-400">DentalAppeal is a product of Search Box Strategies.</p>
+            </div>
+          </div>
+        </footer>
       </main>
     </div>
   );
