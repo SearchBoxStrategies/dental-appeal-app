@@ -41,11 +41,13 @@ export default function Login() {
       <div className="container mx-auto px-4 py-16 md:py-24">
         <div className="max-w-md mx-auto">
           {/* Logo */}
-          <div className="text-center mb-8">
-            <img src="/logo.png" alt="DentalAppeal" className="w-20 h-20 object-contain mx-auto mb-4" />
-            <h1 className="text-3xl font-bold text-gray-900">DentalAppeal</h1>
-            <p className="text-gray-600">Insurance Appeal Management</p>
-          </div>
+         <div className="text-center mb-8">
+    <div className="flex items-center justify-center gap-2 mb-4">
+        <img src="/logo.png" alt="DentalAppeal" className="w-12 h-12 object-contain" />
+        <span className="text-3xl font-bold text-gray-900">DentalAppeal</span>
+    </div>
+    <p className="text-gray-600">Insurance Appeal Management</p>
+</div>
 
           {/* Login Card */}
           <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 md:p-8">
