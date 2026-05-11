@@ -15,7 +15,6 @@ export default function Register() {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
-  const [registeredEmail, setRegisteredEmail] = useState('');
 
   // Password validation criteria
   const passwordCriteria = [
@@ -42,13 +41,15 @@ export default function Register() {
   const doPasswordsMatch = formData.password === formData.confirmPassword;
   const isFormValid = formData.practiceName && formData.name && formData.email && isPasswordValid && doPasswordsMatch;
 
-  const getPasswordStrengthText = () => {
-    if (passwordStrength === 0) return '';
+  const getPasswordStrengthInfo = (): { text: string; color: string } => {
+    if (passwordStrength === 0) return { text: '', color: '' };
     if (passwordStrength <= 2) return { text: 'Weak', color: 'text-red-600' };
     if (passwordStrength <= 3) return { text: 'Medium', color: 'text-yellow-600' };
     if (passwordStrength <= 4) return { text: 'Strong', color: 'text-blue-600' };
     return { text: 'Very Strong', color: 'text-green-600' };
   };
+
+  const strengthInfo = getPasswordStrengthInfo();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,8 +73,7 @@ export default function Register() {
       const data = await response.json();
 
       if (response.ok) {
-        setRegisteredEmail(formData.email);
-        setSuccess('Verification email sent! Please check your inbox to complete registration.');
+        setSuccess(`Verification email sent to ${formData.email}. Please check your inbox to complete registration.`);
         setFormData({
           practiceName: '',
           name: '',
@@ -210,8 +210,8 @@ export default function Register() {
                     <div className="mt-2">
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-xs text-gray-500">Password strength:</span>
-                        <span className={`text-xs font-medium ${getPasswordStrengthText()?.color || 'text-gray-500'}`}>
-                          {getPasswordStrengthText()?.text || ''}
+                        <span className={`text-xs font-medium ${strengthInfo.color}`}>
+                          {strengthInfo.text}
                         </span>
                       </div>
                       <div className="flex gap-1">
@@ -275,7 +275,6 @@ export default function Register() {
                           </span>
                         </div>
                       );
-                      return null;
                     })}
                   </div>
                 </div>
