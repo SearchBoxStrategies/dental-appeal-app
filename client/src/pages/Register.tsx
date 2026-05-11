@@ -53,15 +53,12 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
-      <div className="container mx-auto px-4 py-12">
-        {/* Logo */}
-        <div className="text-center mb-8">
+   <div className="text-center mb-10">
     <div className="flex items-center justify-center gap-2 mb-4">
         <img src="/logo.png" alt="DentalAppeal" className="w-12 h-12 object-contain" />
-        <span className="text-3xl font-bold text-gray-900">DentalAppeal</span>
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">DentalAppeal</h1>
     </div>
-    <p className="text-gray-600">Insurance Appeal Management</p>
+    <p className="text-gray-600">Start your free trial</p>
 </div>
 
         {/* Register Card */}
