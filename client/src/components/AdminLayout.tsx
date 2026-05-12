@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { CreditCard } from 'lucide-react';
 import {
   LayoutDashboard,
   Users,
@@ -26,14 +25,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const userName = user.name || 'Admin';
   const userInitial = userName.charAt(0).toUpperCase();
 
- const navItems = [
-  { path: '/admin', icon: LayoutDashboard, label: 'Overview' },
-  { path: '/admin/clients', icon: Users, label: 'All Clients' },
-  { path: '/admin/subscriptions', icon: CreditCard, label: 'Subscriptions' },
-  { path: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
-  { path: '/admin/settings', icon: Settings, label: 'Settings' },
-  { path: '/admin/payments', icon: CreditCard, label: 'Payments' },
-];
+  const navItems = [
+    { path: '/admin', icon: LayoutDashboard, label: 'Overview' },
+    { path: '/admin/clients', icon: Users, label: 'All Clients' },
+    { path: '/admin/subscriptions', icon: CreditCard, label: 'Subscriptions' },
+    { path: '/admin/payments', icon: CreditCard, label: 'Payments' },
+    { path: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
+    { path: '/admin/settings', icon: Settings, label: 'Settings' },
+  ];
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -49,7 +48,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
-      {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
@@ -57,7 +55,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         />
       )}
 
-      {/* Sidebar */}
       <aside
         className={`fixed top-0 left-0 z-50 h-full w-72 bg-gradient-to-b from-slate-900 to-slate-800 shadow-xl transition-transform duration-300 lg:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
@@ -81,7 +78,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           </button>
         </div>
 
-        {/* User profile */}
         <div className="p-5 border-b border-slate-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center">
@@ -94,7 +90,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           </div>
         </div>
 
-        {/* Navigation */}
         <nav className="p-4 space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -116,7 +111,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           })}
         </nav>
 
-        {/* Bottom section */}
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-700">
           <button
             onClick={handleLogout}
@@ -128,9 +122,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         </div>
       </aside>
 
-      {/* Main content */}
       <main className="lg:ml-72">
-        {/* Top header */}
         <header className="bg-white/80 backdrop-blur-sm sticky top-0 z-30 border-b border-slate-200">
           <div className="flex items-center justify-between px-6 py-4">
             <button
@@ -148,7 +140,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           </div>
         </header>
 
-        {/* Page content */}
         <div className="p-6">
           {children}
         </div>
