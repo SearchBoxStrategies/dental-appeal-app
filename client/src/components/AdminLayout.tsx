@@ -32,6 +32,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { path: '/admin/payments', icon: CreditCard, label: 'Payments' },
     { path: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
     { path: '/admin/settings', icon: Settings, label: 'Settings' },
+    { path: '/admin/email-templates', icon: Mail, label: 'Email Templates' },
   ];
 
   const handleLogout = () => {
