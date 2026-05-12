@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Lock, LogIn, AlertCircle, CheckCircle, Send } from 'lucide-react';
+import AdminVerification from '../components/AdminVerification';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -14,8 +15,8 @@ export default function Login() {
   const [unverifiedEmail, setUnverifiedEmail] = useState('');
   const [resending, setResending] = useState(false);
   const [successSpamNote, setSuccessSpamNote] = useState(false);
+  const [adminVerification, setAdminVerification] = useState<{ userId: number; email: string } | null>(null);
 
-  // Check for verification success URL parameter
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     if (params.get('verified') === 'true') {
@@ -29,6 +30,7 @@ export default function Login() {
     setError('');
     setSuccess('');
     setRequiresVerification(false);
+    setAdminVerification(null);
 
     try {
       const response = await fetch('https://api.dentalappeal.claims/api/auth/login', {
@@ -46,6 +48,8 @@ export default function Login() {
         setRequiresVerification(true);
         setUnverifiedEmail(data.email || email);
         setError(`Please verify your email address before logging in. A verification link was sent to ${data.email || email}.`);
+      } else if (response.status === 401 && data.requiresAdminVerification) {
+        setAdminVerification({ userId: data.userId, email: data.email });
       } else {
         setError(data.error || 'Login failed');
       }
@@ -84,11 +88,25 @@ export default function Login() {
     }
   };
 
+  if (adminVerification) {
+    return (
+      <AdminVerification
+        userId={adminVerification.userId}
+        email={adminVerification.email}
+        onVerified={(token, userData) => {
+          localStorage.setItem('token', token);
+          localStorage.setItem('user', JSON.stringify(userData));
+          navigate('/admin');
+        }}
+        onBackToLogin={() => setAdminVerification(null)}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
       <div className="container mx-auto px-4 py-16 md:py-24">
         <div className="max-w-md mx-auto">
-          {/* Logo & Header */}
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-2 mb-4">
               <img src="/logo.png" alt="DentalAppeal" className="w-12 h-12 object-contain" />
@@ -97,14 +115,12 @@ export default function Login() {
             <p className="text-gray-600">Insurance Appeal Management</p>
           </div>
 
-          {/* Login Card */}
           <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 md:p-8">
             <div className="text-center mb-8">
               <h2 className="text-2xl font-semibold text-gray-900">Welcome back</h2>
               <p className="text-gray-600 mt-2">Sign in to your account</p>
             </div>
 
-            {/* Success Message (e.g., email verified) */}
             {success && !successSpamNote && (
               <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
                 <div className="flex items-start gap-3">
@@ -117,7 +133,6 @@ export default function Login() {
               </div>
             )}
 
-            {/* Success Message with Spam Note (for resend verification) */}
             {success && successSpamNote && (
               <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
                 <div className="flex items-start gap-3">
@@ -136,7 +151,6 @@ export default function Login() {
               </div>
             )}
 
-            {/* Error Message */}
             {error && (
               <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
                 <div className="flex items-start gap-3">
@@ -149,7 +163,6 @@ export default function Login() {
               </div>
             )}
 
-            {/* Verification Required Card */}
             {requiresVerification && (
               <div className="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                 <div className="flex items-start gap-3">
