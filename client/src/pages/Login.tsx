@@ -13,6 +13,7 @@ export default function Login() {
   const [requiresVerification, setRequiresVerification] = useState(false);
   const [unverifiedEmail, setUnverifiedEmail] = useState('');
   const [resending, setResending] = useState(false);
+  const [successSpamNote, setSuccessSpamNote] = useState(false);
 
   // Check for verification success URL parameter
   useEffect(() => {
@@ -59,6 +60,7 @@ export default function Login() {
     setResending(true);
     setError('');
     setSuccess('');
+    setSuccessSpamNote(false);
 
     try {
       const response = await fetch('https://api.dentalappeal.claims/api/auth/resend-verification', {
@@ -69,7 +71,8 @@ export default function Login() {
       const data = await response.json();
 
       if (response.ok) {
-        setSuccess(`Verification email resent to ${unverifiedEmail || email}. Please check your inbox.`);
+        setSuccess(`Verification email resent to ${unverifiedEmail || email}.`);
+        setSuccessSpamNote(true);
         setRequiresVerification(false);
       } else {
         setError(data.error || 'Failed to resend verification email');
@@ -102,13 +105,32 @@ export default function Login() {
             </div>
 
             {/* Success Message (e.g., email verified) */}
-            {success && (
+            {success && !successSpamNote && (
               <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
                 <div className="flex items-start gap-3">
                   <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
                   <div>
                     <p className="text-green-800 font-medium">Success!</p>
                     <p className="text-green-700 text-sm mt-1">{success}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Success Message with Spam Note (for resend verification) */}
+            {success && successSpamNote && (
+              <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
+                  <div>
+                    <p className="text-green-800 font-medium">Success!</p>
+                    <p className="text-green-700 text-sm mt-1">{success}</p>
+                    <div className="mt-2 p-2 bg-yellow-50 rounded border border-yellow-200">
+                      <p className="text-yellow-700 text-xs flex items-center gap-1">
+                        <span>📧</span>
+                        <span><strong>Didn't see the email?</strong> Check your <strong>spam or junk folder</strong>.</span>
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
