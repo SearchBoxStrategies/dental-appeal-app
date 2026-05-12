@@ -25,13 +25,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const userName = user.name || 'Admin';
   const userInitial = userName.charAt(0).toUpperCase();
 
-  const navItems = [
-    { path: '/admin', icon: LayoutDashboard, label: 'Overview' },
-    { path: '/admin/clients', icon: Users, label: 'All Clients' },
-    { path: '/admin/subscriptions', icon: CreditCard, label: 'Subscriptions' },
-    { path: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
-    { path: '/admin/settings', icon: Settings, label: 'Settings' },
-  ];
+ const navItems = [
+  { path: '/admin', icon: LayoutDashboard, label: 'Overview' },
+  { path: '/admin/clients', icon: Users, label: 'All Clients' },
+  { path: '/admin/subscriptions', icon: CreditCard, label: 'Subscriptions' },
+  { path: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
+  { path: '/admin/settings', icon: Settings, label: 'Settings' },
+];
 
   const handleLogout = () => {
     localStorage.removeItem('token');
