@@ -51,7 +51,7 @@ interface ClientDetail extends Client {
 
 export default function AdminDashboard() {
   const [clients, setClients] = useState<Client[]>([]);
-  const [selectedClient, setSelectedClient] useState<ClientDetail | null>(null);
+  const [selectedClient, setSelectedClient] = useState<ClientDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
