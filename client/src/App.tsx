@@ -88,32 +88,37 @@ function App() {
           </ProtectedRoute>
         } />
         
-        {/* Admin protected routes - with AdminLayout (dark sidebar) */}
-        <Route path="/admin" element={
-          <AdminRoute>
-            <AdminDashboard />
-          </AdminRoute>
-        } />
-        <Route path="/admin/clients/:id" element={
-          <AdminRoute>
-            <AdminDashboard />
-          </AdminRoute>
-        } />
-        <Route path="/admin/subscriptions" element={
-          <AdminRoute>
-            <AdminSubscriptions />
-          </AdminRoute>
-        } />
-        <Route path="/admin/analytics" element={
-          <AdminRoute>
-            <AdminAnalytics />
-          </AdminRoute>
-        } />
-        <Route path="/admin/settings" element={
-          <AdminRoute>
-            <AdminSettings />
-          </AdminRoute>
-        } />
+       {/* Admin protected routes - with AdminLayout (dark sidebar) */}
+<Route path="/admin" element={
+  <AdminRoute>
+    <AdminDashboard />
+  </AdminRoute>
+} />
+<Route path="/admin/clients" element={
+  <AdminRoute>
+    <AdminDashboard />
+  </AdminRoute>
+} />
+<Route path="/admin/clients/:id" element={
+  <AdminRoute>
+    <AdminDashboard />
+  </AdminRoute>
+} />
+<Route path="/admin/subscriptions" element={
+  <AdminRoute>
+    <AdminSubscriptions />
+  </AdminRoute>
+} />
+<Route path="/admin/analytics" element={
+  <AdminRoute>
+    <AdminAnalytics />
+  </AdminRoute>
+} />
+<Route path="/admin/settings" element={
+  <AdminRoute>
+    <AdminSettings />
+  </AdminRoute>
+} />
         
         {/* Default redirect */}
         <Route path="/" element={<Navigate to="/login" replace />} />
