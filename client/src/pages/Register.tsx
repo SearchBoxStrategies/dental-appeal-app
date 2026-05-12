@@ -114,18 +114,24 @@ export default function Register() {
             </div>
 
             {/* Success Message */}
-            {success && (
-              <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
-                <div className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
-                  <div>
-                    <p className="text-green-800 font-medium">Registration successful!</p>
-                    <p className="text-green-700 text-sm mt-1">{success}</p>
-                    <p className="text-green-600 text-xs mt-2">Redirecting to login...</p>
-                  </div>
-                </div>
-              </div>
-            )}
+           {success && (
+  <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
+    <div className="flex items-start gap-3">
+      <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
+      <div>
+        <p className="text-green-800 font-medium">Registration successful!</p>
+        <p className="text-green-700 text-sm mt-1">{success}</p>
+        <div className="mt-2 p-2 bg-yellow-50 rounded border border-yellow-200">
+          <p className="text-yellow-700 text-xs flex items-center gap-1">
+            <span>📧</span>
+            <span><strong>Didn't see the email?</strong> Check your <strong>spam or junk folder</strong>.</span>
+          </p>
+        </div>
+        <p className="text-green-600 text-xs mt-2">Redirecting to login...</p>
+      </div>
+    </div>
+  </div>
+)}
 
             {/* Error Message */}
             {error && (
