@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import api from '../lib/api';
 import ClientNotes from '../components/ClientNotes';
+import SubscriptionOverride from '../components/SubscriptionOverride';
 
 interface Client {
   id: number;
@@ -194,10 +195,16 @@ export default function AdminDashboard() {
             <div>
               <h1 className="text-2xl font-bold text-gray-900">{selectedClient.practice_name || selectedClient.name}</h1>
               <p className="text-gray-500">{selectedClient.email}</p>
-              <div className="flex gap-2 mt-2">
+              <div className="flex items-center gap-3 mt-2">
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(selectedClient.subscription_status)}`}>
                   {selectedClient.subscription_status}
                 </span>
+                <SubscriptionOverride
+                  practiceId={selectedClient.id}
+                  currentStatus={selectedClient.subscription_status}
+                  practiceName={selectedClient.practice_name || selectedClient.name}
+                  onStatusChanged={fetchClientDetails}
+                />
                 <span className="text-xs text-gray-400">Joined {new Date(selectedClient.created_at).toLocaleDateString()}</span>
               </div>
             </div>
@@ -268,7 +275,7 @@ export default function AdminDashboard() {
                 {selectedClient.recentClaims?.map((claim) => (
                   <tr key={claim.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 font-medium text-gray-900">{claim.patient_name}</td>
-                    <td className="px-6 py-4 text-gray-600">{claim.insurance_company}</td>
+                    <td className="px-6 py-4 text-gray-600">{claim.insurance_company}<td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${getClaimStatusBadge(claim.status)}`}>
                         {claim.status}
@@ -403,7 +410,7 @@ export default function AdminDashboard() {
                     <span className="font-medium text-gray-900">
                       {client.practice_name || client.name || 'N/A'}
                     </span>
-                  </td>
+                   </td>
                   <td className="px-6 py-4 text-gray-600">{client.name || '—'}</td>
                   <td className="px-6 py-4 text-gray-600">{client.email}</td>
                   <td className="px-6 py-4">
