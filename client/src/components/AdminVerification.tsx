@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Shield, Send, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react';
+import { Shield, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react';
 
 interface AdminVerificationProps {
   userId: number;
@@ -109,7 +109,6 @@ export default function AdminVerification({ userId, email, onVerified, onBackToL
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center px-4">
       <div className="max-w-md w-full">
-        {/* Logo */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
             <img src="/logo.png" alt="DentalAppeal" className="w-12 h-12 object-contain" />
@@ -118,7 +117,6 @@ export default function AdminVerification({ userId, email, onVerified, onBackToL
           <p className="text-gray-600">Admin Portal Verification</p>
         </div>
 
-        {/* Verification Card */}
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
           <div className="text-center mb-6">
             <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
