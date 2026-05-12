@@ -65,13 +65,11 @@ export default function AdminDashboard() {
     successRate: 0
   });
 
-  // Fetch all clients
   const fetchClients = async () => {
     try {
       const response = await api.get('/admin/clients');
       setClients(response.data);
       
-      // Calculate stats
       const active = response.data.filter((c: Client) => c.subscription_status === 'active').length;
       setStats({
         totalClients: response.data.length,
@@ -87,7 +85,6 @@ export default function AdminDashboard() {
     }
   };
 
-  // Fetch single client details
   const fetchClientDetails = async (clientId: number) => {
     setLoading(true);
     try {
@@ -105,7 +102,6 @@ export default function AdminDashboard() {
     fetchClients();
   }, []);
 
-  // Filter clients based on search and status
   const filteredClients = clients.filter(client => {
     const matchesSearch = 
       client.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -174,11 +170,9 @@ export default function AdminDashboard() {
     );
   }
 
-  // Detail View
   if (view === 'detail' && selectedClient) {
     return (
       <div className="space-y-6">
-        {/* Back button */}
         <button
           onClick={() => {
             setView('list');
@@ -189,7 +183,6 @@ export default function AdminDashboard() {
           ← Back to Clients
         </button>
 
-        {/* Client Header */}
         <div className="bg-white rounded-xl shadow-sm border p-6">
           <div className="flex justify-between items-start">
             <div>
@@ -222,7 +215,6 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-white rounded-xl shadow-sm border p-4">
             <div className="flex items-center justify-between">
@@ -254,7 +246,6 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Recent Claims Table */}
         <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
           <div className="px-6 py-4 border-b bg-gray-50">
             <h2 className="font-semibold text-gray-900">Recent Claims</h2>
@@ -275,7 +266,7 @@ export default function AdminDashboard() {
                 {selectedClient.recentClaims?.map((claim) => (
                   <tr key={claim.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 font-medium text-gray-900">{claim.patient_name}</td>
-                    <td className="px-6 py-4 text-gray-600">{claim.insurance_company}<td>
+                    <td className="px-6 py-4 text-gray-600">{claim.insurance_company}</td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${getClaimStatusBadge(claim.status)}`}>
                         {claim.status}
@@ -301,22 +292,18 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Client Notes Section */}
         <ClientNotes clientId={selectedClient.id} />
       </div>
     );
   }
 
-  // List View
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
         <p className="text-gray-600 mt-1">Manage all clients and subscriptions</p>
       </div>
 
-      {/* Stats Overview */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <div className="bg-white rounded-xl shadow-sm border p-4">
           <div className="flex items-center justify-between">
@@ -355,7 +342,6 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -389,7 +375,6 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Clients Table */}
       <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -410,7 +395,7 @@ export default function AdminDashboard() {
                     <span className="font-medium text-gray-900">
                       {client.practice_name || client.name || 'N/A'}
                     </span>
-                   </td>
+                  </td>
                   <td className="px-6 py-4 text-gray-600">{client.name || '—'}</td>
                   <td className="px-6 py-4 text-gray-600">{client.email}</td>
                   <td className="px-6 py-4">
