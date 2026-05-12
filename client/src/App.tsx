@@ -10,6 +10,8 @@ import ResetPassword from './pages/ResetPassword';
 import Billing from './pages/Billing';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminSubscriptions from './pages/AdminSubscriptions';
+import AdminAnalytics from './pages/AdminAnalytics';
+import AdminSettings from './pages/AdminSettings';
 import BulkUpload from './pages/BulkUpload';
 import PracticeProfile from './components/PracticeProfile';
 import EmailPreferences from './components/EmailPreferences';
@@ -100,6 +102,16 @@ function App() {
         <Route path="/admin/subscriptions" element={
           <AdminRoute>
             <AdminSubscriptions />
+          </AdminRoute>
+        } />
+        <Route path="/admin/analytics" element={
+          <AdminRoute>
+            <AdminAnalytics />
+          </AdminRoute>
+        } />
+        <Route path="/admin/settings" element={
+          <AdminRoute>
+            <AdminSettings />
           </AdminRoute>
         } />
         
