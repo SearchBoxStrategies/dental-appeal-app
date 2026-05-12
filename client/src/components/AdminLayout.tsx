@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { CreditCard } from 'lucide-react';
 import {
   LayoutDashboard,
   Users,
@@ -31,6 +32,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   { path: '/admin/subscriptions', icon: CreditCard, label: 'Subscriptions' },
   { path: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
   { path: '/admin/settings', icon: Settings, label: 'Settings' },
+  { path: '/admin/payments', icon: CreditCard, label: 'Payments' },
 ];
 
   const handleLogout = () => {
