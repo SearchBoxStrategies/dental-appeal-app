@@ -9,7 +9,8 @@ import {
   Menu,
   X,
   Shield,
-  BarChart3
+  BarChart3,
+  Mail
 } from 'lucide-react';
 
 interface AdminLayoutProps {
