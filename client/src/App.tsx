@@ -22,6 +22,7 @@ import AdminRoute from './components/AdminRoute';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import AdminPayments from './components/AdminPayments';
+import AdminEmailTemplates from './components/AdminEmailTemplates';
 
 function App() {
   return (
@@ -88,7 +89,11 @@ function App() {
             <Help />
           </ProtectedRoute>
         } />
-        
+        <Route path="/admin/email-templates" element={
+  <AdminRoute>
+    <AdminEmailTemplates />
+  </AdminRoute>
+} />
        {/* Admin protected routes - with AdminLayout (dark sidebar) */}
 <Route path="/admin" element={
   <AdminRoute>
