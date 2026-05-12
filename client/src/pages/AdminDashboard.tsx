@@ -7,6 +7,7 @@ import {
   UserCheck, UserX
 } from 'lucide-react';
 import api from '../lib/api';
+import ClientNotes from '../components/ClientNotes';
 
 interface Client {
   id: number;
@@ -292,6 +293,9 @@ export default function AdminDashboard() {
             </table>
           </div>
         </div>
+
+        {/* Client Notes Section */}
+        <ClientNotes clientId={selectedClient.id} />
       </div>
     );
   }
