@@ -51,7 +51,7 @@ interface ClientDetail extends Client {
 
 export default function AdminDashboard() {
   const [clients, setClients] = useState<Client[]>([]);
-  const [selectedClient, setSelectedClient] = useState<ClientDetail | null>(null);
+  const [selectedClient, setSelectedClient] useState<ClientDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -386,7 +386,7 @@ export default function AdminDashboard() {
                 <th className="text-left px-6 py-3 text-sm font-medium text-gray-500">Status</th>
                 <th className="text-left px-6 py-3 text-sm font-medium text-gray-500">Joined</th>
                 <th className="text-left px-6 py-3 text-sm font-medium text-gray-500">Actions</th>
-              </table>
+              </tr>
             </thead>
             <tbody className="divide-y">
               {filteredClients.map((client) => (
