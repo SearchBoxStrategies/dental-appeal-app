@@ -196,7 +196,7 @@ export default function AdminDashboard() {
                   practiceId={selectedClient.id}
                   currentStatus={selectedClient.subscription_status}
                   practiceName={selectedClient.practice_name || selectedClient.name}
-                  onStatusChanged={fetchClientDetails}
+                  onStatusChanged={() => fetchClientDetails(selectedClient.id)}
                 />
                 <span className="text-xs text-gray-400">Joined {new Date(selectedClient.created_at).toLocaleDateString()}</span>
               </div>
@@ -386,7 +386,7 @@ export default function AdminDashboard() {
                 <th className="text-left px-6 py-3 text-sm font-medium text-gray-500">Status</th>
                 <th className="text-left px-6 py-3 text-sm font-medium text-gray-500">Joined</th>
                 <th className="text-left px-6 py-3 text-sm font-medium text-gray-500">Actions</th>
-              </tr>
+              </table>
             </thead>
             <tbody className="divide-y">
               {filteredClients.map((client) => (
