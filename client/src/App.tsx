@@ -21,6 +21,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import AdminPayments from './components/AdminPayments';
 
 function App() {
   return (
@@ -119,7 +120,11 @@ function App() {
     <AdminSettings />
   </AdminRoute>
 } />
-        
+<Route path="/admin/payments" element={
+  <AdminRoute>
+    <AdminPayments />
+  </AdminRoute>
+} />        
         {/* Default redirect */}
         <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>
