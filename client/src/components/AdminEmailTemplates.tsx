@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Mail, Edit, Save, X, Send, Eye, ChevronDown, ChevronUp, CheckCircle } from 'lucide-react';
+import { Mail, Edit, Save, X, Send, Eye, ChevronDown, ChevronUp } from 'lucide-react';
 import api from '../lib/api';
 
 interface EmailTemplate {
@@ -102,6 +102,22 @@ export default function AdminEmailTemplates() {
       payment_receipt: 'Payment Receipt'
     };
     return names[name] || name;
+  };
+
+  const renderVariables = (variables: string[]) => {
+    if (!variables || variables.length === 0) return null;
+    return (
+      <div className="bg-gray-50 rounded-lg p-3">
+        <p className="text-sm font-medium text-gray-700 mb-1">Available Variables:</p>
+        <div className="flex flex-wrap gap-2">
+          {variables.map((v) => (
+            <code key={v} className="px-2 py-0.5 bg-gray-200 rounded text-xs">
+              {'{{'}{v}{'}}'}
+            </code>
+          ))}
+        </div>
+      </div>
+    );
   };
 
   if (loading) {
@@ -214,16 +230,7 @@ export default function AdminEmailTemplates() {
                     <span className="text-sm text-gray-700">Active (send this email)</span>
                   </label>
                 </div>
-                {template.variables && template.variables.length > 0 && (
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <p className="text-sm font-medium text-gray-700 mb-1">Available Variables:</p>
-                    <div className="flex flex-wrap gap-2">
-                      {template.variables.map((v) => (
-                        <code key={v} className="px-2 py-0.5 bg-gray-200 rounded text-xs">{{`{{${v}}}`}}</code>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                {renderVariables(template.variables)}
               </div>
             )}
 
