@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Copy, Check, TrendingUp, Users, DollarSign, MousePointer, 
-  Calendar, Download, ExternalLink, Gift, Award, Clock
+  Gift, Award
 } from 'lucide-react';
 import api from '../lib/api';
 
