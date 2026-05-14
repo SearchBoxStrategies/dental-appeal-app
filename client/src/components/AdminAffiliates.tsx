@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { 
   Search, Download, Eye, DollarSign, CheckCircle, 
   XCircle, AlertCircle, TrendingUp, Users, 
-  RefreshCw, Gift
+  RefreshCw
 } from 'lucide-react';
 import api from '../lib/api';
 
