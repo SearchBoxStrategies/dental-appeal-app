@@ -23,9 +23,10 @@ import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import AdminPayments from './components/AdminPayments';
 import AdminEmailTemplates from './components/AdminEmailTemplates';
-// 🆕 Affiliate imports
+// Affiliate imports
 import AffiliateSignup from './pages/AffiliateSignup';
 import AffiliateDashboard from './components/AffiliateDashboard';
+import AdminAffiliates from './components/AdminAffiliates';
 
 function App() {
   return (
@@ -41,7 +42,7 @@ function App() {
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         
-        {/* 🆕 Affiliate public routes */}
+        {/* Affiliate public routes */}
         <Route path="/affiliate/signup" element={<AffiliateSignup />} />
         
         {/* User protected routes - with Layout (sidebar + header) */}
@@ -96,20 +97,24 @@ function App() {
           </ProtectedRoute>
         } />
         
-        {/* 🆕 Affiliate protected route - requires login */}
+        {/* Affiliate protected route - requires login */}
         <Route path="/affiliate/dashboard" element={
           <ProtectedRoute>
             <AffiliateDashboard />
           </ProtectedRoute>
         } />
         
+        {/* Admin routes */}
         <Route path="/admin/email-templates" element={
           <AdminRoute>
             <AdminEmailTemplates />
           </AdminRoute>
         } />
-        
-        {/* Admin protected routes - with AdminLayout (dark sidebar) */}
+        <Route path="/admin/affiliates" element={
+          <AdminRoute>
+            <AdminAffiliates />
+          </AdminRoute>
+        } />
         <Route path="/admin" element={
           <AdminRoute>
             <AdminDashboard />
