@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { 
   Search, Download, Eye, DollarSign, CheckCircle, 
   XCircle, AlertCircle, TrendingUp, Users, 
-  MousePointer, Award, RefreshCw, Ban, Check,
-  Mail, ExternalLink, Copy, Calendar
+  RefreshCw, Gift
 } from 'lucide-react';
 import api from '../lib/api';
 
@@ -387,8 +386,8 @@ export default function AdminAffiliates() {
                             </button>
                           )}
                         </div>
-                       </td>
-                     </tr>
+                      </td>
+                    </tr>
                   ))}
                   {filteredAffiliates.length === 0 && (
                     <tr>
@@ -568,15 +567,6 @@ export default function AdminAffiliates() {
                   <code className="text-sm bg-gray-100 p-2 rounded block flex-1 break-all">
                     {`${window.location.origin}/register?ref=${selectedAffiliate.affiliate_code}`}
                   </code>
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(`${window.location.origin}/register?ref=${selectedAffiliate.affiliate_code}`);
-                      showMessage('success', 'Link copied!');
-                    }}
-                    className="p-2 text-gray-500 hover:text-gray-700"
-                  >
-                    <Copy className="w-4 h-4" />
-                  </button>
                 </div>
               </div>
 
