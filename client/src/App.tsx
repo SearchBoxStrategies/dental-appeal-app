@@ -23,6 +23,9 @@ import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import AdminPayments from './components/AdminPayments';
 import AdminEmailTemplates from './components/AdminEmailTemplates';
+// 🆕 Affiliate imports
+import AffiliateSignup from './pages/AffiliateSignup';
+import AffiliateDashboard from './components/AffiliateDashboard';
 
 function App() {
   return (
@@ -37,6 +40,9 @@ function App() {
         {/* Legal routes - public access */}
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
+        
+        {/* 🆕 Affiliate public routes */}
+        <Route path="/affiliate/signup" element={<AffiliateSignup />} />
         
         {/* User protected routes - with Layout (sidebar + header) */}
         <Route path="/dashboard" element={
@@ -89,47 +95,57 @@ function App() {
             <Help />
           </ProtectedRoute>
         } />
+        
+        {/* 🆕 Affiliate protected route - requires login */}
+        <Route path="/affiliate/dashboard" element={
+          <ProtectedRoute>
+            <AffiliateDashboard />
+          </ProtectedRoute>
+        } />
+        
         <Route path="/admin/email-templates" element={
-  <AdminRoute>
-    <AdminEmailTemplates />
-  </AdminRoute>
-} />
-       {/* Admin protected routes - with AdminLayout (dark sidebar) */}
-<Route path="/admin" element={
-  <AdminRoute>
-    <AdminDashboard />
-  </AdminRoute>
-} />
-<Route path="/admin/clients" element={
-  <AdminRoute>
-    <AdminDashboard />
-  </AdminRoute>
-} />
-<Route path="/admin/clients/:id" element={
-  <AdminRoute>
-    <AdminDashboard />
-  </AdminRoute>
-} />
-<Route path="/admin/subscriptions" element={
-  <AdminRoute>
-    <AdminSubscriptions />
-  </AdminRoute>
-} />
-<Route path="/admin/analytics" element={
-  <AdminRoute>
-    <AdminAnalytics />
-  </AdminRoute>
-} />
-<Route path="/admin/settings" element={
-  <AdminRoute>
-    <AdminSettings />
-  </AdminRoute>
-} />
-<Route path="/admin/payments" element={
-  <AdminRoute>
-    <AdminPayments />
-  </AdminRoute>
-} />        
+          <AdminRoute>
+            <AdminEmailTemplates />
+          </AdminRoute>
+        } />
+        
+        {/* Admin protected routes - with AdminLayout (dark sidebar) */}
+        <Route path="/admin" element={
+          <AdminRoute>
+            <AdminDashboard />
+          </AdminRoute>
+        } />
+        <Route path="/admin/clients" element={
+          <AdminRoute>
+            <AdminDashboard />
+          </AdminRoute>
+        } />
+        <Route path="/admin/clients/:id" element={
+          <AdminRoute>
+            <AdminDashboard />
+          </AdminRoute>
+        } />
+        <Route path="/admin/subscriptions" element={
+          <AdminRoute>
+            <AdminSubscriptions />
+          </AdminRoute>
+        } />
+        <Route path="/admin/analytics" element={
+          <AdminRoute>
+            <AdminAnalytics />
+          </AdminRoute>
+        } />
+        <Route path="/admin/settings" element={
+          <AdminRoute>
+            <AdminSettings />
+          </AdminRoute>
+        } />
+        <Route path="/admin/payments" element={
+          <AdminRoute>
+            <AdminPayments />
+          </AdminRoute>
+        } />        
+        
         {/* Default redirect */}
         <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>
