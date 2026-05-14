@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  DollarSign, Users, TrendingUp, Clock, Shield, Zap, 
-  CheckCircle, ArrowRight, Copy, Twitter, Linkedin, Mail,
-  Star, Gift, Award, BarChart3, Calculator
+  ArrowRight, CheckCircle, Gift, Star
 } from 'lucide-react';
 
 export default function AffiliateSignup() {
