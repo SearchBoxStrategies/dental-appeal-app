@@ -1,20 +1,47 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Mail, Lock, User, Building2, UserPlus, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 
 export default function Register() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const referralCodeFromUrl = searchParams.get('ref');
+  
   const [formData, setFormData] = useState({
     practiceName: '',
     name: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    referralCode: referralCodeFromUrl || ''
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
+  const [affiliateInfo, setAffiliateInfo] = useState<{ code: string; clicks?: number } | null>(null);
+
+  // Fetch affiliate stats if referral code is present
+  useEffect(() => {
+    if (referralCodeFromUrl) {
+      fetchAffiliateStats(referralCodeFromUrl);
+    }
+  }, [referralCodeFromUrl]);
+
+  const fetchAffiliateStats = async (code: string) => {
+    try {
+      const response = await fetch(`https://api.dentalappeal.claims/api/affiliate/stats/${code}`);
+      if (response.ok) {
+        const data = await response.json();
+        setAffiliateInfo({
+          code: data.affiliate_code,
+          clicks: data.total_clicks
+        });
+      }
+    } catch (error) {
+      console.log('Affiliate stats not available');
+    }
+  };
 
   // Password validation criteria
   const passwordCriteria = [
@@ -67,7 +94,8 @@ export default function Register() {
           practiceName: formData.practiceName,
           name: formData.name,
           email: formData.email,
-          password: formData.password
+          password: formData.password,
+          referralCode: formData.referralCode // Send referral code to backend
         })
       });
       const data = await response.json();
@@ -79,7 +107,8 @@ export default function Register() {
           name: '',
           email: '',
           password: '',
-          confirmPassword: ''
+          confirmPassword: '',
+          referralCode: ''
         });
         // Auto redirect after 5 seconds
         setTimeout(() => {
@@ -113,25 +142,37 @@ export default function Register() {
               <p className="text-gray-600 mt-2">Join thousands of dental practices</p>
             </div>
 
+            {/* Affiliate Referral Badge */}
+            {affiliateInfo && (
+              <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-3">
+                <div className="flex items-center justify-center gap-2">
+                  <span className="text-lg">🎯</span>
+                  <span className="text-sm text-green-700">
+                    You were referred by an affiliate! Complete your registration to get started.
+                  </span>
+                </div>
+              </div>
+            )}
+
             {/* Success Message */}
-           {success && (
-  <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
-    <div className="flex items-start gap-3">
-      <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
-      <div>
-        <p className="text-green-800 font-medium">Registration successful!</p>
-        <p className="text-green-700 text-sm mt-1">{success}</p>
-        <div className="mt-2 p-2 bg-yellow-50 rounded border border-yellow-200">
-          <p className="text-yellow-700 text-xs flex items-center gap-1">
-            <span>📧</span>
-            <span><strong>Didn't see the email?</strong> Check your <strong>spam or junk folder</strong>.</span>
-          </p>
-        </div>
-        <p className="text-green-600 text-xs mt-2">Redirecting to login...</p>
-      </div>
-    </div>
-  </div>
-)}
+            {success && (
+              <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
+                  <div>
+                    <p className="text-green-800 font-medium">Registration successful!</p>
+                    <p className="text-green-700 text-sm mt-1">{success}</p>
+                    <div className="mt-2 p-2 bg-yellow-50 rounded border border-yellow-200">
+                      <p className="text-yellow-700 text-xs flex items-center gap-1">
+                        <span>📧</span>
+                        <span><strong>Didn't see the email?</strong> Check your <strong>spam or junk folder</strong>.</span>
+                      </p>
+                    </div>
+                    <p className="text-green-600 text-xs mt-2">Redirecting to login...</p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Error Message */}
             {error && (
@@ -284,6 +325,11 @@ export default function Register() {
                     })}
                   </div>
                 </div>
+              )}
+
+              {/* Hidden referral code field */}
+              {formData.referralCode && (
+                <input type="hidden" name="referralCode" value={formData.referralCode} />
               )}
 
               <button
