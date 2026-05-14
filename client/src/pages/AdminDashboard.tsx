@@ -4,7 +4,7 @@ import {
   Users, FileText, TrendingUp, CheckCircle,
   Eye, Search, Download, DollarSign,
   Mail, Edit, RefreshCw, Activity,
-  UserCheck, UserX
+  UserCheck, UserX, Gift
 } from 'lucide-react';
 import api from '../lib/api';
 import ClientNotes from '../components/ClientNotes';
@@ -62,7 +62,9 @@ export default function AdminDashboard() {
     activeSubscriptions: 0,
     totalClaims: 0,
     totalAppeals: 0,
-    successRate: 0
+    successRate: 0,
+    totalAffiliates: 0,
+    pendingPayouts: 0
   });
 
   const fetchClients = async () => {
@@ -71,17 +73,32 @@ export default function AdminDashboard() {
       setClients(response.data);
       
       const active = response.data.filter((c: Client) => c.subscription_status === 'active').length;
-      setStats({
+      setStats(prev => ({
+        ...prev,
         totalClients: response.data.length,
-        activeSubscriptions: active,
-        totalClaims: 0,
-        totalAppeals: 0,
-        successRate: 0
-      });
+        activeSubscriptions: active
+      }));
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to load clients');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAffiliateStats = async () => {
+    try {
+      const response = await api.get('/affiliate/admin/list');
+      const affiliates = response.data;
+      const activeAffiliates = affiliates.filter((a: any) => a.is_active).length;
+      const pendingPayouts = affiliates.reduce((sum: number, a: any) => sum + (a.pending_earnings || 0), 0);
+      setStats(prev => ({
+        ...prev,
+        totalAffiliates: affiliates.length,
+        activeAffiliates: activeAffiliates,
+        pendingPayouts: pendingPayouts
+      }));
+    } catch (error) {
+      console.error('Failed to fetch affiliate stats:', error);
     }
   };
 
@@ -100,6 +117,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchClients();
+    fetchAffiliateStats();
   }, []);
 
   const filteredClients = clients.filter(client => {
@@ -301,10 +319,10 @@ export default function AdminDashboard() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-        <p className="text-gray-600 mt-1">Manage all clients and subscriptions</p>
+        <p className="text-gray-600 mt-1">Manage all clients, subscriptions, and affiliates</p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <div className="bg-white rounded-xl shadow-sm border p-4">
           <div className="flex items-center justify-between">
             <Users className="w-6 h-6 text-blue-500" />
@@ -340,6 +358,14 @@ export default function AdminDashboard() {
           </div>
           <p className="text-sm text-gray-500 mt-1">MRR</p>
         </div>
+        <Link to="/admin/affiliates" className="bg-white rounded-xl shadow-sm border p-4 hover:shadow-md transition">
+          <div className="flex items-center justify-between">
+            <Gift className="w-6 h-6 text-pink-500" />
+            <span className="text-2xl font-bold">{stats.totalAffiliates || 0}</span>
+          </div>
+          <p className="text-sm text-gray-500 mt-1">Affiliates</p>
+          <p className="text-xs text-blue-600 mt-2">Manage →</p>
+        </Link>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4">
