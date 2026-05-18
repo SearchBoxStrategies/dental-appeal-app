@@ -8,7 +8,8 @@ import {
   PlusCircle,
   ArrowRight,
   Activity,
-  DollarSign
+  DollarSign,
+  AlertCircle
 } from 'lucide-react';
 import api from '../lib/api';
 
@@ -42,9 +43,13 @@ export default function Dashboard() {
   });
   const [recentClaims, setRecentClaims] = useState<RecentClaim[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
+      setLoading(true);
+      setError(null);
+      
       try {
         const [statsRes, claimsRes] = await Promise.all([
           api.get('/claims/stats'),
@@ -62,12 +67,13 @@ export default function Dashboard() {
           ...statsRes.data,
           activeAppeals,
           wonRate: Math.round(wonRate),
-          estimatedRecovery: 0, // You can calculate from denied amounts
+          estimatedRecovery: 0,
           successRate: Math.round(wonRate)
         });
         setRecentClaims(claimsRes.data);
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error fetching dashboard data:', error);
+        setError(error.response?.data?.error || 'Failed to load dashboard data. Your account may not be linked to a practice.');
       } finally {
         setLoading(false);
       }
@@ -75,6 +81,7 @@ export default function Dashboard() {
     fetchDashboardData();
   }, []);
 
+  // ... rest of your getStatusBadge function remains the same
   const getStatusBadge = (status: string) => {
     const badges: Record<string, string> = {
       draft: 'bg-gray-100 text-gray-700',
@@ -87,42 +94,34 @@ export default function Dashboard() {
     return badges[status] || badges.draft;
   };
 
-  const statCards = [
-    { 
-      title: 'Total Claims', 
-      value: stats.totalClaims, 
-      icon: FileText, 
-      color: 'bg-blue-500',
-      change: '+0%',
-      changeType: 'positive'
-    },
-    { 
-      title: 'Total Appeals', 
-      value: stats.totalAppeals, 
-      icon: TrendingUp, 
-      color: 'bg-green-500',
-      change: '+0%',
-      changeType: 'positive'
-    },
-    { 
-      title: 'Active Appeals', 
-      value: stats.activeAppeals || 0, 
-      icon: Clock, 
-      color: 'bg-yellow-500',
-      change: '+0%',
-      changeType: 'positive'
-    },
-    { 
-      title: 'Success Rate', 
-      value: stats.successRate || 0, 
-      icon: CheckCircle, 
-      color: 'bg-teal-500',
-      suffix: '%',
-      change: '+0%',
-      changeType: 'positive'
-    },
-  ];
+  // Show error state
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+        <div className="bg-red-50 rounded-full p-4 mb-4">
+          <AlertCircle className="w-12 h-12 text-red-500" />
+        </div>
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">Unable to Load Dashboard</h2>
+        <p className="text-gray-600 max-w-md mb-6">{error}</p>
+        <div className="bg-gray-50 rounded-lg p-4 max-w-md text-left">
+          <p className="text-sm font-medium text-gray-700 mb-2">Possible reasons:</p>
+          <ul className="text-sm text-gray-600 space-y-1 list-disc list-inside">
+            <li>Your account may not be linked to a practice</li>
+            <li>You may need to complete practice setup first</li>
+            <li>Contact support if this persists</li>
+          </ul>
+        </div>
+        <Link
+          to="/practice/profile"
+          className="mt-6 inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-xl"
+        >
+          Complete Practice Setup
+        </Link>
+      </div>
+    );
+  }
 
+  // ... rest of your Dashboard component remains the same from here
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -150,27 +149,45 @@ export default function Dashboard() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {statCards.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <div key={stat.title} className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between mb-4">
-                <div className={`${stat.color} p-3 rounded-xl text-white`}>
-                  <Icon className="w-6 h-6" />
-                </div>
-                {stat.change && (
-                  <span className={`text-sm font-medium ${stat.changeType === 'positive' ? 'text-green-600' : 'text-red-600'}`}>
-                    {stat.change}
-                  </span>
-                )}
-              </div>
-              <p className="text-3xl font-bold text-slate-900">
-                {stat.value}{stat.suffix || ''}
-              </p>
-              <p className="text-sm text-slate-600 mt-1">{stat.title}</p>
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="bg-blue-500 p-3 rounded-xl text-white">
+              <FileText className="w-6 h-6" />
             </div>
-          );
-        })}
+          </div>
+          <p className="text-3xl font-bold text-slate-900">{stats.totalClaims}</p>
+          <p className="text-sm text-slate-600 mt-1">Total Claims</p>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="bg-green-500 p-3 rounded-xl text-white">
+              <TrendingUp className="w-6 h-6" />
+            </div>
+          </div>
+          <p className="text-3xl font-bold text-slate-900">{stats.totalAppeals}</p>
+          <p className="text-sm text-slate-600 mt-1">Total Appeals</p>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="bg-yellow-500 p-3 rounded-xl text-white">
+              <Clock className="w-6 h-6" />
+            </div>
+          </div>
+          <p className="text-3xl font-bold text-slate-900">{stats.activeAppeals || 0}</p>
+          <p className="text-sm text-slate-600 mt-1">Active Appeals</p>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="bg-teal-500 p-3 rounded-xl text-white">
+              <CheckCircle className="w-6 h-6" />
+            </div>
+          </div>
+          <p className="text-3xl font-bold text-slate-900">{stats.successRate || 0}%</p>
+          <p className="text-sm text-slate-600 mt-1">Success Rate</p>
+        </div>
       </div>
 
       {/* Additional Stats Row */}
