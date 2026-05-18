@@ -35,6 +35,7 @@ const user = userStr && userStr !== 'undefined' ? JSON.parse(userStr) : {};
     { path: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
     { path: '/admin/settings', icon: Settings, label: 'Settings' },
     { path: '/admin/email-templates', icon: Mail, label: 'Email Templates' },
+    { path: '/admin/affiliates', icon: Users, label: 'Affiliates' },
   ];
 
   const handleLogout = () => {
