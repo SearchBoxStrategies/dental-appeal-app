@@ -14,7 +14,7 @@ export default function ForgotPassword() {
         setError('');
 
         try {
-            const response = await fetch('/api/auth/forgot-password', {
+            const response = await fetch('https://api.dentalappeal.claims/api/auth/forgot-password', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email })
