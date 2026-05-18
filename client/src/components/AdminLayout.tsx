@@ -23,7 +23,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const navigate = useNavigate();
 
   const userStr = localStorage.getItem('user');
-const user = userStr && userStr !== 'undefined' ? JSON.parse(userStr) : {};
+  const user = userStr && userStr !== 'undefined' ? JSON.parse(userStr) : {};
   const userName = user.name || 'Admin';
   const userInitial = userName.charAt(0).toUpperCase();
 
@@ -33,9 +33,9 @@ const user = userStr && userStr !== 'undefined' ? JSON.parse(userStr) : {};
     { path: '/admin/subscriptions', icon: CreditCard, label: 'Subscriptions' },
     { path: '/admin/payments', icon: CreditCard, label: 'Payments' },
     { path: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
+    { path: '/admin/affiliates', icon: Users, label: 'Affiliates' },
     { path: '/admin/settings', icon: Settings, label: 'Settings' },
     { path: '/admin/email-templates', icon: Mail, label: 'Email Templates' },
-    { path: '/admin/affiliates', icon: Users, label: 'Affiliates' },
   ];
 
   const handleLogout = () => {
@@ -60,7 +60,7 @@ const user = userStr && userStr !== 'undefined' ? JSON.parse(userStr) : {};
       )}
 
       <aside
-        className={`fixed top-0 left-0 z-50 h-full w-72 bg-gradient-to-b from-slate-900 to-slate-800 shadow-xl transition-transform duration-300 lg:translate-x-0 ${
+        className={`fixed top-0 left-0 z-50 h-full w-72 bg-gradient-to-b from-slate-900 to-slate-800 shadow-xl transition-transform duration-300 lg:translate-x-0 flex flex-col ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -94,7 +94,8 @@ const user = userStr && userStr !== 'undefined' ? JSON.parse(userStr) : {};
           </div>
         </div>
 
-        <nav className="p-4 space-y-1">
+        {/* SCROLLABLE NAVIGATION - Fixed here */}
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.path);
@@ -115,7 +116,8 @@ const user = userStr && userStr !== 'undefined' ? JSON.parse(userStr) : {};
           })}
         </nav>
 
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-700">
+        {/* Sign Out Button - Fixed at bottom, outside scroll */}
+        <div className="p-4 border-t border-slate-700">
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-900/20 hover:text-red-300 transition-all duration-200"
