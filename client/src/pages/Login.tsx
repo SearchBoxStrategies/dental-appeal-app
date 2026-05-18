@@ -40,17 +40,24 @@ export default function Login() {
       });
       const data = await response.json();
 
-      if (response.ok) {
+      // Successful login with token (regular user)
+      if (response.ok && data.token) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
         navigate('/dashboard');
-      } else if (response.status === 401 && data.requiresVerification) {
+      } 
+      // Admin 2FA flow - requires verification code
+      else if (data.requiresAdminVerification) {
+        setAdminVerification({ userId: data.userId, email: data.email });
+      } 
+      // Email not verified flow
+      else if (response.status === 401 && data.requiresVerification) {
         setRequiresVerification(true);
         setUnverifiedEmail(data.email || email);
         setError(`Please verify your email address before logging in. A verification link was sent to ${data.email || email}.`);
-      } else if (response.status === 401 && data.requiresAdminVerification) {
-        setAdminVerification({ userId: data.userId, email: data.email });
-      } else {
+      } 
+      // Other errors
+      else {
         setError(data.error || 'Login failed');
       }
     } catch (err) {
@@ -88,6 +95,7 @@ export default function Login() {
     }
   };
 
+  // Show Admin Verification component for 2FA
   if (adminVerification) {
     return (
       <AdminVerification
