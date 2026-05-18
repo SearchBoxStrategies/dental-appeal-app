@@ -48,25 +48,35 @@ export default function AdminAffiliates() {
   const [affiliates, setAffiliates] = useState<Affiliate[]>([]);
   const [commissions, setCommissions] = useState<Commission[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingCommissions, setLoadingCommissions] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedAffiliate, setSelectedAffiliate] = useState<Affiliate | null>(null);
   const [showPayoutModal, setShowPayoutModal] = useState(false);
   const [showAffiliateModal, setShowAffiliateModal] = useState(false);
   const [activeTab, setActiveTab] = useState<'affiliates' | 'commissions'>('affiliates');
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchAffiliates();
-    fetchCommissions();
+    fetchAllData();
   }, []);
+
+  const fetchAllData = async () => {
+    await Promise.all([
+      fetchAffiliates(),
+      fetchCommissions()
+    ]);
+  };
 
   const fetchAffiliates = async () => {
     try {
+      setError(null);
       const response = await api.get('/affiliate/admin/list');
-      setAffiliates(response.data);
-    } catch (error) {
+      setAffiliates(Array.isArray(response.data) ? response.data : []);
+    } catch (error: any) {
       console.error('Failed to fetch affiliates:', error);
-      showMessage('error', 'Failed to load affiliates');
+      setError(error.response?.data?.error || 'Failed to load affiliates');
+      setAffiliates([]);
     } finally {
       setLoading(false);
     }
@@ -75,9 +85,12 @@ export default function AdminAffiliates() {
   const fetchCommissions = async () => {
     try {
       const response = await api.get('/affiliate/admin/commissions');
-      setCommissions(response.data);
+      setCommissions(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error('Failed to fetch commissions:', error);
+      setCommissions([]);
+    } finally {
+      setLoadingCommissions(false);
     }
   };
 
@@ -90,7 +103,7 @@ export default function AdminAffiliates() {
     try {
       await api.put(`/affiliate/admin/${id}/approve`, { commissionRate, tier });
       showMessage('success', 'Affiliate approved successfully');
-      fetchAffiliates();
+      await fetchAffiliates();
     } catch (error) {
       showMessage('error', 'Failed to approve affiliate');
     }
@@ -100,8 +113,7 @@ export default function AdminAffiliates() {
     try {
       await api.post(`/affiliate/admin/${affiliateId}/payout`);
       showMessage('success', 'Payout processed successfully');
-      fetchAffiliates();
-      fetchCommissions();
+      await Promise.all([fetchAffiliates(), fetchCommissions()]);
       setShowPayoutModal(false);
       setSelectedAffiliate(null);
     } catch (error) {
@@ -119,6 +131,7 @@ export default function AdminAffiliates() {
   };
 
   const formatDate = (dateString: string) => {
+    if (!dateString) return '—';
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -127,32 +140,32 @@ export default function AdminAffiliates() {
   };
 
   const filteredAffiliates = affiliates.filter(a => 
-    a.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    a.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    a.affiliate_code.toLowerCase().includes(searchTerm.toLowerCase())
+    a.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    a.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    a.affiliate_code?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const totalStats = {
     totalAffiliates: affiliates.length,
     activeAffiliates: affiliates.filter(a => a.is_active).length,
-    totalConversions: affiliates.reduce((sum, a) => sum + a.total_conversions, 0),
-    totalEarnings: affiliates.reduce((sum, a) => sum + a.total_earnings, 0),
-    pendingPayouts: affiliates.reduce((sum, a) => sum + a.pending_earnings, 0),
+    totalConversions: affiliates.reduce((sum, a) => sum + (a.total_conversions || 0), 0),
+    totalEarnings: affiliates.reduce((sum, a) => sum + (a.total_earnings || 0), 0),
+    pendingPayouts: affiliates.reduce((sum, a) => sum + (a.pending_earnings || 0), 0),
   };
 
   const exportToCSV = () => {
     const headers = ['Name', 'Email', 'Company', 'Code', 'Tier', 'Clicks', 'Signups', 'Conversions', 'Total Earnings', 'Pending', 'Status', 'Joined'];
     const rows = filteredAffiliates.map(a => [
-      a.full_name,
-      a.email,
+      a.full_name || '',
+      a.email || '',
       a.company_name || '',
-      a.affiliate_code,
-      a.tier,
-      a.total_clicks,
-      a.total_signups,
-      a.total_conversions,
-      a.total_earnings,
-      a.pending_earnings,
+      a.affiliate_code || '',
+      a.tier || 'standard',
+      a.total_clicks || 0,
+      a.total_signups || 0,
+      a.total_conversions || 0,
+      a.total_earnings || 0,
+      a.pending_earnings || 0,
       a.is_active ? 'Active' : 'Pending',
       formatDate(a.created_at)
     ]);
@@ -167,10 +180,32 @@ export default function AdminAffiliates() {
     URL.revokeObjectURL(url);
   };
 
+  // Show loading state
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div className="flex flex-col items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
+        <p className="text-gray-500">Loading affiliates...</p>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 text-center">
+        <div className="bg-red-50 rounded-full p-4 mb-4">
+          <AlertCircle className="w-8 h-8 text-red-500" />
+        </div>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">Failed to Load Affiliates</h3>
+        <p className="text-gray-500 mb-4">{error}</p>
+        <button
+          onClick={() => fetchAffiliates()}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          <RefreshCw className="w-4 h-4" />
+          Try Again
+        </button>
       </div>
     );
   }
@@ -340,9 +375,9 @@ export default function AdminAffiliates() {
                           {affiliate.tier} ({affiliate.commission_rate}%)
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-gray-900">{affiliate.total_clicks.toLocaleString()}</td>
-                      <td className="px-6 py-4 text-gray-900">{affiliate.total_signups.toLocaleString()}</td>
-                      <td className="px-6 py-4 text-gray-900">{affiliate.total_conversions.toLocaleString()}</td>
+                      <td className="px-6 py-4 text-gray-900">{affiliate.total_clicks?.toLocaleString() || 0}</td>
+                      <td className="px-6 py-4 text-gray-900">{affiliate.total_signups?.toLocaleString() || 0}</td>
+                      <td className="px-6 py-4 text-gray-900">{affiliate.total_conversions?.toLocaleString() || 0}</td>
                       <td className="px-6 py-4 font-medium text-green-600">{formatCurrency(affiliate.total_earnings)}</td>
                       <td className="px-6 py-4 font-medium text-orange-600">{formatCurrency(affiliate.pending_earnings)}</td>
                       <td className="px-6 py-4">
@@ -386,13 +421,13 @@ export default function AdminAffiliates() {
                             </button>
                           )}
                         </div>
-                      </td>
-                    </tr>
+                       </td>
+                     </tr>
                   ))}
                   {filteredAffiliates.length === 0 && (
                     <tr>
                       <td colSpan={10} className="px-6 py-8 text-center text-gray-500">
-                        No affiliates found
+                        {searchTerm ? 'No affiliates match your search' : 'No affiliates found'}
                       </td>
                     </tr>
                   )}
@@ -406,51 +441,57 @@ export default function AdminAffiliates() {
       {/* Commissions Tab */}
       {activeTab === 'commissions' && (
         <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Affiliate</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Practice</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Period</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Created</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Paid Date</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {commissions.map((commission) => (
-                  <tr key={commission.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 font-medium text-gray-900">{commission.affiliate_name}</td>
-                    <td className="px-6 py-4 text-gray-600">{commission.practice_name || '—'}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      {formatDate(commission.period_start)} - {formatDate(commission.period_end)}
-                    </td>
-                    <td className="px-6 py-4 font-medium text-green-600">{formatCurrency(commission.amount)}</td>
-                    <td className="px-6 py-4">
-                      {commission.status === 'paid' ? (
-                        <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">Paid</span>
-                      ) : (
-                        <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700">Pending</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{formatDate(commission.created_at)}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      {commission.paid_at ? formatDate(commission.paid_at) : '—'}
-                    </td>
-                  </tr>
-                ))}
-                {commissions.length === 0 && (
+          {loadingCommissions ? (
+            <div className="flex justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50">
                   <tr>
-                    <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
-                      No commissions yet
-                    </td>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Affiliate</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Practice</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Period</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Created</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Paid Date</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {commissions.map((commission) => (
+                    <tr key={commission.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 font-medium text-gray-900">{commission.affiliate_name}</td>
+                      <td className="px-6 py-4 text-gray-600">{commission.practice_name || '—'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600">
+                        {formatDate(commission.period_start)} - {formatDate(commission.period_end)}
+                      </td>
+                      <td className="px-6 py-4 font-medium text-green-600">{formatCurrency(commission.amount)}</td>
+                      <td className="px-6 py-4">
+                        {commission.status === 'paid' ? (
+                          <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">Paid</span>
+                        ) : (
+                          <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700">Pending</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-600">{formatDate(commission.created_at)}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600">
+                        {commission.paid_at ? formatDate(commission.paid_at) : '—'}
+                      </td>
+                    </tr>
+                  ))}
+                  {commissions.length === 0 && (
+                    <tr>
+                      <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
+                        No commissions yet
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 
