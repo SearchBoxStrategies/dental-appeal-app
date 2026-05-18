@@ -25,7 +25,8 @@ export default function Layout({ children }: LayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const userStr = localStorage.getItem('user');
+const user = userStr ? JSON.parse(userStr) : {};
   const userName = user.name || 'User';
   const userInitial = userName.charAt(0).toUpperCase();
 
