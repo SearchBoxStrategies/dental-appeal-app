@@ -22,7 +22,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const userStr = localStorage.getItem('user');
+const user = userStr ? JSON.parse(userStr) : {};
   const userName = user.name || 'Admin';
   const userInitial = userName.charAt(0).toUpperCase();
 
