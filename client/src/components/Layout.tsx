@@ -26,9 +26,9 @@ export default function Layout({ children }: LayoutProps) {
   const navigate = useNavigate();
 
   const userStr = localStorage.getItem('user');
-const user = userStr ? JSON.parse(userStr) : {};
-  const userName = user.name || 'User';
-  const userInitial = userName.charAt(0).toUpperCase();
+const user = userStr && userStr !== 'undefined' ? JSON.parse(userStr) : {};
+const userName = user.name || 'User';
+const userInitial = userName.charAt(0).toUpperCase();
 
   const navItems = [
     { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
