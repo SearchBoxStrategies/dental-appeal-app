@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Mail, Edit, Save, X, Send, Eye, ChevronDown, ChevronUp } from 'lucide-react';
+import { Mail, Edit, Save, X, Send, ChevronDown, ChevronUp } from 'lucide-react';
 import api from '../lib/api';
 
 interface EmailTemplate {
