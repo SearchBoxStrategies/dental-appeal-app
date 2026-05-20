@@ -111,8 +111,9 @@ export default function AdminEmailTemplates() {
         <p className="text-sm font-medium text-gray-700 mb-1">Available Variables:</p>
         <div className="flex flex-wrap gap-2">
           {variables.map((v) => (
-            <code key={v} className="px-2 py-0.5 bg-gray-200 rounded text-xs">
-              {'{{'}{v}{'}}'}
+          <code key={v} className="px-2 py-0.5 bg-gray-200 rounded text-xs">
+            {'{{'}{v}{'}}'}
+          </code>
             </code>
           ))}
         </div>
