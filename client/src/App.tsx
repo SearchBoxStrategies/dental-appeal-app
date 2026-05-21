@@ -27,6 +27,7 @@ import AdminEmailTemplates from './components/AdminEmailTemplates';
 import AffiliateSignup from './pages/AffiliateSignup';
 import AffiliateDashboard from './components/AffiliateDashboard';
 import AdminAffiliates from './components/AdminAffiliates';
+import AffiliatePublicStats from './pages/AffiliatePublicStats';
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
         
         {/* Affiliate public routes */}
         <Route path="/affiliate/signup" element={<AffiliateSignup />} />
+        <Route path="/affiliate/stats/:code" element={<AffiliatePublicStats />} />
         
         {/* User protected routes - with Layout (sidebar + header) */}
         <Route path="/dashboard" element={
