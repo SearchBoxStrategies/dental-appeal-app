@@ -6,8 +6,6 @@ import {
   MousePointerClick, 
   DollarSign, 
   Award, 
-  Calendar,
-  Share2,
   Copy,
   CheckCircle,
   BarChart3,
