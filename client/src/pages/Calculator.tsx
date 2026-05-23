@@ -37,13 +37,6 @@ export default function Calculator() {
     if (affiliateCode) {
       document.cookie = `affiliate_ref=${affiliateCode}; max-age=7776000; path=/; SameSite=Lax`;
     }
-    
-    // Set favicon
-    const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
-    link.type = 'image/x-icon';
-    link.rel = 'shortcut icon';
-    link.href = '/favicon.ico';
-    document.getElementsByTagName('head')[0].appendChild(link);
   }, [affiliateCode]);
 
   const formatCurrency = (value: number) => {
