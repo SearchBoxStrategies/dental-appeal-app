@@ -23,6 +23,7 @@ import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import AdminPayments from './components/AdminPayments';
 import AdminEmailTemplates from './components/AdminEmailTemplates';
+import Calculator from './pages/Calculator';
 // Affiliate imports
 import AffiliateSignup from './pages/AffiliateSignup';
 import AffiliateDashboard from './components/AffiliateDashboard';
