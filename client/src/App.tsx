@@ -43,6 +43,9 @@ function App() {
         {/* Legal routes - public access */}
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
+
+        {/* Calculator routes - public access */}
+        <Route path="/calculator" element={<Calculator />} />
         
         {/* Affiliate public routes */}
         <Route path="/affiliate/signup" element={<AffiliateSignup />} />
