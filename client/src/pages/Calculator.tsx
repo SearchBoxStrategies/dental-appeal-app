@@ -1,6 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { TrendingUp, DollarSign, AlertCircle, Send, Download } from 'lucide-react';
+import { 
+  TrendingUp, 
+  DollarSign, 
+  AlertCircle, 
+  Send, 
+  Download, 
+  Shield, 
+  Clock, 
+  CheckCircle
+} from 'lucide-react';
+import Footer from '../components/Footer';
 
 export default function Calculator() {
   const [searchParams] = useSearchParams();
@@ -19,14 +29,21 @@ export default function Calculator() {
   const monthlyDenials = (monthlyClaims * denialRate) / 100;
   const monthlyLoss = monthlyDenials * avgClaimValue;
   const annualLoss = monthlyLoss * 12;
-  const potentialRecovery = annualLoss * 0.6; // 60% recovery rate with DentalAppeal
+  const potentialRecovery = annualLoss * 0.6;
   const recoveryRate = 60;
 
-  // Set affiliate cookie when calculator loads
+  // Set affiliate cookie
   useEffect(() => {
     if (affiliateCode) {
       document.cookie = `affiliate_ref=${affiliateCode}; max-age=7776000; path=/; SameSite=Lax`;
     }
+    
+    // Set favicon
+    const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+    link.type = 'image/x-icon';
+    link.rel = 'shortcut icon';
+    link.href = '/favicon.ico';
+    document.getElementsByTagName('head')[0].appendChild(link);
   }, [affiliateCode]);
 
   const formatCurrency = (value: number) => {
@@ -76,19 +93,63 @@ export default function Calculator() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-12">
-      <div className="max-w-4xl mx-auto px-4">
-        {/* Header */}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex flex-col">
+      {/* Top Brand Bar */}
+      <div className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            {/* Logo Area */}
+            <div className="flex items-center gap-3">
+              <img 
+                src="/logo.png" 
+                alt="DentalAppeal" 
+                className="h-10 w-auto"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                  const parent = (e.target as HTMLImageElement).parentElement;
+                  if (parent) {
+                    parent.innerHTML = '<span class="text-xl font-bold text-blue-600">DentalAppeal</span>';
+                  }
+                }}
+              />
+              <div className="hidden md:block h-6 w-px bg-gray-300"></div>
+              <span className="hidden md:inline text-sm text-gray-500">AI-Powered Insurance Appeals</span>
+            </div>
+            
+            {/* Trust Signals */}
+            <div className="flex items-center gap-4 text-sm">
+              <div className="hidden md:flex items-center gap-1 text-green-600">
+                <Shield className="w-4 h-4" />
+                <span>HIPAA Compliant</span>
+              </div>
+              <div className="hidden md:flex items-center gap-1 text-blue-600">
+                <Clock className="w-4 h-4" />
+                <span>30-Second Appeals</span>
+              </div>
+              <a 
+                href="/" 
+                className="text-blue-600 hover:underline text-sm"
+              >
+                Back to Site →
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-grow max-w-4xl mx-auto px-4 py-8">
+        {/* Hero Section with Branding */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 bg-blue-100 rounded-full px-4 py-1 mb-4">
             <TrendingUp className="w-4 h-4 text-blue-600" />
-            <span className="text-sm font-medium text-blue-600">Free Tool</span>
+            <span className="text-sm font-medium text-blue-600">Free Tool by DentalAppeal</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             Dental Denial Revenue Calculator
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            See how much revenue your practice is losing to insurance denials — and how much you could recover.
+            See how much revenue your practice is losing to insurance denials — and how DentalAppeal can help you recover it.
           </p>
         </div>
 
@@ -138,9 +199,9 @@ export default function Calculator() {
                 />
                 <div className="flex justify-between text-xs text-gray-400 mt-1">
                   <span>1%</span>
-                  <span>5% (Low)</span>
+                  <span>5%</span>
                   <span>10% (Avg)</span>
-                  <span>15% (High)</span>
+                  <span>15%</span>
                   <span>25%+</span>
                 </div>
                 <p className="text-sm text-gray-500 mt-2">
@@ -211,9 +272,9 @@ export default function Calculator() {
                 {!showEmailCapture ? (
                   <button
                     onClick={() => setShowEmailCapture(true)}
-                    className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition text-lg"
+                    className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition text-lg shadow-md"
                   >
-                    Get Full Report →
+                    Get Free Report →
                   </button>
                 ) : (
                   <div className="bg-blue-50 rounded-xl p-6">
@@ -259,16 +320,34 @@ export default function Calculator() {
           </div>
         </div>
 
-        {/* Footer Branding */}
-        <div className="text-center mt-8">
-          <p className="text-sm text-gray-500">
-            Powered by <a href="https://dentalappeal.claims" className="text-blue-600 hover:underline">DentalAppeal</a> — AI-Powered Insurance Appeals
-          </p>
-          <p className="text-xs text-gray-400 mt-2">
-            This calculator provides estimates based on industry averages. Individual results may vary.
-          </p>
+        {/* Brand Features Section */}
+        <div className="mt-12 grid md:grid-cols-3 gap-6">
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full mb-3">
+              <CheckCircle className="w-6 h-6 text-blue-600" />
+            </div>
+            <h3 className="font-semibold text-gray-900">AI-Powered Appeals</h3>
+            <p className="text-sm text-gray-500">Generate appeal letters in 30 seconds</p>
+          </div>
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-3">
+              <TrendingUp className="w-6 h-6 text-green-600" />
+            </div>
+            <h3 className="font-semibold text-gray-900">60%+ Success Rate</h3>
+            <p className="text-sm text-gray-500">Industry average is 40-50%</p>
+          </div>
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-purple-100 rounded-full mb-3">
+              <Shield className="w-6 h-6 text-purple-600" />
+            </div>
+            <h3 className="font-semibold text-gray-900">HIPAA Compliant</h3>
+            <p className="text-sm text-gray-500">Secure & Private</p>
+          </div>
         </div>
       </div>
+
+      {/* Footer - Exact match to main site */}
+      <Footer />
     </div>
   );
 }
