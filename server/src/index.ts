@@ -15,8 +15,7 @@ const PORT = process.env.PORT ?? 3001;
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 
 // Stripe webhook requires raw body — must be registered before express.json()
-app.use('/api/webhook', express.raw({ type: 'application/json' }), webhookRouter);
-
+app.use('/api/webhook', webhookRouter);
 app.use(express.json());
 
 app.use('/api/auth', authRouter);
