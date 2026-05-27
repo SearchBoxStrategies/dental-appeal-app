@@ -12,6 +12,12 @@ export default function Billing() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
 
+  // ADDED - Get referral code from URL
+  const getReferralCode = () => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('ref');
+  };
+
   useEffect(() => {
     fetchSubscriptionStatus();
     
@@ -38,7 +44,10 @@ export default function Billing() {
   const handleSubscribe = async () => {
     setActionLoading(true);
     try {
-      const response = await api.post('/billing/checkout');
+      const referralCode = getReferralCode(); // ADDED - capture referral code
+      const response = await api.post('/billing/checkout', { 
+        referralCode // ADDED - send referral code to backend
+      });
       window.location.href = response.data.url;
     } catch (error) {
       console.error('Failed to create checkout session:', error);
