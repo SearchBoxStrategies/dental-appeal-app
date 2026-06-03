@@ -15,7 +15,6 @@ export default function AffiliateSignup() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
-  const [affiliateCode, setAffiliateCode] = useState('');
   const [customersPerMonth, setCustomersPerMonth] = useState(5);
   const [selectedTier, setSelectedTier] = useState<'standard' | 'pro' | 'partner'>('standard');
 
@@ -45,7 +44,6 @@ export default function AffiliateSignup() {
       const data = await response.json();
 
       if (response.ok) {
-        setAffiliateCode(data.affiliateCode);
         setSuccess(true);
       } else {
         setError(data.error || 'Signup failed. Please try again.');
