@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  ArrowRight, CheckCircle, Gift, Star
+  ArrowRight, CheckCircle, Gift, Star, TrendingUp
 } from 'lucide-react';
 
 export default function AffiliateSignup() {
@@ -17,6 +17,18 @@ export default function AffiliateSignup() {
   const [error, setError] = useState('');
   const [affiliateCode, setAffiliateCode] = useState('');
   const [customersPerMonth, setCustomersPerMonth] = useState(5);
+  const [selectedTier, setSelectedTier] = useState<'standard' | 'pro' | 'partner'>('standard');
+
+  // Tier rates based on your actual code
+  const tierRates = {
+    standard: { rate: 15, monthlyPerCustomer: 29.85, name: 'Standard', conversions: '0-9' },
+    pro: { rate: 20, monthlyPerCustomer: 39.80, name: 'Pro', conversions: '10-49' },
+    partner: { rate: 25, monthlyPerCustomer: 49.75, name: 'Partner', conversions: '50+' }
+  };
+
+  const currentRate = tierRates[selectedTier].rate;
+  const monthlyEarnings = customersPerMonth * tierRates[selectedTier].monthlyPerCustomer;
+  const yearlyEarnings = monthlyEarnings * 12;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,9 +57,6 @@ export default function AffiliateSignup() {
     }
   };
 
-  const monthlyEarnings = customersPerMonth * 39.80;
-  const yearlyEarnings = monthlyEarnings * 12;
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-gray-50">
       {/* Hero Section */}
@@ -59,12 +68,12 @@ export default function AffiliateSignup() {
               <span className="text-sm font-medium">Launch Partner Program</span>
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
-              Earn 20% Recurring<br />
+              Earn 15-25% Recurring<br />
               <span className="text-blue-200">Commission</span>
             </h1>
             <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
               Help dental practices recover denied claims with AI. 
-              You get paid monthly for every customer you refer.
+              The more you refer, the higher your commission rate.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a href="#signup" className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:shadow-lg transition-all inline-flex items-center gap-2">
@@ -103,22 +112,66 @@ export default function AffiliateSignup() {
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Left Column - Benefits */}
           <div>
-            {/* Commission Highlight */}
+            {/* Tier Commission Table */}
             <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 mb-8">
-              <div className="text-center">
+              <div className="text-center mb-6">
                 <div className="inline-flex items-center gap-1 bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm mb-4">
                   <Star className="w-3 h-3 fill-current" />
-                  <span>Best in class commission</span>
+                  <span>Performance-Based Tiers</span>
                 </div>
-                <div className="text-5xl font-bold text-gray-900 mb-2">20%</div>
-                <div className="text-gray-600 mb-4">Recurring Monthly Commission</div>
-                <div className="text-2xl font-semibold text-gray-900 mb-2">$39.80</div>
-                <div className="text-gray-500">per customer / per month</div>
-                <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                  <p className="text-sm text-blue-800">
-                    💰 <strong>Example:</strong> Refer 10 practices = <strong>$398/month</strong> passive income
-                  </p>
+                <h3 className="text-xl font-bold text-gray-900">Commission Tiers</h3>
+                <p className="text-gray-600 text-sm mt-1">Higher referrals = Higher commission</p>
+              </div>
+              
+              <div className="space-y-3">
+                <div className={`p-4 rounded-lg cursor-pointer transition-all ${selectedTier === 'standard' ? 'bg-blue-50 border-2 border-blue-500' : 'bg-gray-50 border border-gray-200'}`}
+                     onClick={() => setSelectedTier('standard')}>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h4 className="font-bold text-gray-900">Standard Tier</h4>
+                      <p className="text-sm text-gray-600">0-9 conversions</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-bold text-blue-600">15%</p>
+                      <p className="text-sm text-gray-500">$29.85/mo per customer</p>
+                    </div>
+                  </div>
                 </div>
+                
+                <div className={`p-4 rounded-lg cursor-pointer transition-all ${selectedTier === 'pro' ? 'bg-blue-50 border-2 border-blue-500' : 'bg-gray-50 border border-gray-200'}`}
+                     onClick={() => setSelectedTier('pro')}>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h4 className="font-bold text-gray-900">Pro Tier</h4>
+                      <p className="text-sm text-gray-600">10-49 conversions</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-bold text-blue-600">20%</p>
+                      <p className="text-sm text-gray-500">$39.80/mo per customer</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className={`p-4 rounded-lg cursor-pointer transition-all ${selectedTier === 'partner' ? 'bg-blue-50 border-2 border-blue-500' : 'bg-gray-50 border border-gray-200'}`}
+                     onClick={() => setSelectedTier('partner')}>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h4 className="font-bold text-gray-900">Partner Tier</h4>
+                      <p className="text-sm text-gray-600">50+ conversions</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-bold text-blue-600">25%</p>
+                      <p className="text-sm text-gray-500">$49.75/mo per customer</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  <TrendingUp className="w-4 h-4 inline mr-1" />
+                  <strong>Example:</strong> Refer 10 practices at {currentRate}% = <strong>${(customersPerMonth * tierRates[selectedTier].monthlyPerCustomer).toFixed(2)}/month</strong> passive income
+                </p>
               </div>
             </div>
 
@@ -130,7 +183,7 @@ export default function AffiliateSignup() {
                 <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
                 <div>
                   <strong className="text-gray-900">Recurring Revenue</strong>
-                  <p className="text-gray-600 text-sm">Earn 20% every month your referral stays a customer</p>
+                  <p className="text-gray-600 text-sm">Earn 15-25% every month your referral stays a customer</p>
                 </div>
               </div>
               
@@ -165,6 +218,14 @@ export default function AffiliateSignup() {
                   <p className="text-gray-600 text-sm">Track clicks, signups, and earnings anytime</p>
                 </div>
               </div>
+              
+              <div className="flex items-start gap-3">
+                <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
+                <div>
+                  <strong className="text-gray-900">Tier Upgrades</strong>
+                  <p className="text-gray-600 text-sm">Automatically upgrade to higher commission rates as you refer more</p>
+                </div>
+              </div>
             </div>
 
             {/* Testimonials */}
@@ -189,7 +250,7 @@ export default function AffiliateSignup() {
               <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
                 <div className="text-center mb-6">
                   <h2 className="text-2xl font-bold text-gray-900">Become an Affiliate</h2>
-                  <p className="text-gray-600 mt-2">Join for free. Start earning today.</p>
+                  <p className="text-gray-600 mt-2">Join for free. Applications reviewed within 24-48 hours.</p>
                 </div>
 
                 {error && (
@@ -271,7 +332,7 @@ export default function AffiliateSignup() {
 
                   {/* Earnings Calculator Preview */}
                   <div className="bg-gray-50 rounded-lg p-4 mt-4">
-                    <p className="text-sm font-medium text-gray-700 mb-2">📊 Your Potential Earnings</p>
+                    <p className="text-sm font-medium text-gray-700 mb-2">📊 Your Potential Earnings at {currentRate}%</p>
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-gray-600">Customers referred per month:</span>
                       <input
@@ -301,13 +362,13 @@ export default function AffiliateSignup() {
                     disabled={loading}
                     className="w-full py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50"
                   >
-                    {loading ? 'Creating account...' : 'Become an Affiliate →'}
+                    {loading ? 'Creating account...' : 'Apply to Become an Affiliate →'}
                   </button>
                 </form>
 
                 <p className="text-center text-xs text-gray-500 mt-6">
                   By signing up, you agree to our Affiliate Terms & Conditions.
-                  No upfront fees. Cancel anytime.
+                  Applications are reviewed within 24-48 hours.
                 </p>
               </div>
             ) : (
@@ -315,26 +376,19 @@ export default function AffiliateSignup() {
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <CheckCircle className="w-8 h-8 text-green-600" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome to the Team! 🎉</h2>
-                <p className="text-gray-600 mb-6">
-                  Your affiliate account has been created. Here's your unique referral link:
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Application Received! 🎉</h2>
+                <p className="text-gray-600 mb-4">
+                  Your affiliate application has been submitted. Our team will review and activate your account within 24-48 hours.
                 </p>
-                
-                <div className="bg-gray-50 rounded-lg p-4 mb-6">
-                  <code className="text-sm text-blue-600 break-all">
-                    {`${window.location.origin}/register?ref=${affiliateCode}`}
-                  </code>
-                </div>
-
-                <p className="text-sm text-gray-500 mb-6">
-                  We've also sent this to your email. Start sharing your link to earn commissions!
+                <p className="text-gray-600 mb-6">
+                  You'll receive an email when your account is approved.
                 </p>
 
                 <Link
-                  to="/login"
+                  to="/"
                   className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition"
                 >
-                  Go to Dashboard <ArrowRight className="w-4 h-4" />
+                  Return Home <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
             )}
@@ -357,8 +411,8 @@ export default function AffiliateSignup() {
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-bold text-blue-600">1</span>
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Join for Free</h3>
-              <p className="text-gray-600 text-sm">Sign up with your email. Instant approval. No fees.</p>
+              <h3 className="font-semibold text-gray-900 mb-2">Apply for Free</h3>
+              <p className="text-gray-600 text-sm">Submit your application. Our team reviews within 24-48 hours.</p>
             </div>
             
             <div className="text-center">
@@ -366,7 +420,7 @@ export default function AffiliateSignup() {
                 <span className="text-2xl font-bold text-blue-600">2</span>
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">Share Your Link</h3>
-              <p className="text-gray-600 text-sm">Get a unique referral link. Share via email, social, or website.</p>
+              <p className="text-gray-600 text-sm">Once approved, get your unique referral link. Share via email, social, or website.</p>
             </div>
             
             <div className="text-center">
@@ -374,7 +428,7 @@ export default function AffiliateSignup() {
                 <span className="text-2xl font-bold text-blue-600">3</span>
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">Earn Monthly</h3>
-              <p className="text-gray-600 text-sm">When they become a paying customer, you earn 20% every month they stay.</p>
+              <p className="text-gray-600 text-sm">When they become a paying customer, you earn 15-25% every month they stay.</p>
             </div>
           </div>
         </div>
@@ -389,8 +443,13 @@ export default function AffiliateSignup() {
 
           <div className="max-w-3xl mx-auto space-y-6">
             <div className="bg-white rounded-xl p-6">
+              <h3 className="font-semibold text-gray-900 mb-2">How does the tier system work?</h3>
+              <p className="text-gray-600">You start at 15% commission (Standard tier). When you reach 10 total conversions, you automatically upgrade to 20% (Pro tier). At 50+ conversions, you reach 25% (Partner tier). All your customers, past and future, earn at your current tier rate.</p>
+            </div>
+
+            <div className="bg-white rounded-xl p-6">
               <h3 className="font-semibold text-gray-900 mb-2">When do I get paid?</h3>
-              <p className="text-gray-600">When a user completes their 14-day free trial AND upgrades to the $199/month plan. You earn 20% of their monthly subscription for as long as they remain a paying customer.</p>
+              <p className="text-gray-600">When a user completes their 14-day free trial AND upgrades to the $199/month plan. You earn 15-25% of their monthly subscription for as long as they remain a paying customer.</p>
             </div>
 
             <div className="bg-white rounded-xl p-6">
@@ -410,12 +469,17 @@ export default function AffiliateSignup() {
 
             <div className="bg-white rounded-xl p-6">
               <h3 className="font-semibold text-gray-900 mb-2">How do I get paid?</h3>
-              <p className="text-gray-600">Monthly payouts via PayPal or Stripe on the 15th of each month. Minimum payout $50.</p>
+              <p className="text-gray-600">Monthly payouts via PayPal or Stripe on the 15th of each month. Payouts are processed for approved commissions.</p>
             </div>
 
             <div className="bg-white rounded-xl p-6">
               <h3 className="font-semibold text-gray-900 mb-2">What if the customer cancels?</h3>
               <p className="text-gray-600">Commissions stop when they cancel. You are only paid for active, paying customers.</p>
+            </div>
+
+            <div className="bg-white rounded-xl p-6">
+              <h3 className="font-semibold text-gray-900 mb-2">How long does approval take?</h3>
+              <p className="text-gray-600">Applications are typically reviewed within 24-48 hours. You'll receive an email notification once approved.</p>
             </div>
           </div>
         </div>
@@ -427,7 +491,7 @@ export default function AffiliateSignup() {
           <h2 className="text-3xl font-bold mb-4">Ready to Start Earning?</h2>
           <p className="text-xl text-blue-100 mb-8">Join hundreds of affiliates earning passive income</p>
           <a href="#signup" className="inline-flex items-center gap-2 bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:shadow-lg transition-all">
-            Join Now <ArrowRight className="w-4 h-4" />
+            Apply Now <ArrowRight className="w-4 h-4" />
           </a>
         </div>
       </div>
