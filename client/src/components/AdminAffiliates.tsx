@@ -72,7 +72,9 @@ export default function AdminAffiliates() {
     try {
       setError(null);
       const response = await api.get('/affiliate/admin/list');
-      setAffiliates(Array.isArray(response.data) ? response.data : []);
+      // Handle both response formats: { success: true, affiliates: [...] } or direct array
+      const affiliatesData = response.data.affiliates || (Array.isArray(response.data) ? response.data : []);
+      setAffiliates(affiliatesData);
     } catch (error: any) {
       console.error('Failed to fetch affiliates:', error);
       setError(error.response?.data?.error || 'Failed to load affiliates');
@@ -85,7 +87,9 @@ export default function AdminAffiliates() {
   const fetchCommissions = async () => {
     try {
       const response = await api.get('/affiliate/admin/commissions');
-      setCommissions(Array.isArray(response.data) ? response.data : []);
+      // Handle both response formats
+      const commissionsData = response.data.commissions || (Array.isArray(response.data) ? response.data : []);
+      setCommissions(commissionsData);
     } catch (error) {
       console.error('Failed to fetch commissions:', error);
       setCommissions([]);
@@ -148,6 +152,7 @@ export default function AdminAffiliates() {
   const totalStats = {
     totalAffiliates: affiliates.length,
     activeAffiliates: affiliates.filter(a => a.is_active).length,
+    pendingAffiliates: affiliates.filter(a => !a.is_active).length,
     totalConversions: affiliates.reduce((sum, a) => sum + (a.total_conversions || 0), 0),
     totalEarnings: affiliates.reduce((sum, a) => sum + (a.total_earnings || 0), 0),
     pendingPayouts: affiliates.reduce((sum, a) => sum + (a.pending_earnings || 0), 0),
@@ -235,7 +240,7 @@ export default function AdminAffiliates() {
       )}
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
         <div className="bg-white rounded-xl shadow-sm border p-4">
           <div className="flex items-center justify-between">
             <div>
@@ -252,6 +257,15 @@ export default function AdminAffiliates() {
               <p className="text-2xl font-bold text-green-600">{totalStats.activeAffiliates}</p>
             </div>
             <CheckCircle className="w-8 h-8 text-green-500" />
+          </div>
+        </div>
+        <div className="bg-white rounded-xl shadow-sm border p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-500">Pending Approval</p>
+              <p className="text-2xl font-bold text-yellow-600">{totalStats.pendingAffiliates}</p>
+            </div>
+            <AlertCircle className="w-8 h-8 text-yellow-500" />
           </div>
         </div>
         <div className="bg-white rounded-xl shadow-sm border p-4">
@@ -278,7 +292,7 @@ export default function AdminAffiliates() {
               <p className="text-sm text-gray-500">Pending Payouts</p>
               <p className="text-2xl font-bold text-orange-600">{formatCurrency(totalStats.pendingPayouts)}</p>
             </div>
-            <AlertCircle className="w-8 h-8 text-orange-500" />
+            <DollarSign className="w-8 h-8 text-orange-500" />
           </div>
         </div>
       </div>
@@ -421,8 +435,8 @@ export default function AdminAffiliates() {
                             </button>
                           )}
                         </div>
-                       </td>
-                     </tr>
+                      </td>
+                    </tr>
                   ))}
                   {filteredAffiliates.length === 0 && (
                     <tr>
@@ -502,8 +516,8 @@ export default function AdminAffiliates() {
             <h2 className="text-xl font-bold text-gray-900 mb-4">Process Payout</h2>
             <p className="text-gray-600 mb-2">Affiliate: <strong>{selectedAffiliate.full_name}</strong></p>
             <p className="text-gray-600 mb-2">Email: {selectedAffiliate.email}</p>
-            <p className="text-gray-600 mb-2">Payout Method: <strong className="capitalize">{selectedAffiliate.payout_method}</strong></p>
-            <p className="text-gray-600 mb-4">Payout Email: {selectedAffiliate.payout_email}</p>
+            <p className="text-gray-600 mb-2">Payout Method: <strong className="capitalize">{selectedAffiliate.payout_method || 'Not set'}</strong></p>
+            <p className="text-gray-600 mb-4">Payout Email: {selectedAffiliate.payout_email || 'Not set'}</p>
             <p className="text-gray-600 mb-4">Pending amount: <strong className="text-green-600">{formatCurrency(selectedAffiliate.pending_earnings)}</strong></p>
             <p className="text-sm text-gray-500 mb-6">This will mark all pending commissions as paid.</p>
             <div className="flex gap-3">
@@ -568,11 +582,11 @@ export default function AdminAffiliates() {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Payout Method</p>
-                  <p className="font-medium capitalize">{selectedAffiliate.payout_method}</p>
+                  <p className="font-medium capitalize">{selectedAffiliate.payout_method || 'Not set'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Payout Email</p>
-                  <p className="font-medium">{selectedAffiliate.payout_email}</p>
+                  <p className="font-medium">{selectedAffiliate.payout_email || 'Not set'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Joined</p>
