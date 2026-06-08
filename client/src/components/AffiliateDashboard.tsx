@@ -50,6 +50,7 @@ interface AffiliateData {
 export default function AffiliateDashboard() {
   const [data, setData] = useState<AffiliateData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [pendingApproval, setPendingApproval] = useState(false);
   const [affiliateLink, setAffiliateLink] = useState('');
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'referrals' | 'commissions'>('overview');
@@ -62,7 +63,15 @@ export default function AffiliateDashboard() {
   const fetchDashboard = async () => {
     try {
       const response = await api.get('/affiliate/dashboard');
-      setData(response.data);
+      
+      // Check if account is pending approval
+      if (response.data.pendingApproval === true) {
+        setPendingApproval(true);
+        setData(null);
+      } else {
+        setData(response.data);
+        setPendingApproval(false);
+      }
     } catch (error) {
       console.error('Failed to fetch dashboard:', error);
     } finally {
@@ -114,6 +123,7 @@ export default function AffiliateDashboard() {
     });
   };
 
+  // Show loading state
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -122,17 +132,67 @@ export default function AffiliateDashboard() {
     );
   }
 
-  if (!data) {
+  // Show pending approval message
+  if (pendingApproval) {
     return (
-      <div className="text-center py-12">
-        <p className="text-gray-500">Not an affiliate yet?</p>
-        <Link to="/affiliate/signup" className="mt-2 inline-block text-blue-600 hover:underline">
-          Sign up to become an affiliate →
-        </Link>
+      <div className="max-w-2xl mx-auto text-center py-16">
+        <div className="bg-yellow-50 rounded-2xl p-8 border border-yellow-200">
+          <div className="text-6xl mb-4">⏳</div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Account Pending Approval</h1>
+          <p className="text-gray-600 mb-4">
+            Thank you for registering as an affiliate!
+          </p>
+          <p className="text-gray-600 mb-6">
+            Your account is currently pending admin approval. You'll receive a notification 
+            once your account is approved.
+          </p>
+          <div className="bg-white rounded-lg p-4 text-left mb-6">
+            <p className="text-sm font-medium text-gray-700 mb-2">What happens next?</p>
+            <ul className="text-sm text-gray-600 space-y-2">
+              <li className="flex items-center gap-2">
+                <span className="text-green-500">✓</span> Admin reviews your application
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-green-500">✓</span> You receive an approval email
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-green-500">✓</span> Access your full affiliate dashboard
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-green-500">✓</span> Generate referral links
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-green-500">✓</span> Connect Stripe for payouts
+              </li>
+            </ul>
+          </div>
+          <button 
+            onClick={() => window.location.reload()}
+            className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+          >
+            Refresh Status →
+          </button>
+        </div>
       </div>
     );
   }
 
+  // Show error if no data and not pending
+  if (!data) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-500 mb-4">Unable to load affiliate dashboard.</p>
+        <button 
+          onClick={() => fetchDashboard()}
+          className="text-blue-600 hover:underline"
+        >
+          Try again →
+        </button>
+      </div>
+    );
+  }
+
+  // Show full dashboard for approved affiliates
   return (
     <div className="space-y-6">
       {/* Header */}
