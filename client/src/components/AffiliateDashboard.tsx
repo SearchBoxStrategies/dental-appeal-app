@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { 
   Copy, Check, TrendingUp, Users, DollarSign, MousePointer, 
   Gift, Award
