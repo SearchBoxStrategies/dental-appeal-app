@@ -6,6 +6,7 @@ interface AuthContextValue {
   user: User | null;
   practice: Practice | null;
   token: string | null;
+  loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (practiceName: string, name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
@@ -28,14 +29,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'));
   const [user, setUser] = useState<User | null>(null);
   const [practice, setPractice] = useState<Practice | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (token) {
       if (isTokenExpired(token)) {
         doLogout();
+        setLoading(false);
       } else {
-        refreshPractice();
+        refreshPractice().finally(() => setLoading(false));
       }
+    } else {
+      setLoading(false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -79,6 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         practice,
         token,
+        loading,
         login,
         register,
         logout: doLogout,
