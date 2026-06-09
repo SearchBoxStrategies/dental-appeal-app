@@ -44,7 +44,8 @@ export default function Login() {
       if (response.ok && data.token) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
-        navigate('/dashboard');
+        // Redirect to root - RoleBasedRedirect will handle destination
+        navigate('/');
       } 
       // Admin 2FA flow - requires verification code
       else if (data.requiresAdminVerification) {
