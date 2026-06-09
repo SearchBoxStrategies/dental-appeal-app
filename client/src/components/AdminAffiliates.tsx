@@ -72,7 +72,6 @@ export default function AdminAffiliates() {
     try {
       setError(null);
       const response = await api.get('/affiliate/admin/list');
-      // Handle both response formats: { success: true, affiliates: [...] } or direct array
       const affiliatesData = response.data.affiliates || (Array.isArray(response.data) ? response.data : []);
       setAffiliates(affiliatesData);
     } catch (error: any) {
@@ -87,7 +86,6 @@ export default function AdminAffiliates() {
   const fetchCommissions = async () => {
     try {
       const response = await api.get('/affiliate/admin/commissions');
-      // Handle both response formats
       const commissionsData = response.data.commissions || (Array.isArray(response.data) ? response.data : []);
       setCommissions(commissionsData);
     } catch (error) {
@@ -185,7 +183,6 @@ export default function AdminAffiliates() {
     URL.revokeObjectURL(url);
   };
 
-  // Show loading state
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-64">
@@ -195,7 +192,6 @@ export default function AdminAffiliates() {
     );
   }
 
-  // Show error state
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-center">
@@ -217,7 +213,6 @@ export default function AdminAffiliates() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Affiliate Management</h1>
@@ -232,14 +227,12 @@ export default function AdminAffiliates() {
         </button>
       </div>
 
-      {/* Message */}
       {message && (
         <div className={`p-4 rounded-lg ${message.type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
           {message.text}
         </div>
       )}
 
-      {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
         <div className="bg-white rounded-xl shadow-sm border p-4">
           <div className="flex items-center justify-between">
@@ -297,7 +290,6 @@ export default function AdminAffiliates() {
         </div>
       </div>
 
-      {/* Tabs */}
       <div className="border-b border-gray-200">
         <nav className="flex gap-6">
           <button
@@ -323,10 +315,8 @@ export default function AdminAffiliates() {
         </nav>
       </div>
 
-      {/* Affiliates Tab */}
       {activeTab === 'affiliates' && (
         <>
-          {/* Search and Export */}
           <div className="flex flex-col sm:flex-row gap-4 justify-between">
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -347,7 +337,6 @@ export default function AdminAffiliates() {
             </button>
           </div>
 
-          {/* Affiliates Table */}
           <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -415,7 +404,7 @@ export default function AdminAffiliates() {
                           </button>
                           {!affiliate.is_active && (
                             <button
-                              onClick={() => approveAffiliate(affiliate.id, 20, 'standard')}
+                              onClick={() => approveAffiliate(affiliate.id, 15, 'standard')}
                               className="p-1 text-green-600 hover:bg-green-50 rounded"
                               title="Approve"
                             >
@@ -452,7 +441,6 @@ export default function AdminAffiliates() {
         </>
       )}
 
-      {/* Commissions Tab */}
       {activeTab === 'commissions' && (
         <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
           {loadingCommissions ? (
@@ -509,7 +497,6 @@ export default function AdminAffiliates() {
         </div>
       )}
 
-      {/* Payout Modal */}
       {showPayoutModal && selectedAffiliate && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl max-w-md w-full p-6">
@@ -541,7 +528,6 @@ export default function AdminAffiliates() {
         </div>
       )}
 
-      {/* Affiliate Detail Modal */}
       {showAffiliateModal && selectedAffiliate && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 overflow-y-auto">
           <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
@@ -629,7 +615,7 @@ export default function AdminAffiliates() {
                 {!selectedAffiliate.is_active && (
                   <button
                     onClick={() => {
-                      approveAffiliate(selectedAffiliate.id, 20, 'standard');
+                      approveAffiliate(selectedAffiliate.id, 15, 'standard');
                       setShowAffiliateModal(false);
                     }}
                     className="flex-1 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
