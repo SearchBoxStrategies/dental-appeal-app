@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
@@ -24,6 +24,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import AdminPayments from './components/AdminPayments';
 import AdminEmailTemplates from './components/AdminEmailTemplates';
 import Calculator from './pages/Calculator';
+import RoleBasedRedirect from './components/RoleBasedRedirect';
 // Affiliate imports
 import AffiliateSignup from './pages/AffiliateSignup';
 import AffiliateDashboard from './components/AffiliateDashboard';
@@ -34,78 +35,74 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public routes - no layout */}
+        {/* Public routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
-        
-        {/* Legal routes - public access */}
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
-
-        {/* Calculator routes - public access */}
         <Route path="/calculator" element={<Calculator />} />
         
         {/* Affiliate public routes */}
         <Route path="/affiliate/signup" element={<AffiliateSignup />} />
         <Route path="/affiliate/stats/:code" element={<AffiliatePublicStats />} />
         
-        {/* User protected routes - with Layout (sidebar + header) */}
+        {/* Clinic-only routes (core product) */}
         <Route path="/dashboard" element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedTypes={['clinic']}>
             <Dashboard />
           </ProtectedRoute>
         } />
         <Route path="/claims" element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedTypes={['clinic']}>
             <Claims />
           </ProtectedRoute>
         } />
         <Route path="/claims/new" element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedTypes={['clinic']}>
             <NewClaim />
           </ProtectedRoute>
         } />
         <Route path="/claims/:id" element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedTypes={['clinic']}>
             <ClaimDetail />
           </ProtectedRoute>
         } />
         <Route path="/billing" element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedTypes={['clinic']}>
             <Billing />
           </ProtectedRoute>
         } />
         <Route path="/practice/profile" element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedTypes={['clinic']}>
             <PracticeProfile />
           </ProtectedRoute>
         } />
         <Route path="/settings/notifications" element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedTypes={['clinic']}>
             <EmailPreferences />
           </ProtectedRoute>
         } />
         <Route path="/analytics" element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedTypes={['clinic']}>
             <AnalyticsReport />
           </ProtectedRoute>
         } />
         <Route path="/bulk-upload" element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedTypes={['clinic']}>
             <BulkUpload />
           </ProtectedRoute>
         } />
         <Route path="/help" element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedTypes={['clinic', 'affiliate']}>
             <Help />
           </ProtectedRoute>
         } />
         
-        {/* Affiliate protected route - requires login */}
+        {/* Affiliate-only routes */}
         <Route path="/affiliate/dashboard" element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedTypes={['affiliate']}>
             <AffiliateDashboard />
           </ProtectedRoute>
         } />
@@ -157,8 +154,8 @@ function App() {
           </AdminRoute>
         } />        
         
-        {/* Default redirect */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        {/* Root redirect - role based */}
+        <Route path="/" element={<RoleBasedRedirect />} />
       </Routes>
     </BrowserRouter>
   );
