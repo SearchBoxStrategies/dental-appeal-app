@@ -27,7 +27,6 @@ export default function ProtectedRoute({
   }
 
   if (!allowedTypes.includes(user.user_type as 'clinic' | 'affiliate' | 'admin')) {
-    // Redirect to their correct dashboard
     if (user.is_admin) return <Navigate to="/admin" replace />;
     if (user.user_type === 'affiliate') return <Navigate to="/affiliate/dashboard" replace />;
     return <Navigate to="/dashboard" replace />;
