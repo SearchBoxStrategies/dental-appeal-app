@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { 
   Copy, Check, TrendingUp, Users, DollarSign, MousePointer, 
-  Gift, Award
+  Gift, Award, TrendingDown, Zap, Target
 } from 'lucide-react';
 import api from '../lib/api';
 
@@ -44,6 +45,11 @@ interface AffiliateData {
     total: number;
     commission_count: number;
   }>;
+  nextTier: {
+    nextTier: string | null;
+    nextRate: number | null;
+    conversionsNeeded: number | null;
+  };
 }
 
 export default function AffiliateDashboard() {
@@ -63,7 +69,6 @@ export default function AffiliateDashboard() {
     try {
       const response = await api.get('/affiliate/dashboard');
       
-      // Check if account is pending approval
       if (response.data.pendingApproval === true) {
         setPendingApproval(true);
         setData(null);
@@ -122,7 +127,28 @@ export default function AffiliateDashboard() {
     });
   };
 
-  // Show loading state
+  const getTierColor = (tier: string) => {
+    switch (tier.toLowerCase()) {
+      case 'partner':
+        return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'pro':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const getTierIcon = (tier: string) => {
+    switch (tier.toLowerCase()) {
+      case 'partner':
+        return <Award className="w-5 h-5 text-purple-600" />;
+      case 'pro':
+        return <Zap className="w-5 h-5 text-blue-600" />;
+      default:
+        return <Gift className="w-5 h-5 text-gray-600" />;
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -131,7 +157,6 @@ export default function AffiliateDashboard() {
     );
   }
 
-  // Show pending approval message
   if (pendingApproval) {
     return (
       <div className="max-w-2xl mx-auto text-center py-16">
@@ -176,7 +201,6 @@ export default function AffiliateDashboard() {
     );
   }
 
-  // Show error if no data and not pending
   if (!data) {
     return (
       <div className="text-center py-12">
@@ -191,13 +215,66 @@ export default function AffiliateDashboard() {
     );
   }
 
-  // Show full dashboard for approved affiliates
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Affiliate Dashboard</h1>
         <p className="text-gray-600 mt-1">Track your referrals and earnings</p>
+      </div>
+
+      {/* Tier Banner */}
+      <div className={`rounded-xl p-6 border-2 ${getTierColor(data.affiliate.tier)}`}>
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <div className="flex items-center gap-3">
+            {getTierIcon(data.affiliate.tier)}
+            <div>
+              <p className="text-sm font-medium">Current Tier</p>
+              <p className="text-2xl font-bold capitalize">{data.affiliate.tier}</p>
+              <p className="text-sm">{data.affiliate.commission_rate}% Commission Rate</p>
+            </div>
+          </div>
+          
+          {data.nextTier.nextTier && (
+            <div className="flex items-center gap-3">
+              <Target className="w-8 h-8 text-gray-400" />
+              <div>
+                <p className="text-sm font-medium">Next Tier: {data.nextTier.nextTier}</p>
+                <p className="text-2xl font-bold">{data.nextTier.nextRate}%</p>
+                <p className="text-sm">{data.nextTier.conversionsNeeded} more conversions needed</p>
+              </div>
+              <TrendingUp className="w-5 h-5 text-gray-400 ml-2" />
+            </div>
+          )}
+          
+          {!data.nextTier.nextTier && (
+            <div className="flex items-center gap-3">
+              <Award className="w-8 h-8 text-yellow-500" />
+              <div>
+                <p className="text-sm font-medium">Maximum Tier Achieved!</p>
+                <p className="text-sm">You're earning the highest commission rate</p>
+              </div>
+            </div>
+          )}
+        </div>
+        
+        {/* Progress Bar */}
+        {data.nextTier.nextTier && (
+          <div className="mt-4">
+            <div className="flex justify-between text-sm mb-1">
+              <span>Progress to {data.nextTier.nextTier}</span>
+              <span>{data.affiliate.total_conversions} / {(data.affiliate.total_conversions + (data.nextTier.conversionsNeeded || 0))}</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-blue-600 h-2 rounded-full transition-all duration-500"
+                style={{ 
+                  width: `${(data.affiliate.total_conversions / (data.affiliate.total_conversions + (data.nextTier.conversionsNeeded || 1))) * 100}%` 
+                }}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Stats Grid */}
@@ -323,6 +400,43 @@ export default function AffiliateDashboard() {
         {/* Overview Tab */}
         {activeTab === 'overview' && (
           <div className="space-y-6">
+            {/* Tier Benefits */}
+            <div className="bg-white rounded-xl shadow-sm border p-6">
+              <h3 className="text-md font-semibold text-gray-900 mb-4">Commission Tiers</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className={`p-4 rounded-lg border-2 ${data.affiliate.tier === 'standard' ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="font-semibold">Standard</span>
+                    <span className="text-lg font-bold text-green-600">15%</span>
+                  </div>
+                  <p className="text-sm text-gray-600">0-9 conversions</p>
+                  {data.affiliate.tier === 'standard' && (
+                    <span className="inline-block mt-2 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Current Tier</span>
+                  )}
+                </div>
+                <div className={`p-4 rounded-lg border-2 ${data.affiliate.tier === 'pro' ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="font-semibold">Pro</span>
+                    <span className="text-lg font-bold text-green-600">20%</span>
+                  </div>
+                  <p className="text-sm text-gray-600">10-49 conversions</p>
+                  {data.affiliate.tier === 'pro' && (
+                    <span className="inline-block mt-2 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Current Tier</span>
+                  )}
+                </div>
+                <div className={`p-4 rounded-lg border-2 ${data.affiliate.tier === 'partner' ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="font-semibold">Partner</span>
+                    <span className="text-lg font-bold text-green-600">25%</span>
+                  </div>
+                  <p className="text-sm text-gray-600">50+ conversions</p>
+                  {data.affiliate.tier === 'partner' && (
+                    <span className="inline-block mt-2 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Current Tier</span>
+                  )}
+                </div>
+              </div>
+            </div>
+
             {/* Monthly Earnings Chart */}
             {data.monthlyEarnings && data.monthlyEarnings.length > 0 && (
               <div className="bg-white rounded-xl shadow-sm border p-6">
@@ -346,30 +460,6 @@ export default function AffiliateDashboard() {
                 </div>
               </div>
             )}
-
-            {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-white rounded-xl shadow-sm border p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <Gift className="w-5 h-5 text-blue-500" />
-                  <h3 className="font-semibold text-gray-900">Commission Rate</h3>
-                </div>
-                <p className="text-3xl font-bold text-gray-900">{data.affiliate.commission_rate}%</p>
-                <p className="text-sm text-gray-500 mt-2">Recurring monthly commission on every paying customer</p>
-              </div>
-
-              <div className="bg-white rounded-xl shadow-sm border p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <Award className="w-5 h-5 text-purple-500" />
-                  <h3 className="font-semibold text-gray-900">Affiliate Tier</h3>
-                </div>
-                <p className="text-3xl font-bold text-gray-900 capitalize">{data.affiliate.tier}</p>
-                <p className="text-sm text-gray-500 mt-2">
-                  {data.affiliate.total_conversions >= 10 ? '🎉 You\'re eligible for Tier 2 upgrade!' : 
-                   `${10 - data.affiliate.total_conversions} more conversions to reach Tier 2 (25% rate)`}
-                </p>
-              </div>
-            </div>
           </div>
         )}
 
