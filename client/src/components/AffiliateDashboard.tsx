@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { 
   Copy, Check, TrendingUp, Users, DollarSign, MousePointer, 
-  Gift, Award, TrendingDown, Zap, Target
+  Gift, Award, Zap, Target
 } from 'lucide-react';
 import api from '../lib/api';
 
