@@ -30,6 +30,7 @@ import AffiliateSignup from './pages/AffiliateSignup';
 import AffiliateDashboard from './components/AffiliateDashboard';
 import AdminAffiliates from './components/AdminAffiliates';
 import AffiliatePublicStats from './pages/AffiliatePublicStats';
+import AffiliateVerify from './pages/AffiliateVerify';
 
 function App() {
   return (
@@ -47,6 +48,7 @@ function App() {
         {/* Affiliate public routes */}
         <Route path="/affiliate/signup" element={<AffiliateSignup />} />
         <Route path="/affiliate/stats/:code" element={<AffiliatePublicStats />} />
+        <Route path="/affiliate/verify" element={<AffiliateVerify />} />
         
         {/* Clinic-only routes (core product) */}
         <Route path="/dashboard" element={
