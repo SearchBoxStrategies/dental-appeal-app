@@ -5,7 +5,6 @@ import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 export default function AffiliateVerify() {
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
-  const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   const [email, setEmail] = useState('');
   const navigate = useNavigate();
@@ -39,7 +38,6 @@ export default function AffiliateVerify() {
         const data = await response.json();
         
         if (response.ok) {
-          setSuccess(true);
           setEmail(data.email || '');
           // Redirect to set password page after 2 seconds
           setTimeout(() => {
