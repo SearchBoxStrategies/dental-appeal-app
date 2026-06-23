@@ -6,29 +6,38 @@ export default function AffiliateVerify() {
 
   useEffect(() => {
     const token = searchParams.get('token');
-    console.log('🔍 TOKEN:', token);
-    console.log('🔍 PAGE LOADED - AffiliateVerify component mounted');
-    
+    // Redirect immediately to backend
     if (token) {
-      console.log('🔍 Redirecting to backend...');
-      window.location.replace(`https://api.dentalappeal.claims/api/affiliate/verify?token=${token}`);
+      window.location.href = `https://api.dentalappeal.claims/api/affiliate/verify?token=${token}`;
     }
   }, [searchParams]);
 
-  // Simple HTML that should always render
   return (
-    <html>
-      <head><title>Verifying...</title></head>
-      <body style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontFamily: 'Arial' }}>
-        <div>
-          <h1>Verifying your email...</h1>
-          <p>Please wait while we verify your account.</p>
-          <p style={{ fontSize: '12px', color: '#666' }}>If you're not redirected, <a href="#" onClick={() => {
-            const token = new URLSearchParams(window.location.search).get('token');
-            if (token) window.location.href = `https://api.dentalappeal.claims/api/affiliate/verify?token=${token}`;
-          }}>click here</a></p>
-        </div>
-      </body>
-    </html>
+    <div style={{ 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      height: '100vh',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    }}>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ 
+          width: '40px', 
+          height: '40px', 
+          border: '4px solid #e2e8f0',
+          borderTop: '4px solid #2563eb',
+          borderRadius: '50%',
+          animation: 'spin 0.8s linear infinite',
+          margin: '0 auto 16px auto'
+        }}></div>
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+        <p style={{ color: '#475569', margin: 0 }}>Verifying your email...</p>
+      </div>
+    </div>
   );
 }
