@@ -31,6 +31,7 @@ import AffiliateDashboard from './components/AffiliateDashboard';
 import AdminAffiliates from './components/AdminAffiliates';
 import AffiliatePublicStats from './pages/AffiliatePublicStats';
 import AffiliateVerify from './pages/AffiliateVerify';
+import AffiliateSetPassword from './pages/AffiliateSetPassword';
 
 function App() {
   return (
@@ -49,6 +50,7 @@ function App() {
         <Route path="/affiliate/signup" element={<AffiliateSignup />} />
         <Route path="/affiliate/stats/:code" element={<AffiliatePublicStats />} />
         <Route path="/affiliate/verify" element={<AffiliateVerify />} />
+        <Route path="/affiliate/set-password" element={<AffiliateSetPassword />} />
         
         {/* TEST ROUTE - Remove this after testing */}
         <Route path="/affiliate/test" element={
