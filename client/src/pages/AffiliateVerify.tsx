@@ -31,29 +31,11 @@ export default function AffiliateVerify() {
       return;
     }
     
-    // Call the backend to verify the token
-    const verifyToken = async () => {
-      try {
-        const response = await fetch(`https://api.dentalappeal.claims/api/affiliate/verify?token=${token}`);
-        const data = await response.json();
-        
-        if (response.ok) {
-          setEmail(data.email || '');
-          // Redirect to set password page after 2 seconds
-          setTimeout(() => {
-            window.location.href = `https://app.dentalappeal.claims/affiliate/set-password?email=${encodeURIComponent(data.email || '')}&verified=true`;
-          }, 2000);
-        } else {
-          setError(data.error || 'Verification failed. Please try again.');
-        }
-      } catch (err) {
-        setError('Network error. Please check your connection.');
-      } finally {
-        setLoading(false);
-      }
-    };
+    // Redirect to backend verification endpoint directly
+    // The backend will handle verification and redirect to set-password page
+    console.log('🔍 Redirecting to verification endpoint...');
+    window.location.href = `https://api.dentalappeal.claims/api/affiliate/verify?token=${token}`;
     
-    verifyToken();
   }, [searchParams]);
 
   if (loading) {
