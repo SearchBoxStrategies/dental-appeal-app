@@ -12,6 +12,10 @@ export default function AffiliateVerify() {
     const token = searchParams.get('token');
     const errorParam = searchParams.get('error');
     
+    console.log('🔍 AffiliateVerify mounted');
+    console.log('📌 Token:', token);
+    console.log('📌 Error param:', errorParam);
+    
     if (errorParam === 'invalid') {
       setError('Invalid or expired verification link. Please request a new one.');
       setLoading(false);
@@ -30,44 +34,37 @@ export default function AffiliateVerify() {
       return;
     }
     
-    // Show loading briefly, then redirect
-    setLoading(true);
-    setTimeout(() => {
-      window.location.href = `https://api.dentalappeal.claims/api/affiliate/verify?token=${token}`;
-    }, 500);
+    // Redirect to backend verification endpoint
+    console.log('🔍 Redirecting to:', `https://api.dentalappeal.claims/api/affiliate/verify?token=${token}`);
+    window.location.href = `https://api.dentalappeal.claims/api/affiliate/verify?token=${token}`;
     
   }, [searchParams]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center">
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 max-w-md w-full text-center">
-          <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900">Verifying Your Email</h1>
-          <p className="text-gray-600 mt-2">Please wait while we verify your account...</p>
-          <p className="text-sm text-gray-400 mt-4">Redirecting...</p>
-        </div>
+  // Always render something
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center">
+      <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 max-w-md w-full text-center">
+        {loading ? (
+          <>
+            <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-gray-900">Verifying Your Email</h1>
+            <p className="text-gray-600 mt-2">Please wait while we verify your account...</p>
+            <p className="text-sm text-gray-400 mt-4">Redirecting...</p>
+          </>
+        ) : error ? (
+          <>
+            <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">Verification Failed</h1>
+            <p className="text-gray-600 mb-6">{error}</p>
+            <button
+              onClick={() => navigate('/affiliate/signup')}
+              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
+            >
+              Back to Signup
+            </button>
+          </>
+        ) : null}
       </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center">
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 max-w-md w-full text-center">
-          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Verification Failed</h1>
-          <p className="text-gray-600 mb-6">{error}</p>
-          <button
-            onClick={() => navigate('/affiliate/signup')}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
-          >
-            Back to Signup
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return null;
+    </div>
+  );
 }
