@@ -50,6 +50,15 @@ function App() {
         <Route path="/affiliate/stats/:code" element={<AffiliatePublicStats />} />
         <Route path="/affiliate/verify" element={<AffiliateVerify />} />
         
+        {/* TEST ROUTE - Remove this after testing */}
+        <Route path="/affiliate/test" element={
+          <div style={{ padding: '40px', fontFamily: 'Arial' }}>
+            <h1 style={{ color: 'blue' }}>✅ Test Route Working!</h1>
+            <p>If you see this, React Router is working correctly.</p>
+            <p>Current path: <code>/affiliate/test</code></p>
+          </div>
+        } />
+        
         {/* Clinic-only routes (core product) */}
         <Route path="/dashboard" element={
           <ProtectedRoute allowedTypes={['clinic']}>
