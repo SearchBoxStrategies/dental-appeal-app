@@ -1,18 +1,31 @@
-import { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 
 export default function AffiliateVerify() {
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get('token');
+  const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
-    if (token) {
+    // Try multiple ways to get the token
+    const urlParams = new URLSearchParams(window.location.search);
+    const tokenFromUrl = urlParams.get('token');
+    
+    // Also check if it's in the hash
+    const hashParams = new URLSearchParams(window.location.hash.replace('#', '?'));
+    const tokenFromHash = hashParams.get('token');
+    
+    const finalToken = tokenFromUrl || tokenFromHash;
+    setToken(finalToken);
+    
+    console.log('🔍 URL:', window.location.href);
+    console.log('🔍 Token from URL:', tokenFromUrl);
+    console.log('🔍 Token from hash:', tokenFromHash);
+    console.log('🔍 Final token:', finalToken);
+    
+    if (finalToken) {
       // Redirect to backend verification endpoint
-      window.location.href = `https://api.dentalappeal.claims/api/affiliate/verify?token=${token}`;
+      window.location.href = `https://api.dentalappeal.claims/api/affiliate/verify?token=${finalToken}`;
     }
-  }, [token]);
+  }, []);
 
-  // Show loading state
   return (
     <div style={{ 
       display: 'flex', 
@@ -39,7 +52,7 @@ export default function AffiliateVerify() {
         `}</style>
         <p style={{ color: '#475569', margin: 0 }}>Verifying your email...</p>
         {token && <p style={{ color: '#94a3b8', fontSize: '12px', marginTop: '8px' }}>Redirecting...</p>}
-        {!token && <p style={{ color: '#ef4444', fontSize: '14px', marginTop: '8px' }}>No verification token found.</p>}
+        {!token && <p style={{ color: '#94a3b8', fontSize: '12px', marginTop: '8px' }}>Checking for verification token...</p>}
       </div>
     </div>
   );
