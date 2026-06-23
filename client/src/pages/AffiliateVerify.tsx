@@ -6,7 +6,6 @@ export default function AffiliateVerify() {
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [email, setEmail] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -76,11 +75,6 @@ export default function AffiliateVerify() {
         <p className="text-gray-600 mt-2">
           Your email has been successfully verified.
         </p>
-        {email && (
-          <p className="text-sm text-gray-500 mt-1">
-            {email}
-          </p>
-        )}
         <p className="text-gray-600 mt-4">
           Redirecting you to set your password...
         </p>
