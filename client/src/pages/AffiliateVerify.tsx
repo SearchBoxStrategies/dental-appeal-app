@@ -12,8 +12,7 @@ export default function AffiliateVerify() {
     const token = searchParams.get('token');
     const errorParam = searchParams.get('error');
     
-    console.log('🔍 AffiliateVerify mounted');
-    console.log('📌 Token:', token);
+    console.log('🔍 AffiliateVerify mounted, token:', token);
     
     if (errorParam === 'invalid') {
       setError('Invalid or expired verification link. Please request a new one.');
@@ -33,28 +32,17 @@ export default function AffiliateVerify() {
       return;
     }
     
-    // Wait 1.5 seconds so user can see the loading state, then redirect
-    const redirectTimer = setTimeout(() => {
-      console.log('🔍 Redirecting to backend...');
-      window.location.href = `https://api.dentalappeal.claims/api/affiliate/verify?token=${token}`;
-    }, 1500);
-    
-    return () => clearTimeout(redirectTimer);
+    // Use replace to navigate to backend
+    console.log('🔍 Redirecting to backend...');
+    window.location.replace(`https://api.dentalappeal.claims/api/affiliate/verify?token=${token}`);
     
   }, [searchParams]);
 
-  // Show loading state while redirecting
+  // Always show something while the page is loading
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center">
       <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 max-w-md w-full text-center">
-        {loading && !error ? (
-          <>
-            <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-gray-900">Verifying Your Email</h1>
-            <p className="text-gray-600 mt-2">Please wait while we verify your account...</p>
-            <p className="text-sm text-gray-400 mt-4">Redirecting...</p>
-          </>
-        ) : error ? (
+        {error ? (
           <>
             <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
             <h1 className="text-2xl font-bold text-gray-900 mb-4">Verification Failed</h1>
@@ -66,7 +54,13 @@ export default function AffiliateVerify() {
               Back to Signup
             </button>
           </>
-        ) : null}
+        ) : (
+          <>
+            <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-gray-900">Verifying Your Email</h1>
+            <p className="text-gray-600 mt-2">Please wait...</p>
+          </>
+        )}
       </div>
     </div>
   );
