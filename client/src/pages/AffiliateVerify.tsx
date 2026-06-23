@@ -14,7 +14,6 @@ export default function AffiliateVerify() {
     
     console.log('🔍 AffiliateVerify mounted');
     console.log('📌 Token:', token);
-    console.log('📌 Error param:', errorParam);
     
     if (errorParam === 'invalid') {
       setError('Invalid or expired verification link. Please request a new one.');
@@ -34,17 +33,21 @@ export default function AffiliateVerify() {
       return;
     }
     
-    // Redirect to backend verification endpoint
-    console.log('🔍 Redirecting to:', `https://api.dentalappeal.claims/api/affiliate/verify?token=${token}`);
-    window.location.href = `https://api.dentalappeal.claims/api/affiliate/verify?token=${token}`;
+    // Wait 1.5 seconds so user can see the loading state, then redirect
+    const redirectTimer = setTimeout(() => {
+      console.log('🔍 Redirecting to backend...');
+      window.location.href = `https://api.dentalappeal.claims/api/affiliate/verify?token=${token}`;
+    }, 1500);
+    
+    return () => clearTimeout(redirectTimer);
     
   }, [searchParams]);
 
-  // Always render something
+  // Show loading state while redirecting
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center">
       <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 max-w-md w-full text-center">
-        {loading ? (
+        {loading && !error ? (
           <>
             <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
             <h1 className="text-2xl font-bold text-gray-900">Verifying Your Email</h1>
