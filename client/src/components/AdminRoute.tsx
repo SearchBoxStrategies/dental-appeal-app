@@ -21,5 +21,10 @@ export default function AdminRoute({ children }: AdminRouteProps) {
     return <Navigate to="/dashboard" replace />;
   }
 
+  // Check if 2FA is enabled and not verified for this session
+  if (user.two_factor_enabled && !sessionStorage.getItem('2fa_verified')) {
+    return <Navigate to="/admin/2fa" replace />;
+  }
+
   return <AdminLayout>{children}</AdminLayout>;
 }
