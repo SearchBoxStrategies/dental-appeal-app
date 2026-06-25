@@ -7,7 +7,8 @@ interface AuthContextValue {
   practice: Practice | null;
   token: string | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<{ requiresTwoFactor: boolean; userId?: number }>;
+  verify2FA: (userId: number, code: string) => Promise<void>;
   register: (practiceName: string, name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   refreshPractice: () => Promise<void>;
@@ -57,10 +58,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function login(email: string, password: string) {
     const { data } = await api.post('/auth/login', { email, password });
+    
+    // If 2FA is required, return the response without setting token
+    if (data.requiresTwoFactor) {
+      return { requiresTwoFactor: true, userId: data.userId };
+    }
+    
+    // Normal login flow
     localStorage.setItem('token', data.token);
     setToken(data.token);
     setUser(data.user);
     setPractice(data.practice);
+    return { requiresTwoFactor: false };
+  }
+
+  async function verify2FA(userId: number, code: string) {
+    const { data } = await api.post('/auth/verify-2fa', { userId, code });
+    localStorage.setItem('token', data.token);
+    setToken(data.token);
+    setUser(data.user);
+    setPractice(data.practice);
+    // Mark 2FA as verified for this session
+    sessionStorage.setItem('2fa_verified', 'true');
   }
 
   async function register(practiceName: string, name: string, email: string, password: string) {
@@ -73,6 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   function doLogout() {
     localStorage.removeItem('token');
+    sessionStorage.removeItem('2fa_verified');
     setToken(null);
     setUser(null);
     setPractice(null);
@@ -86,6 +106,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         token,
         loading,
         login,
+        verify2FA,
         register,
         logout: doLogout,
         refreshPractice,
