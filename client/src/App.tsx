@@ -33,6 +33,8 @@ import AdminAffiliates from './components/AdminAffiliates';
 import AffiliatePublicStats from './pages/AffiliatePublicStats';
 import AffiliateVerify from './pages/AffiliateVerify';
 import AffiliateSetPassword from './pages/AffiliateSetPassword';
+// 2FA import
+import Admin2FA from './pages/Admin2FA';
 
 function App() {
   return (
@@ -53,6 +55,9 @@ function App() {
           <Route path="/affiliate/stats/:code" element={<AffiliatePublicStats />} />
           <Route path="/affiliate/verify" element={<AffiliateVerify />} />
           <Route path="/affiliate/set-password" element={<AffiliateSetPassword />} />
+          
+          {/* 2FA route */}
+          <Route path="/admin/2fa" element={<Admin2FA />} />
           
           {/* TEST ROUTE - Remove this after testing */}
           <Route path="/affiliate/test" element={
