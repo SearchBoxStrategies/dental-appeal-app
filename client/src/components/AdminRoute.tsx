@@ -1,6 +1,5 @@
 import { Navigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import api from '../lib/api';
+import { useAuth } from '../context/AuthContext';
 import AdminLayout from './AdminLayout';
 
 interface AdminRouteProps {
@@ -8,22 +7,7 @@ interface AdminRouteProps {
 }
 
 export default function AdminRoute({ children }: AdminRouteProps) {
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const checkAdmin = async () => {
-      try {
-        const response = await api.get('/auth/me');
-        setIsAdmin(response.data.user?.is_admin === true);
-      } catch (error) {
-        setIsAdmin(false);
-      } finally {
-        setLoading(false);
-      }
-    };
-    checkAdmin();
-  }, []);
+  const { user, loading } = useAuth();
 
   if (loading) {
     return (
@@ -33,7 +17,7 @@ export default function AdminRoute({ children }: AdminRouteProps) {
     );
   }
 
-  if (!isAdmin) {
+  if (!user || !user.is_admin) {
     return <Navigate to="/dashboard" replace />;
   }
 
