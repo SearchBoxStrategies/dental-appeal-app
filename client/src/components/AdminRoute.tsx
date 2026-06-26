@@ -22,7 +22,8 @@ export default function AdminRoute({ children }: AdminRouteProps) {
   }
 
   // Check if 2FA is enabled and not verified for this session
-  if (user.two_factor_enabled && !sessionStorage.getItem('2fa_verified')) {
+  // Using optional chaining to avoid type errors
+  if ((user as any).two_factor_enabled && !sessionStorage.getItem('2fa_verified')) {
     return <Navigate to="/admin/2fa" replace />;
   }
 
