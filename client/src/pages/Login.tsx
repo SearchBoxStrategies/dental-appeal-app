@@ -47,15 +47,15 @@ export default function Login() {
         // Redirect to root - RoleBasedRedirect will handle destination
         navigate('/');
       } 
-      // Admin 2FA flow - requires verification code (old admin verification)
-      else if (data.requiresAdminVerification) {
-        setAdminVerification({ userId: data.userId, email: data.email });
-      } 
       // NEW: Regular 2FA flow (for admin accounts with two_factor_enabled)
       else if (data.requiresTwoFactor) {
         // Redirect to 2FA page with userId
         navigate(`/admin/2fa?userId=${data.userId}`);
       }
+      // Admin 2FA flow - requires verification code (old admin verification)
+      else if (data.requiresAdminVerification) {
+        setAdminVerification({ userId: data.userId, email: data.email });
+      } 
       // Email not verified flow
       else if (response.status === 401 && data.requiresVerification) {
         setRequiresVerification(true);
