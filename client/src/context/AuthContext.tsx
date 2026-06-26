@@ -66,6 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     // Normal login flow
     localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
     setToken(data.token);
     setUser(data.user);
     setPractice(data.practice);
@@ -75,6 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function verify2FA(userId: number, code: string) {
     const { data } = await api.post('/auth/verify-2fa', { userId, code });
     localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user)); // ← ADD THIS
     setToken(data.token);
     setUser(data.user);
     setPractice(data.practice);
@@ -85,6 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function register(practiceName: string, name: string, email: string, password: string) {
     const { data } = await api.post('/auth/register', { practiceName, name, email, password });
     localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
     setToken(data.token);
     setUser(data.user);
     setPractice(data.practice);
@@ -92,6 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   function doLogout() {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     sessionStorage.removeItem('2fa_verified');
     setToken(null);
     setUser(null);
