@@ -1,4 +1,3 @@
-import { Fragment } from 'react';
 import { AlertCircle, X } from 'lucide-react';
 
 interface ConfirmDialogProps {
