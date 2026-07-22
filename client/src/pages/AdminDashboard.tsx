@@ -61,7 +61,6 @@ export default function AdminDashboard() {
   const [view, setView] = useState<'list' | 'detail'>('list');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
-  const [deleting, setDeleting] = useState(false);
   const [stats, setStats] = useState({
     totalClients: 0,
     activeSubscriptions: 0,
@@ -123,7 +122,6 @@ export default function AdminDashboard() {
   const handleDeleteClient = async () => {
     if (!clientToDelete) return;
     
-    setDeleting(true);
     try {
       await api.delete(`/admin/clients/${clientToDelete.id}`);
       setShowDeleteConfirm(false);
@@ -137,8 +135,6 @@ export default function AdminDashboard() {
       }
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to delete client');
-    } finally {
-      setDeleting(false);
     }
   };
 
