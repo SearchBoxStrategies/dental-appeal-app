@@ -10,7 +10,7 @@ import api from '../lib/api';
 import ClientNotes from '../components/ClientNotes';
 import SubscriptionOverride from '../components/SubscriptionOverride';
 import ConfirmDialog from '../components/ConfirmDialog';
-import ClientHardDelete from '../components/Admin/ClientHardDelete';
+import ClientHardDelete from '../components/ClientHardDelete';
 
 interface Client {
   id: number;
