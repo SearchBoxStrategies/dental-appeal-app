@@ -53,6 +53,7 @@ export default function AdminSubscriptions() {
     churn_rate: 0
   });
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -62,14 +63,17 @@ export default function AdminSubscriptions() {
   }, []);
 
   const fetchSubscriptions = async () => {
+    setRefreshing(true);
     try {
       const response = await api.get('/admin/subscriptions');
       setSubscriptions(response.data.subscriptions);
       setStats(response.data.stats);
+      setError('');
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to load subscriptions');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -252,9 +256,10 @@ export default function AdminSubscriptions() {
           </button>
           <button
             onClick={fetchSubscriptions}
-            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+            disabled={refreshing}
+            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
           >
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
             Refresh
           </button>
         </div>
