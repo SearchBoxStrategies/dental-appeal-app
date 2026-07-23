@@ -51,13 +51,12 @@ export default function Login() {
       else if (data.requiresAdminVerification) {
         setAdminVerification({ userId: data.userId, email: data.email });
       } 
-      // NEW: Regular 2FA flow - ONLY for admin users
-      else if (data.requiresTwoFactor) {
-        // Check if the user is an admin before redirecting to 2FA
+      // NEW: Regular 2FA flow - ONLY if requiresTwoFactor is explicitly true
+      else if (data.requiresTwoFactor === true) {
+        // Only redirect if the user is an admin
         if (data.is_admin) {
           navigate(`/admin/2fa?userId=${data.userId}`);
         } else {
-          // This shouldn't happen for non-admin users - log and show error
           console.error('2FA triggered for non-admin user:', data);
           setError('Login error. Please try again.');
         }
