@@ -52,6 +52,7 @@ export default function AdminAffiliates() {
   const [commissions, setCommissions] = useState<Commission[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingCommissions, setLoadingCommissions] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedAffiliate, setSelectedAffiliate] = useState<Affiliate | null>(null);
   const [showPayoutModal, setShowPayoutModal] = useState(false);
@@ -70,11 +71,16 @@ export default function AdminAffiliates() {
   }, []);
 
   const fetchAllData = async () => {
-    await Promise.all([
-      fetchAffiliates(),
-      fetchDeletedAffiliates(),
-      fetchCommissions()
-    ]);
+    setRefreshing(true);
+    try {
+      await Promise.all([
+        fetchAffiliates(),
+        fetchDeletedAffiliates(),
+        fetchCommissions()
+      ]);
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   const fetchAffiliates = async () => {
@@ -272,9 +278,10 @@ export default function AdminAffiliates() {
         </div>
         <button
           onClick={() => fetchAllData()}
-          className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
+          disabled={refreshing}
+          className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50"
         >
-          <RefreshCw className="w-4 h-4" />
+          <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
           Refresh
         </button>
       </div>
