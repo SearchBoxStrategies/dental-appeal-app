@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { 
   Search, Download, Eye, DollarSign, CheckCircle, 
-  XCircle, AlertCircle, TrendingUp, Users, 
+  XCircle, AlertCircle, Users, 
   RefreshCw, Trash2, RotateCcw
 } from 'lucide-react';
 import api from '../lib/api';
