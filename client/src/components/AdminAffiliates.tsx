@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { 
   Search, Download, Eye, DollarSign, CheckCircle, 
   XCircle, AlertCircle, TrendingUp, Users, 
-  RefreshCw
+  RefreshCw, Trash2, RotateCcw
 } from 'lucide-react';
 import api from '../lib/api';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 interface Affiliate {
   id: number;
@@ -28,6 +29,7 @@ interface Affiliate {
   total_referrals: string;
   total_converted: string;
   total_commissions_paid: string;
+  deleted_at?: string | null;
 }
 
 interface Commission {
@@ -46,6 +48,7 @@ interface Commission {
 
 export default function AdminAffiliates() {
   const [affiliates, setAffiliates] = useState<Affiliate[]>([]);
+  const [deletedAffiliates, setDeletedAffiliates] = useState<Affiliate[]>([]);
   const [commissions, setCommissions] = useState<Commission[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingCommissions, setLoadingCommissions] = useState(true);
@@ -53,6 +56,11 @@ export default function AdminAffiliates() {
   const [selectedAffiliate, setSelectedAffiliate] = useState<Affiliate | null>(null);
   const [showPayoutModal, setShowPayoutModal] = useState(false);
   const [showAffiliateModal, setShowAffiliateModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showRestoreConfirm, setShowRestoreConfirm] = useState(false);
+  const [affiliateToDelete, setAffiliateToDelete] = useState<Affiliate | null>(null);
+  const [affiliateToRestore, setAffiliateToRestore] = useState<Affiliate | null>(null);
+  const [showDeleted, setShowDeleted] = useState(false);
   const [activeTab, setActiveTab] = useState<'affiliates' | 'commissions'>('affiliates');
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -64,6 +72,7 @@ export default function AdminAffiliates() {
   const fetchAllData = async () => {
     await Promise.all([
       fetchAffiliates(),
+      fetchDeletedAffiliates(),
       fetchCommissions()
     ]);
   };
@@ -71,8 +80,8 @@ export default function AdminAffiliates() {
   const fetchAffiliates = async () => {
     try {
       setError(null);
-      const response = await api.get('/affiliate/admin/list');
-      const affiliatesData = response.data.affiliates || (Array.isArray(response.data) ? response.data : []);
+      const response = await api.get('/admin/affiliates');
+      const affiliatesData = response.data || [];
       setAffiliates(affiliatesData);
     } catch (error: any) {
       console.error('Failed to fetch affiliates:', error);
@@ -80,6 +89,16 @@ export default function AdminAffiliates() {
       setAffiliates([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchDeletedAffiliates = async () => {
+    try {
+      const response = await api.get('/admin/affiliates/deleted');
+      setDeletedAffiliates(response.data || []);
+    } catch (error) {
+      console.error('Failed to fetch deleted affiliates:', error);
+      setDeletedAffiliates([]);
     }
   };
 
@@ -123,6 +142,36 @@ export default function AdminAffiliates() {
     }
   };
 
+  const handleDeleteAffiliate = async () => {
+    if (!affiliateToDelete) return;
+    
+    try {
+      await api.delete(`/admin/affiliates/${affiliateToDelete.id}`);
+      setShowDeleteConfirm(false);
+      setAffiliateToDelete(null);
+      await fetchAffiliates();
+      await fetchDeletedAffiliates();
+      showMessage('success', 'Affiliate deactivated and marked as deleted');
+    } catch (error) {
+      showMessage('error', 'Failed to delete affiliate');
+    }
+  };
+
+  const handleRestoreAffiliate = async () => {
+    if (!affiliateToRestore) return;
+    
+    try {
+      await api.post(`/admin/affiliates/${affiliateToRestore.id}/restore`);
+      setShowRestoreConfirm(false);
+      setAffiliateToRestore(null);
+      await fetchAffiliates();
+      await fetchDeletedAffiliates();
+      showMessage('success', 'Affiliate restored successfully');
+    } catch (error) {
+      showMessage('error', 'Failed to restore affiliate');
+    }
+  };
+
   const formatCurrency = (amount: number | string) => {
     const num = typeof amount === 'string' ? parseFloat(amount) : amount;
     return new Intl.NumberFormat('en-US', {
@@ -141,7 +190,9 @@ export default function AdminAffiliates() {
     });
   };
 
-  const filteredAffiliates = affiliates.filter(a => 
+  const currentList = showDeleted ? deletedAffiliates : affiliates;
+  
+  const filteredAffiliates = currentList.filter(a => 
     a.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     a.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     a.affiliate_code?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -150,10 +201,11 @@ export default function AdminAffiliates() {
   const totalStats = {
     totalAffiliates: affiliates.length,
     activeAffiliates: affiliates.filter(a => a.is_active).length,
-    pendingAffiliates: affiliates.filter(a => !a.is_active).length,
+    pendingAffiliates: affiliates.filter(a => !a.is_active && !a.deleted_at).length,
     totalConversions: affiliates.reduce((sum, a) => sum + (a.total_conversions || 0), 0),
     totalEarnings: affiliates.reduce((sum, a) => sum + (a.total_earnings || 0), 0),
     pendingPayouts: affiliates.reduce((sum, a) => sum + (a.pending_earnings || 0), 0),
+    deletedCount: deletedAffiliates.length
   };
 
   const exportToCSV = () => {
@@ -169,7 +221,7 @@ export default function AdminAffiliates() {
       a.total_conversions || 0,
       a.total_earnings || 0,
       a.pending_earnings || 0,
-      a.is_active ? 'Active' : 'Pending',
+      a.deleted_at ? 'Deleted' : (a.is_active ? 'Active' : 'Pending'),
       formatDate(a.created_at)
     ]);
     
@@ -219,7 +271,7 @@ export default function AdminAffiliates() {
           <p className="text-gray-600 mt-1">Manage affiliates, view earnings, process payouts</p>
         </div>
         <button
-          onClick={() => fetchAffiliates()}
+          onClick={() => fetchAllData()}
           className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
         >
           <RefreshCw className="w-4 h-4" />
@@ -264,10 +316,10 @@ export default function AdminAffiliates() {
         <div className="bg-white rounded-xl shadow-sm border p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">Total Conversions</p>
-              <p className="text-2xl font-bold text-purple-600">{totalStats.totalConversions}</p>
+              <p className="text-sm text-gray-500">Deleted</p>
+              <p className="text-2xl font-bold text-red-600">{totalStats.deletedCount}</p>
             </div>
-            <TrendingUp className="w-8 h-8 text-purple-500" />
+            <Trash2 className="w-8 h-8 text-red-500" />
           </div>
         </div>
         <div className="bg-white rounded-xl shadow-sm border p-4">
@@ -328,13 +380,31 @@ export default function AdminAffiliates() {
                 className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <button
-              onClick={exportToCSV}
-              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-            >
-              <Download className="w-4 h-4" />
-              Export CSV
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  setShowDeleted(!showDeleted);
+                  if (!showDeleted) {
+                    fetchDeletedAffiliates();
+                  }
+                }}
+                className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition ${
+                  showDeleted 
+                    ? 'bg-red-50 border-red-300 text-red-600 hover:bg-red-100' 
+                    : 'border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                <Trash2 className="w-4 h-4" />
+                {showDeleted ? 'Showing Deleted' : 'View Deleted'}
+              </button>
+              <button
+                onClick={exportToCSV}
+                className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                <Download className="w-4 h-4" />
+                Export CSV
+              </button>
+            </div>
           </div>
 
           <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
@@ -384,7 +454,9 @@ export default function AdminAffiliates() {
                       <td className="px-6 py-4 font-medium text-green-600">{formatCurrency(affiliate.total_earnings)}</td>
                       <td className="px-6 py-4 font-medium text-orange-600">{formatCurrency(affiliate.pending_earnings)}</td>
                       <td className="px-6 py-4">
-                        {affiliate.is_active ? (
+                        {affiliate.deleted_at ? (
+                          <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-700">Deleted</span>
+                        ) : affiliate.is_active ? (
                           <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">Active</span>
                         ) : (
                           <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700">Pending</span>
@@ -402,7 +474,7 @@ export default function AdminAffiliates() {
                           >
                             <Eye className="w-4 h-4" />
                           </button>
-                          {!affiliate.is_active && (
+                          {!affiliate.deleted_at && !affiliate.is_active && (
                             <button
                               onClick={() => approveAffiliate(affiliate.id, 15, 'standard')}
                               className="p-1 text-green-600 hover:bg-green-50 rounded"
@@ -411,7 +483,7 @@ export default function AdminAffiliates() {
                               <CheckCircle className="w-4 h-4" />
                             </button>
                           )}
-                          {affiliate.pending_earnings > 50 && (
+                          {!affiliate.deleted_at && affiliate.pending_earnings > 50 && (
                             <button
                               onClick={() => {
                                 setSelectedAffiliate(affiliate);
@@ -421,6 +493,30 @@ export default function AdminAffiliates() {
                               title="Process Payout"
                             >
                               <DollarSign className="w-4 h-4" />
+                            </button>
+                          )}
+                          {!affiliate.deleted_at && (
+                            <button
+                              onClick={() => {
+                                setAffiliateToDelete(affiliate);
+                                setShowDeleteConfirm(true);
+                              }}
+                              className="p-1 text-red-600 hover:bg-red-50 rounded"
+                              title="Delete Affiliate"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
+                          {affiliate.deleted_at && (
+                            <button
+                              onClick={() => {
+                                setAffiliateToRestore(affiliate);
+                                setShowRestoreConfirm(true);
+                              }}
+                              className="p-1 text-green-600 hover:bg-green-50 rounded"
+                              title="Restore Affiliate"
+                            >
+                              <RotateCcw className="w-4 h-4" />
                             </button>
                           )}
                         </div>
@@ -612,7 +708,7 @@ export default function AdminAffiliates() {
               </div>
 
               <div className="flex gap-3 pt-4">
-                {!selectedAffiliate.is_active && (
+                {!selectedAffiliate.deleted_at && !selectedAffiliate.is_active && (
                   <button
                     onClick={() => {
                       approveAffiliate(selectedAffiliate.id, 15, 'standard');
@@ -623,7 +719,7 @@ export default function AdminAffiliates() {
                     Approve Affiliate
                   </button>
                 )}
-                {selectedAffiliate.pending_earnings > 50 && (
+                {!selectedAffiliate.deleted_at && selectedAffiliate.pending_earnings > 50 && (
                   <button
                     onClick={() => {
                       setShowAffiliateModal(false);
@@ -639,6 +735,36 @@ export default function AdminAffiliates() {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        title="Deactivate Affiliate"
+        message={`Are you sure you want to deactivate "${affiliateToDelete?.full_name || 'this affiliate'}"? Their data will be preserved and can be restored later.`}
+        confirmLabel="Deactivate"
+        cancelLabel="Cancel"
+        confirmVariant="danger"
+        onConfirm={handleDeleteAffiliate}
+        onCancel={() => {
+          setShowDeleteConfirm(false);
+          setAffiliateToDelete(null);
+        }}
+      />
+
+      {/* Restore Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showRestoreConfirm}
+        title="Restore Affiliate"
+        message={`Are you sure you want to restore "${affiliateToRestore?.full_name || 'this affiliate'}"? This will reactivate their account.`}
+        confirmLabel="Restore"
+        cancelLabel="Cancel"
+        confirmVariant="primary"
+        onConfirm={handleRestoreAffiliate}
+        onCancel={() => {
+          setShowRestoreConfirm(false);
+          setAffiliateToRestore(null);
+        }}
+      />
     </div>
   );
 }
