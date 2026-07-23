@@ -6,7 +6,7 @@ import {
   Mail, Edit, RefreshCw, Activity,
   UserCheck, UserX, Gift, Trash2, RotateCcw
 } from 'lucide-react';
-import api from '../lib/api';
+import api from '../services/api';
 import ClientNotes from '../components/ClientNotes';
 import SubscriptionOverride from '../components/SubscriptionOverride';
 import ConfirmDialog from '../components/ConfirmDialog';
