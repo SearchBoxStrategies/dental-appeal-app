@@ -10,6 +10,7 @@ import api from '../lib/api';
 import ClientNotes from '../components/ClientNotes';
 import SubscriptionOverride from '../components/SubscriptionOverride';
 import ConfirmDialog from '../components/ConfirmDialog';
+import ClientHardDelete from '../components/Admin/ClientHardDelete';
 
 interface Client {
   id: number;
@@ -64,8 +65,10 @@ export default function AdminDashboard() {
   const [view, setView] = useState<'list' | 'detail'>('list');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showRestoreConfirm, setShowRestoreConfirm] = useState(false);
+  const [showHardDeleteModal, setShowHardDeleteModal] = useState(false);
   const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
   const [clientToRestore, setClientToRestore] = useState<Client | null>(null);
+  const [clientToHardDelete, setClientToHardDelete] = useState<Client | null>(null);
   const [showDeleted, setShowDeleted] = useState(false);
   const [stats, setStats] = useState({
     totalClients: 0,
@@ -74,7 +77,8 @@ export default function AdminDashboard() {
     totalAppeals: 0,
     successRate: 0,
     totalAffiliates: 0,
-    pendingPayouts: 0
+    pendingPayouts: 0,
+    totalRevenue: 0
   });
 
   const fetchClients = async () => {
@@ -118,6 +122,20 @@ export default function AdminDashboard() {
       }));
     } catch (error) {
       console.error('Failed to fetch affiliate stats:', error);
+    }
+  };
+
+  const fetchAnalytics = async () => {
+    try {
+      const response = await api.get('/admin/analytics');
+      setStats(prev => ({
+        ...prev,
+        totalRevenue: response.data.totalRevenue || 0,
+        totalClaims: response.data.totalAppeals || 0,
+        successRate: response.data.successRate || 0
+      }));
+    } catch (error) {
+      console.error('Failed to fetch analytics:', error);
     }
   };
 
@@ -170,10 +188,24 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleHardDelete = async () => {
+    await fetchClients();
+    await fetchDeletedClients();
+    setShowHardDeleteModal(false);
+    setClientToHardDelete(null);
+    setSuccess('Client permanently deleted');
+    setTimeout(() => setSuccess(''), 3000);
+    if (view === 'detail') {
+      setView('list');
+      setSelectedClient(null);
+    }
+  };
+
   useEffect(() => {
     fetchClients();
     fetchDeletedClients();
     fetchAffiliateStats();
+    fetchAnalytics();
   }, []);
 
   const filteredClients = (showDeleted ? deletedClients : clients).filter(client => {
@@ -294,16 +326,29 @@ export default function AdminDashboard() {
                 <RefreshCw className="w-5 h-5" />
               </button>
               {!selectedClient.deleted_at && (
-                <button
-                  onClick={() => {
-                    setClientToDelete(selectedClient);
-                    setShowDeleteConfirm(true);
-                  }}
-                  className="p-2 text-red-500 hover:text-red-700 rounded-lg hover:bg-red-50"
-                  title="Delete Client"
-                >
-                  <Trash2 className="w-5 h-5" />
-                </button>
+                <>
+                  <button
+                    onClick={() => {
+                      setClientToDelete(selectedClient);
+                      setShowDeleteConfirm(true);
+                    }}
+                    className="p-2 text-red-500 hover:text-red-700 rounded-lg hover:bg-red-50"
+                    title="Soft Delete (can be restored)"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      setClientToHardDelete(selectedClient);
+                      setShowHardDeleteModal(true);
+                    }}
+                    className="p-2 text-red-700 hover:text-red-900 rounded-lg hover:bg-red-100"
+                    title="Permanently Delete (cannot be undone)"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                    <span className="sr-only">Hard Delete</span>
+                  </button>
+                </>
               )}
             </div>
           </div>
@@ -401,6 +446,20 @@ export default function AdminDashboard() {
             setClientToDelete(null);
           }}
         />
+
+        {showHardDeleteModal && clientToHardDelete && (
+          <ClientHardDelete
+            clientId={clientToHardDelete.id}
+            clientName={clientToHardDelete.name || 'Unnamed'}
+            clientEmail={clientToHardDelete.email}
+            practiceName={clientToHardDelete.practice_name}
+            onClose={() => {
+              setShowHardDeleteModal(false);
+              setClientToHardDelete(null);
+            }}
+            onDeleted={handleHardDelete}
+          />
+        )}
       </div>
     );
   }
@@ -431,7 +490,7 @@ export default function AdminDashboard() {
             <UserCheck className="w-6 h-6 text-green-500" />
             <span className="text-2xl font-bold">{stats.activeSubscriptions}</span>
           </div>
-          <p className="text-sm text-gray-500 mt-1">Active</p>
+          <p className="text-sm text-gray-500 mt-1">Active Subscriptions</p>
         </div>
         <div className="bg-white rounded-xl shadow-sm border p-4">
           <div className="flex items-center justify-between">
@@ -443,16 +502,16 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-xl shadow-sm border p-4">
           <div className="flex items-center justify-between">
             <FileText className="w-6 h-6 text-purple-500" />
-            <span className="text-2xl font-bold">-</span>
+            <span className="text-2xl font-bold">{stats.totalClaims}</span>
           </div>
-          <p className="text-sm text-gray-500 mt-1">Total Claims</p>
+          <p className="text-sm text-gray-500 mt-1">Total Appeals</p>
         </div>
         <div className="bg-white rounded-xl shadow-sm border p-4">
           <div className="flex items-center justify-between">
             <DollarSign className="w-6 h-6 text-teal-500" />
-            <span className="text-2xl font-bold">-</span>
+            <span className="text-2xl font-bold">${stats.totalRevenue.toLocaleString()}</span>
           </div>
-          <p className="text-sm text-gray-500 mt-1">MRR</p>
+          <p className="text-sm text-gray-500 mt-1">Total Revenue</p>
         </div>
         <Link to="/admin/affiliates" className="bg-white rounded-xl shadow-sm border p-4 hover:shadow-md transition">
           <div className="flex items-center justify-between">
@@ -475,7 +534,7 @@ export default function AdminDashboard() {
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -551,7 +610,7 @@ export default function AdminDashboard() {
                     {new Date(client.created_at).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <button
                         onClick={() => fetchClientDetails(client.id)}
                         className="text-blue-600 hover:text-blue-800 flex items-center gap-1 text-sm"
@@ -560,17 +619,30 @@ export default function AdminDashboard() {
                         View
                       </button>
                       {!client.deleted_at && (
-                        <button
-                          onClick={() => {
-                            setClientToDelete(client);
-                            setShowDeleteConfirm(true);
-                          }}
-                          className="text-red-600 hover:text-red-800 flex items-center gap-1 text-sm"
-                          title="Delete Client"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                          Delete
-                        </button>
+                        <>
+                          <button
+                            onClick={() => {
+                              setClientToDelete(client);
+                              setShowDeleteConfirm(true);
+                            }}
+                            className="text-red-600 hover:text-red-800 flex items-center gap-1 text-sm"
+                            title="Soft Delete (can be restored)"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            Delete
+                          </button>
+                          <button
+                            onClick={() => {
+                              setClientToHardDelete(client);
+                              setShowHardDeleteModal(true);
+                            }}
+                            className="text-red-800 hover:text-red-900 flex items-center gap-1 text-sm font-bold"
+                            title="Permanently Delete (cannot be undone)"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            Hard Delete
+                          </button>
+                        </>
                       )}
                       {client.deleted_at && (
                         <button
@@ -631,6 +703,20 @@ export default function AdminDashboard() {
           setClientToRestore(null);
         }}
       />
+
+      {showHardDeleteModal && clientToHardDelete && (
+        <ClientHardDelete
+          clientId={clientToHardDelete.id}
+          clientName={clientToHardDelete.name || 'Unnamed'}
+          clientEmail={clientToHardDelete.email}
+          practiceName={clientToHardDelete.practice_name}
+          onClose={() => {
+            setShowHardDeleteModal(false);
+            setClientToHardDelete(null);
+          }}
+          onDeleted={handleHardDelete}
+        />
+      )}
     </div>
   );
 }
