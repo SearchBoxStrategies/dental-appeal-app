@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { AlertTriangle, X, Trash2, Eye, Loader2, FileText, DollarSign, Users, Calendar } from 'lucide-react';
-import api from '../../lib/api';
+import { useState } from 'react';
+import { AlertTriangle, X, Trash2, Eye, Loader2 } from 'lucide-react';
+import api from '../../services/api';
 
 interface ClientHardDeleteProps {
   clientId: number;
@@ -218,7 +218,7 @@ export default function ClientHardDelete({
               </div>
               <div className="bg-white rounded p-2 text-center">
                 <span className="block text-2xl font-bold text-gray-600">
-                  {preview.deletion_impact.documents}
+                  {preview.deletion_impact.documents || 0}
                 </span>
                 <span className="text-xs text-gray-600">Documents</span>
               </div>
