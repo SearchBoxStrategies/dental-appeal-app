@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { AlertTriangle, X, Trash2, Eye, Loader2 } from 'lucide-react';
-import api from '../../services/api';
+import api from '../../lib/api';
 
 interface ClientHardDeleteProps {
   clientId: number;
@@ -188,7 +188,6 @@ export default function ClientHardDelete({
             </button>
           </div>
 
-          {/* Deletion Impact */}
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
             <h3 className="font-semibold text-red-800 mb-2">Data to be deleted:</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -240,7 +239,6 @@ export default function ClientHardDelete({
             </div>
           </div>
 
-          {/* Active Subscription Warning */}
           {preview.summary.has_active_subscription && (
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
               <p className="text-yellow-800 text-sm">
@@ -249,7 +247,6 @@ export default function ClientHardDelete({
             </div>
           )}
 
-          {/* Payment Options */}
           <div className="mb-4">
             <label className="flex items-center gap-2 text-sm text-gray-700">
               <input
@@ -262,7 +259,6 @@ export default function ClientHardDelete({
             </label>
           </div>
 
-          {/* Reason */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Reason for deletion (optional):
@@ -276,7 +272,6 @@ export default function ClientHardDelete({
             />
           </div>
 
-          {/* Confirmation */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Type <span className="font-mono font-bold text-red-600">DELETE_PERMANENTLY</span> to confirm:
