@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../lib/api';
 import { useEffect, useState } from 'react';
 
 export default function AffiliateVerify() {
@@ -22,7 +23,7 @@ export default function AffiliateVerify() {
     
     if (finalToken) {
       // Redirect to backend verification endpoint
-      window.location.href = `https://api.dentalappeal.claims/api/affiliate/verify?token=${finalToken}`;
+      window.location.href = `${API_BASE_URL}/affiliate/verify?token=${finalToken}`;
     }
   }, []);
 

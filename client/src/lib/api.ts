@@ -1,11 +1,13 @@
 import axios, { InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 
-// Pointing directly to your working backend
-const api = axios.create({
-  baseURL: 'https://api.dentalappeal.claims/api',
-});
+// Production builds talk to the live API. In `npm run dev`, requests go to /api,
+// which Vite proxies to the local backend (see vite.config.ts). VITE_API_URL overrides both.
+export const API_BASE_URL: string = import.meta.env.VITE_API_URL
+  || (import.meta.env.DEV ? '/api' : 'https://api.dentalappeal.claims/api');
 
-console.log('API Base URL:', api.defaults.baseURL);
+const api = axios.create({
+  baseURL: API_BASE_URL,
+});
 
 // Request interceptor
 api.interceptors.request.use(

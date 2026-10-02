@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../lib/api';
 import { useState, useEffect } from 'react';
 import { Shield, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react';
 
@@ -55,7 +56,7 @@ export default function AdminVerification({ userId, email, onVerified, onBackToL
     setError('');
     
     try {
-      const response = await fetch('https://api.dentalappeal.claims/api/auth/verify-admin-code', {
+      const response = await fetch(`${API_BASE_URL}/auth/verify-admin-code`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, code: verificationCode })
@@ -86,7 +87,7 @@ export default function AdminVerification({ userId, email, onVerified, onBackToL
     setError('');
     
     try {
-      const response = await fetch('https://api.dentalappeal.claims/api/auth/resend-admin-code', {
+      const response = await fetch(`${API_BASE_URL}/auth/resend-admin-code`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId })

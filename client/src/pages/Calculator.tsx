@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../lib/api';
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { 
@@ -56,7 +57,7 @@ export default function Calculator() {
 
     setLoading(true);
     try {
-      const response = await fetch('https://api.dentalappeal.claims/api/calculator/send-report', {
+      const response = await fetch(`${API_BASE_URL}/calculator/send-report`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

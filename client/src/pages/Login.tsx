@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../lib/api';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Lock, LogIn, AlertCircle, CheckCircle, Send } from 'lucide-react';
@@ -33,7 +34,7 @@ export default function Login() {
     setAdminVerification(null);
 
     try {
-      const response = await fetch('https://api.dentalappeal.claims/api/auth/login', {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -85,7 +86,7 @@ export default function Login() {
     setSuccessSpamNote(false);
 
     try {
-      const response = await fetch('https://api.dentalappeal.claims/api/auth/resend-verification', {
+      const response = await fetch(`${API_BASE_URL}/auth/resend-verification`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: unverifiedEmail || email })

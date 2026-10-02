@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../lib/api';
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 
@@ -28,7 +29,7 @@ export default function ResetPassword() {
         setError('');
 
         try {
-            const response = await fetch(`https://api.dentalappeal.claims/api/auth/reset-password/${token}`, {
+            const response = await fetch(`${API_BASE_URL}/auth/reset-password/${token}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ password })

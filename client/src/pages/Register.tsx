@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../lib/api';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Mail, Lock, User, Building2, UserPlus, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
@@ -24,7 +25,7 @@ export default function Register() {
   // Track affiliate click when page loads with referral code
   useEffect(() => {
     if (referralCodeFromUrl) {
-      fetch(`https://api.dentalappeal.claims/api/affiliate/track/${referralCodeFromUrl}`, {
+      fetch(`${API_BASE_URL}/affiliate/track/${referralCodeFromUrl}`, {
         method: 'GET',
       }).catch(err => console.log('Tracking error:', err));
     }
@@ -39,7 +40,7 @@ export default function Register() {
 
   const fetchAffiliateStats = async (code: string) => {
     try {
-      const response = await fetch(`https://api.dentalappeal.claims/api/affiliate/stats/${code}`);
+      const response = await fetch(`${API_BASE_URL}/affiliate/stats/${code}`);
       if (response.ok) {
         const data = await response.json();
         setAffiliateInfo({
@@ -96,7 +97,7 @@ export default function Register() {
     setSuccess('');
 
     try {
-      const response = await fetch('https://api.dentalappeal.claims/api/auth/register', {
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

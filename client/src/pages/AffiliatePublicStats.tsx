@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../lib/api';
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { 
@@ -40,7 +41,7 @@ export default function AffiliatePublicStats() {
   const fetchStats = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`https://api.dentalappeal.claims/api/affiliate/public-stats/${code}`);
+      const response = await fetch(`${API_BASE_URL}/affiliate/public-stats/${code}`);
       const data = await response.json();
       
       if (!response.ok) {
