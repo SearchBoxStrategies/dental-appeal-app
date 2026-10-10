@@ -110,10 +110,13 @@ export default function AdminDashboard() {
 
   const fetchAffiliateStats = async () => {
     try {
-      const response = await api.get('/affiliate/admin/list');
-      const affiliates = response.data;
+      // /admin/affiliates returns a plain array (/affiliate/admin/list wraps it in an object,
+      // which made this count silently fall back to 0).
+      const response = await api.get('/admin/affiliates');
+      const affiliates: any[] = Array.isArray(response.data) ? response.data : response.data?.affiliates ?? [];
       const activeAffiliates = affiliates.filter((a: any) => a.is_active).length;
-      const pendingPayouts = affiliates.reduce((sum: number, a: any) => sum + (a.pending_earnings || 0), 0);
+      // Amounts arrive as strings from Postgres NUMERIC; add them as numbers.
+      const pendingPayouts = affiliates.reduce((sum: number, a: any) => sum + (parseFloat(a.pending_earnings) || 0), 0);
       setStats(prev => ({
         ...prev,
         totalAffiliates: affiliates.length,

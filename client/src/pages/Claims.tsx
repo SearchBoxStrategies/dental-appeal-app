@@ -31,7 +31,7 @@ interface Claim {
 interface DashboardStats {
   totalClaims: number;
   activeAppeals: number;
-  wonRate: number;
+  wonRate: number | null;
   estimatedRecovery: number;
 }
 
@@ -40,7 +40,7 @@ export default function Claims() {
   const [stats, setStats] = useState<DashboardStats>({
     totalClaims: 0,
     activeAppeals: 0,
-    wonRate: 0,
+    wonRate: null,
     estimatedRecovery: 0
   });
   const [loading, setLoading] = useState(true);
@@ -65,8 +65,18 @@ export default function Claims() {
 
   const fetchStats = async () => {
     try {
-      const response = await api.get('/claims/stats');
-      setStats(response.data);
+      // /claims/stats only has counts; open appeals, win rate and recovered dollars come from
+      // the same recovery summary the dashboard uses.
+      const [countsRes, recoveryRes] = await Promise.all([
+        api.get('/claims/stats'),
+        api.get('/analytics/recovery'),
+      ]);
+      setStats({
+        totalClaims: countsRes.data.totalClaims ?? 0,
+        activeAppeals: recoveryRes.data.pendingCount ?? 0,
+        wonRate: recoveryRes.data.winRate ?? null,
+        estimatedRecovery: recoveryRes.data.recoveredAllTime ?? 0,
+      });
     } catch (error) {
       console.error('Failed to fetch stats:', error);
     }
@@ -74,6 +84,12 @@ export default function Claims() {
 
   const getStatusBadge = (status: string) => {
     const config: Record<string, { bg: string; text: string; label: string; icon: React.ReactNode }> = {
+      pending: { 
+        bg: 'bg-gray-100', 
+        text: 'text-gray-600', 
+        label: 'Pending',
+        icon: <Clock className="w-3 h-3" />
+      },
       draft: { 
         bg: 'bg-gray-100', 
         text: 'text-gray-600', 
@@ -186,7 +202,7 @@ export default function Claims() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">Success Rate</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.wonRate}%</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.wonRate != null ? `${stats.wonRate}%` : '—'}</p>
             </div>
             <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
               <TrendingUp className="w-5 h-5 text-green-600" />
@@ -196,8 +212,10 @@ export default function Claims() {
         <div className="bg-white rounded-xl shadow-sm border p-5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">Est. Recovery</p>
-              <p className="text-2xl font-bold text-gray-900">{formatCurrency(stats.estimatedRecovery)}</p>
+              <p className="text-sm text-gray-500">Recovered</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(stats.estimatedRecovery)}
+              </p>
             </div>
             <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
               <TrendingUp className="w-5 h-5 text-purple-600" />
@@ -225,6 +243,7 @@ export default function Claims() {
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
           >
             <option value="all">All Status</option>
+            <option value="pending">Pending</option>
             <option value="draft">Draft</option>
             <option value="appealed">Appeal Sent</option>
             <option value="under_review">Under Review</option>

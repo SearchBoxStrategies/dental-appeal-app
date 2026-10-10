@@ -31,16 +31,24 @@ export default function Layout({ children }: LayoutProps) {
   const userInitial = (userName || '?').charAt(0).toUpperCase();
   const userSubtitle = practice?.name || user?.email || '';
 
-  const navItems = [
-    { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { path: '/claims', icon: FileText, label: 'All Claims' },
-    { path: '/claims/new', icon: PlusCircle, label: 'New Claim' },
-    { path: '/analytics', icon: TrendingUp, label: 'Analytics' },
-    { path: '/bulk-upload', icon: Upload, label: 'Bulk Upload' },
-    { path: '/practice/profile', icon: Building2, label: 'Practice Profile' },
-    { path: '/settings/notifications', icon: Bell, label: 'Notifications' },
-    { path: '/billing', icon: CreditCard, label: 'Billing' },
-  ];
+  const isAffiliate = user?.user_type === 'affiliate';
+
+  // Affiliates can only open their dashboard and Help; clinic pages would just bounce them.
+  const navItems = isAffiliate
+    ? [
+        { path: '/affiliate/dashboard', icon: LayoutDashboard, label: 'Affiliate Dashboard' },
+        { path: '/help', icon: HelpCircle, label: 'Help' },
+      ]
+    : [
+        { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+        { path: '/claims', icon: FileText, label: 'All Claims' },
+        { path: '/claims/new', icon: PlusCircle, label: 'New Claim' },
+        { path: '/analytics', icon: TrendingUp, label: 'Analytics' },
+        { path: '/bulk-upload', icon: Upload, label: 'Bulk Upload' },
+        { path: '/practice/profile', icon: Building2, label: 'Practice Profile' },
+        { path: '/settings/notifications', icon: Bell, label: 'Notifications' },
+        { path: '/billing', icon: CreditCard, label: 'Billing' },
+      ];
 
   const handleLogout = () => {
     logout();
@@ -154,13 +162,15 @@ export default function Layout({ children }: LayoutProps) {
               >
                 <HelpCircle className="w-5 h-5 text-slate-500" />
               </button>
-              <button
-                onClick={handleSettings}
-                className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
-                title="Settings"
-              >
-                <Settings className="w-5 h-5 text-slate-500" />
-              </button>
+              {!isAffiliate && (
+                <button
+                  onClick={handleSettings}
+                  className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
+                  title="Settings"
+                >
+                  <Settings className="w-5 h-5 text-slate-500" />
+                </button>
+              )}
               <button
                 onClick={handleLogout}
                 className="lg:hidden p-2 rounded-lg hover:bg-slate-100"
