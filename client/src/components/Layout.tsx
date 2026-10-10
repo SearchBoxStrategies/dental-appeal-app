@@ -15,6 +15,7 @@ import {
   Upload,
   Building2
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -25,10 +26,10 @@ export default function Layout({ children }: LayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const userStr = localStorage.getItem('user');
-const user = userStr && userStr !== 'undefined' ? JSON.parse(userStr) : {};
-const userName = user.name || 'User';
-const userInitial = userName.charAt(0).toUpperCase();
+  const { user, practice, logout } = useAuth();
+  const userName = user?.name || user?.email || '';
+  const userInitial = (userName || '?').charAt(0).toUpperCase();
+  const userSubtitle = practice?.name || user?.email || '';
 
   const navItems = [
     { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -42,8 +43,7 @@ const userInitial = userName.charAt(0).toUpperCase();
   ];
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    logout();
     navigate('/login');
   };
 
@@ -100,7 +100,7 @@ const userInitial = userName.charAt(0).toUpperCase();
             </div>
             <div>
               <p className="font-medium text-slate-900">{userName}</p>
-              <p className="text-xs text-slate-500">{user.email || 'user@practice.com'}</p>
+              {userSubtitle && <p className="text-xs text-slate-500">{userSubtitle}</p>}
             </div>
           </div>
         </div>
