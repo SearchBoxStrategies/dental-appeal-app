@@ -3,24 +3,18 @@ import { Link } from 'react-router-dom';
 import { 
   FileText, 
   TrendingUp, 
-  Clock, 
-  CheckCircle, 
   PlusCircle,
   ArrowRight,
   Activity,
-  DollarSign,
   AlertCircle
 } from 'lucide-react';
 import api from '../lib/api';
+import RecoveryDashboard from '../components/RecoveryDashboard';
 
 interface DashboardStats {
   totalClaims: number;
   totalAppeals: number;
   appealsThisMonth: number;
-  activeAppeals?: number;
-  wonRate?: number;
-  estimatedRecovery?: number;
-  successRate?: number;
 }
 
 interface RecentClaim {
@@ -35,11 +29,7 @@ export default function Dashboard() {
   const [stats, setStats] = useState<DashboardStats>({
     totalClaims: 0,
     totalAppeals: 0,
-    appealsThisMonth: 0,
-    activeAppeals: 0,
-    wonRate: 0,
-    estimatedRecovery: 0,
-    successRate: 0
+    appealsThisMonth: 0
   });
   const [recentClaims, setRecentClaims] = useState<RecentClaim[]>([]);
   const [loading, setLoading] = useState(true);
@@ -56,20 +46,7 @@ export default function Dashboard() {
           api.get('/claims?limit=5')
         ]);
         
-        // Calculate additional stats
-        const claims = claimsRes.data;
-        const activeAppeals = claims.filter((c: RecentClaim) => c.status === 'appealed' || c.status === 'under_review').length;
-        const wonClaims = claims.filter((c: RecentClaim) => c.status === 'won').length;
-        const resolvedClaims = claims.filter((c: RecentClaim) => c.status === 'won' || c.status === 'lost').length;
-        const wonRate = resolvedClaims > 0 ? (wonClaims / resolvedClaims) * 100 : 0;
-        
-        setStats({
-          ...statsRes.data,
-          activeAppeals,
-          wonRate: Math.round(wonRate),
-          estimatedRecovery: 0,
-          successRate: Math.round(wonRate)
-        });
+        setStats(statsRes.data);
         setRecentClaims(claimsRes.data);
       } catch (error: any) {
         console.error('Error fetching dashboard data:', error);
@@ -81,9 +58,9 @@ export default function Dashboard() {
     fetchDashboardData();
   }, []);
 
-  // ... rest of your getStatusBadge function remains the same
   const getStatusBadge = (status: string) => {
     const badges: Record<string, string> = {
+      pending: 'bg-gray-100 text-gray-700',
       draft: 'bg-gray-100 text-gray-700',
       appealed: 'bg-blue-100 text-blue-700',
       under_review: 'bg-yellow-100 text-yellow-700',
@@ -121,7 +98,6 @@ export default function Dashboard() {
     );
   }
 
-  // ... rest of your Dashboard component remains the same from here
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -147,8 +123,10 @@ export default function Dashboard() {
         </Link>
       </div>
 
+      <RecoveryDashboard />
+
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="bg-blue-500 p-3 rounded-xl text-white">
@@ -171,62 +149,12 @@ export default function Dashboard() {
 
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
           <div className="flex items-center justify-between mb-4">
-            <div className="bg-yellow-500 p-3 rounded-xl text-white">
-              <Clock className="w-6 h-6" />
+            <div className="bg-purple-500 p-3 rounded-xl text-white">
+              <Activity className="w-6 h-6" />
             </div>
           </div>
-          <p className="text-3xl font-bold text-slate-900">{stats.activeAppeals || 0}</p>
-          <p className="text-sm text-slate-600 mt-1">Active Appeals</p>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="bg-teal-500 p-3 rounded-xl text-white">
-              <CheckCircle className="w-6 h-6" />
-            </div>
-          </div>
-          <p className="text-3xl font-bold text-slate-900">{stats.successRate || 0}%</p>
-          <p className="text-sm text-slate-600 mt-1">Success Rate</p>
-        </div>
-      </div>
-
-      {/* Additional Stats Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-gradient-to-br from-purple-50 to-white rounded-2xl shadow-sm border border-slate-200 p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-slate-500">This Month</p>
-              <p className="text-2xl font-bold text-slate-900">{stats.appealsThisMonth}</p>
-              <p className="text-xs text-slate-500">appeals filed</p>
-            </div>
-            <div className="bg-purple-100 p-3 rounded-xl">
-              <Activity className="w-5 h-5 text-purple-600" />
-            </div>
-          </div>
-        </div>
-        <div className="bg-gradient-to-br from-green-50 to-white rounded-2xl shadow-sm border border-slate-200 p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-slate-500">Success Rate</p>
-              <p className="text-2xl font-bold text-slate-900">{stats.successRate || 0}%</p>
-              <p className="text-xs text-slate-500">of resolved appeals</p>
-            </div>
-            <div className="bg-green-100 p-3 rounded-xl">
-              <CheckCircle className="w-5 h-5 text-green-600" />
-            </div>
-          </div>
-        </div>
-        <div className="bg-gradient-to-br from-blue-50 to-white rounded-2xl shadow-sm border border-slate-200 p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-slate-500">Est. Recovery</p>
-              <p className="text-2xl font-bold text-slate-900">$0</p>
-              <p className="text-xs text-slate-500">from won appeals</p>
-            </div>
-            <div className="bg-blue-100 p-3 rounded-xl">
-              <DollarSign className="w-5 h-5 text-blue-600" />
-            </div>
-          </div>
+          <p className="text-3xl font-bold text-slate-900">{stats.appealsThisMonth}</p>
+          <p className="text-sm text-slate-600 mt-1">Appeals This Month</p>
         </div>
       </div>
 
@@ -353,13 +281,13 @@ export default function Dashboard() {
               <p className="text-sm text-slate-600">Guide to writing appeals</p>
             </div>
           </div>
-          <a
-            href="#"
+          <Link
+            to="/help"
             className="mt-4 inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm font-medium"
           >
             Learn more
             <ArrowRight className="w-4 h-4" />
-          </a>
+          </Link>
         </div>
       </div>
     </div>

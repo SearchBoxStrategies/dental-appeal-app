@@ -12,9 +12,9 @@ interface ReportData {
   successRate: number;
   amountRecovered: number;
   timeSaved: number;
-  avgResponseDays: number;
-  topPayer: string;
-  topPayerSuccessRate: number;
+  avgResponseDays: number | null;
+  topPayer: string | null;
+  topPayerSuccessRate: number | null;
 }
 
 interface ChartData {
@@ -69,9 +69,9 @@ export default function AnalyticsReport() {
       ['Success Rate', `${report.successRate}%`],
       ['Amount Recovered', `$${report.amountRecovered.toLocaleString()}`],
       ['Time Saved', `${report.timeSaved} hours`],
-      ['Avg Response Time', `${report.avgResponseDays} days`],
-      ['Top Payer', report.topPayer],
-      ['Top Payer Success Rate', `${report.topPayerSuccessRate}%`]
+      ['Avg Response Time', report.avgResponseDays != null ? `${report.avgResponseDays} days` : 'Not enough data'],
+      ['Top Payer', report.topPayer ?? 'Not enough data'],
+      ['Top Payer Success Rate', report.topPayerSuccessRate != null ? `${report.topPayerSuccessRate}%` : 'Not enough data']
     ];
     
     const csvContent = [headers, ...rows].map(row => row.join(',')).join('\n');
@@ -189,12 +189,12 @@ export default function AnalyticsReport() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white rounded-xl shadow-sm border p-4">
           <p className="text-xs text-gray-500">Avg Response Time</p>
-          <p className="text-xl font-bold text-gray-900">{report.avgResponseDays} days</p>
+          <p className="text-xl font-bold text-gray-900">{report.avgResponseDays != null ? `${report.avgResponseDays} days` : '—'}</p>
         </div>
         <div className="bg-white rounded-xl shadow-sm border p-4">
           <p className="text-xs text-gray-500">Top Payer</p>
-          <p className="text-xl font-bold text-gray-900">{report.topPayer}</p>
-          <p className="text-xs text-gray-400">{report.topPayerSuccessRate}% success</p>
+          <p className="text-xl font-bold text-gray-900">{report.topPayer ?? '—'}</p>
+          <p className="text-xs text-gray-400">{report.topPayerSuccessRate != null ? `${report.topPayerSuccessRate}% success` : 'No resolved appeals yet'}</p>
         </div>
         <div className="bg-white rounded-xl shadow-sm border p-4">
           <p className="text-xs text-gray-500">Time Saved</p>

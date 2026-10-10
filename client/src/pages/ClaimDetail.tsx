@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  ArrowLeft, 
-  FileText, 
-  AlertCircle, 
-  CheckCircle, 
+import {
+  ArrowLeft,
+  FileText,
+  AlertCircle,
+  CheckCircle,
   XCircle,
   Clock,
   Calendar,
@@ -31,6 +31,7 @@ interface Claim {
   service_date: string;
   amount_claimed?: number;
   amount_denied?: number;
+  amount_recovered?: number | null;
   status: string;
   created_at: string;
   appeals?: Appeal[];
@@ -46,20 +47,13 @@ interface Appeal {
   model_used?: string;
 }
 
-interface Stats {
-  total_claims: number;
-  total_appeals: number;
-  won_appeals: number;
-  lost_appeals: number;
-  pending_appeals: number;
-  success_rate: number;
-}
-
 export default function ClaimDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [claim, setClaim] = useState<Claim | null>(null);
-  const [stats, setStats] = useState<Stats | null>(null);
+  const [outcomeStatus, setOutcomeStatus] = useState<'won' | 'paid' | null>(null);
+  const [recoveredInput, setRecoveredInput] = useState('');
+  const [savingStatus, setSavingStatus] = useState(false);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState('');
@@ -81,23 +75,6 @@ export default function ClaimDetail() {
       setClaim(response.data);
       if (response.data.appeals && response.data.appeals.length > 0) {
         setSelectedAppeal(response.data.appeals[0]);
-      }
-      
-      if (response.data.appeals) {
-        const appeals = response.data.appeals;
-        const won = appeals.filter((a: Appeal) => a.status === 'won').length;
-        const lost = appeals.filter((a: Appeal) => a.status === 'lost').length;
-        const pending = appeals.filter((a: Appeal) => a.status === 'pending' || a.status === 'appealed').length;
-        const successRate = won + lost > 0 ? (won / (won + lost)) * 100 : 0;
-        
-        setStats({
-          total_claims: 1,
-          total_appeals: appeals.length,
-          won_appeals: won,
-          lost_appeals: lost,
-          pending_appeals: pending,
-          success_rate: successRate
-        });
       }
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to load claim details');
@@ -123,51 +100,83 @@ export default function ClaimDetail() {
     }
   };
 
-  const updateStatus = async (newStatus: string) => {
+  const updateStatus = async (newStatus: string, amountRecovered?: number) => {
+    setSavingStatus(true);
     try {
-      await api.patch(`/claims/${id}/status`, { status: newStatus });
-      setClaim(prev => prev ? { ...prev, status: newStatus } : null);
+      const response = await api.patch(`/claims/${id}/status`, { status: newStatus, amountRecovered });
+      setClaim(prev => prev ? { ...prev, ...response.data, appeals: prev.appeals } : null);
+      setOutcomeStatus(null);
     } catch (err: any) {
       console.error('Failed to update status:', err);
       alert('Failed to update status');
+    } finally {
+      setSavingStatus(false);
     }
+  };
+
+  // Won/Paid ask what the insurer actually paid, so recovered dollars are real numbers.
+  const onStatusSelect = (newStatus: string) => {
+    if (newStatus === 'won' || newStatus === 'paid') {
+      const current = claim?.amount_recovered ?? claim?.amount_denied;
+      setRecoveredInput(current != null ? String(current) : '');
+      setOutcomeStatus(newStatus);
+    } else {
+      setOutcomeStatus(null);
+      updateStatus(newStatus);
+    }
+  };
+
+  const saveOutcome = () => {
+    if (!outcomeStatus) return;
+    const amount = recoveredInput.trim() === '' ? undefined : Number(recoveredInput);
+    if (amount !== undefined && (!Number.isFinite(amount) || amount < 0)) {
+      alert('Enter the amount paid as a number, e.g. 450.00');
+      return;
+    }
+    updateStatus(outcomeStatus, amount);
   };
 
   const getStatusBadge = (status: string) => {
     const config: Record<string, { bg: string; text: string; label: string; icon: React.ReactNode }> = {
-      draft: { 
-        bg: 'bg-gray-100', 
-        text: 'text-gray-600', 
+      pending: {
+        bg: 'bg-gray-100',
+        text: 'text-gray-600',
+        label: 'Pending',
+        icon: <Clock className="w-3 h-3" />
+      },
+      draft: {
+        bg: 'bg-gray-100',
+        text: 'text-gray-600',
         label: 'Draft',
         icon: <FileText className="w-3 h-3" />
       },
-      appealed: { 
-        bg: 'bg-blue-100', 
-        text: 'text-blue-700', 
+      appealed: {
+        bg: 'bg-blue-100',
+        text: 'text-blue-700',
         label: 'Appeal Sent',
         icon: <AlertCircle className="w-3 h-3" />
       },
-      under_review: { 
-        bg: 'bg-yellow-100', 
-        text: 'text-yellow-700', 
+      under_review: {
+        bg: 'bg-yellow-100',
+        text: 'text-yellow-700',
         label: 'Under Review',
         icon: <Clock className="w-3 h-3" />
       },
-      won: { 
-        bg: 'bg-green-100', 
-        text: 'text-green-700', 
+      won: {
+        bg: 'bg-green-100',
+        text: 'text-green-700',
         label: 'Won',
         icon: <CheckCircle className="w-3 h-3" />
       },
-      lost: { 
-        bg: 'bg-red-100', 
-        text: 'text-red-700', 
+      lost: {
+        bg: 'bg-red-100',
+        text: 'text-red-700',
         label: 'Lost',
         icon: <XCircle className="w-3 h-3" />
       },
-      paid: { 
-        bg: 'bg-purple-100', 
-        text: 'text-purple-700', 
+      paid: {
+        bg: 'bg-purple-100',
+        text: 'text-purple-700',
         label: 'Paid',
         icon: <CheckCircle className="w-3 h-3" />
       }
@@ -188,6 +197,15 @@ export default function ClaimDetail() {
   const formatDate = (dateString?: string) => {
     if (!dateString) return '—';
     return new Date(dateString).toLocaleDateString();
+  };
+
+  // Calendar dates (DOB, service date) have no time zone; build them in local time so they
+  // don't display a day early west of UTC.
+  const formatCalendarDate = (dateString?: string) => {
+    if (!dateString) return '—';
+    const [y, m, d] = dateString.slice(0, 10).split('-').map(Number);
+    if (!y || !m || !d) return formatDate(dateString);
+    return new Date(y, m - 1, d).toLocaleDateString();
   };
 
   const copyToClipboard = (text: string) => {
@@ -305,31 +323,6 @@ export default function ClaimDetail() {
         </div>
       </div>
 
-      {stats && stats.total_appeals > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <div className="bg-white rounded-xl shadow-sm border p-4">
-            <p className="text-xs text-gray-500">Total Appeals</p>
-            <p className="text-xl font-bold">{stats.total_appeals}</p>
-          </div>
-          <div className="bg-white rounded-xl shadow-sm border p-4">
-            <p className="text-xs text-gray-500">Won</p>
-            <p className="text-xl font-bold text-green-600">{stats.won_appeals}</p>
-          </div>
-          <div className="bg-white rounded-xl shadow-sm border p-4">
-            <p className="text-xs text-gray-500">Lost</p>
-            <p className="text-xl font-bold text-red-600">{stats.lost_appeals}</p>
-          </div>
-          <div className="bg-white rounded-xl shadow-sm border p-4">
-            <p className="text-xs text-gray-500">Pending</p>
-            <p className="text-xl font-bold text-yellow-600">{stats.pending_appeals}</p>
-          </div>
-          <div className="bg-white rounded-xl shadow-sm border p-4">
-            <p className="text-xs text-gray-500">Success Rate</p>
-            <p className="text-xl font-bold text-blue-600">{stats.success_rate.toFixed(1)}%</p>
-          </div>
-        </div>
-      )}
-
       <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
         <div className="px-6 py-4 border-b bg-gray-50">
           <h2 className="font-semibold text-gray-900">Claim Information</h2>
@@ -342,7 +335,7 @@ export default function ClaimDetail() {
                 <div>
                   <p className="text-sm text-gray-500">Patient</p>
                   <p className="font-medium text-gray-900">{claim.patient_name}</p>
-                  <p className="text-sm text-gray-600">DOB: {formatDate(claim.patient_dob)}</p>
+                  <p className="text-sm text-gray-600">DOB: {formatCalendarDate(claim.patient_dob)}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -358,7 +351,7 @@ export default function ClaimDetail() {
                 <Calendar className="w-5 h-5 text-gray-400 mt-0.5" />
                 <div>
                   <p className="text-sm text-gray-500">Service Date</p>
-                  <p className="font-medium text-gray-900">{formatDate(claim.service_date)}</p>
+                  <p className="font-medium text-gray-900">{formatCalendarDate(claim.service_date)}</p>
                   <p className="text-sm text-gray-600">Filed: {formatDate(claim.created_at)}</p>
                 </div>
               </div>
@@ -400,10 +393,12 @@ export default function ClaimDetail() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Appeal Status</label>
                 <select
-                  value={claim.status}
-                  onChange={(e) => updateStatus(e.target.value)}
+                  value={outcomeStatus ?? claim.status}
+                  onChange={(e) => onStatusSelect(e.target.value)}
+                  disabled={savingStatus}
                   className="w-48 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 >
+                  <option value="pending">Pending</option>
                   <option value="draft">Draft</option>
                   <option value="appealed">Appeal Sent</option>
                   <option value="under_review">Under Review</option>
@@ -412,13 +407,55 @@ export default function ClaimDetail() {
                   <option value="paid">Paid</option>
                 </select>
               </div>
-              {claim.amount_denied && (
+              {(claim.status === 'won' || claim.status === 'paid') && claim.amount_recovered != null ? (
+                <div className="text-right">
+                  <p className="text-sm text-gray-500">Recovered</p>
+                  <p className="text-xl font-bold text-green-600">{formatCurrency(claim.amount_recovered)}</p>
+                </div>
+              ) : claim.amount_denied ? (
                 <div className="text-right">
                   <p className="text-sm text-gray-500">Potential Recovery</p>
                   <p className="text-xl font-bold text-green-600">{formatCurrency(claim.amount_denied)}</p>
                 </div>
-              )}
+              ) : null}
             </div>
+            {outcomeStatus && (
+              <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <label htmlFor="amount-recovered" className="block text-sm font-medium text-gray-800 mb-2">
+                  How much did the insurer pay on this appeal?
+                </label>
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                    <input
+                      id="amount-recovered"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      inputMode="decimal"
+                      value={recoveredInput}
+                      onChange={(e) => setRecoveredInput(e.target.value)}
+                      className="w-40 pl-7 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                    />
+                  </div>
+                  <button
+                    onClick={saveOutcome}
+                    disabled={savingStatus}
+                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium disabled:opacity-50"
+                  >
+                    {savingStatus ? 'Saving…' : `Mark as ${outcomeStatus === 'won' ? 'Won' : 'Paid'}`}
+                  </button>
+                  <button
+                    onClick={() => setOutcomeStatus(null)}
+                    disabled={savingStatus}
+                    className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900"
+                  >
+                    Cancel
+                  </button>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">This total feeds your recovered-dollars dashboard.</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
