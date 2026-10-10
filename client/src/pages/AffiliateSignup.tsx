@@ -101,7 +101,7 @@ export default function AffiliateSignup() {
             </h1>
           </div>
           <p className="text-gray-600 text-lg">
-            Earn up to 25% recurring commission by referring dental practices
+            Earn up to 30% recurring commission by referring dental practices
           </p>
         </div>
 
@@ -119,15 +119,15 @@ export default function AffiliateSignup() {
                 <div className="space-y-2">
                   <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
                     <span>Standard Tier</span>
-                    <span className="font-semibold text-green-600">15%</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                    <span>Pro Tier (10+ referrals)</span>
                     <span className="font-semibold text-green-600">20%</span>
                   </div>
                   <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                    <span>Partner Tier (50+ referrals)</span>
+                    <span>Pro Tier (5+ paid referrals/month)</span>
                     <span className="font-semibold text-green-600">25%</span>
+                  </div>
+                  <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                    <span>Partner Tier (10+ paid referrals/month)</span>
+                    <span className="font-semibold text-green-600">30%</span>
                   </div>
                 </div>
               </div>

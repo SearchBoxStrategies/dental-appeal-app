@@ -4,6 +4,7 @@ import {
   Gift, Award, Zap, Target
 } from 'lucide-react';
 import api from '../lib/api';
+import AffiliatePayoutSetup from './AffiliatePayoutSetup';
 
 interface AffiliateData {
   affiliate: {
@@ -48,6 +49,7 @@ interface AffiliateData {
     nextTier: string | null;
     nextRate: number | null;
     conversionsNeeded: number | null;
+    monthlyConversions: number;
   };
 }
 
@@ -240,7 +242,7 @@ export default function AffiliateDashboard() {
               <div>
                 <p className="text-sm font-medium">Next Tier: {data.nextTier.nextTier}</p>
                 <p className="text-2xl font-bold">{data.nextTier.nextRate}%</p>
-                <p className="text-sm">{data.nextTier.conversionsNeeded} more conversions needed</p>
+                <p className="text-sm">{data.nextTier.conversionsNeeded} more paid conversions this month</p>
               </div>
               <TrendingUp className="w-5 h-5 text-gray-400 ml-2" />
             </div>
@@ -261,20 +263,22 @@ export default function AffiliateDashboard() {
         {data.nextTier.nextTier && (
           <div className="mt-4">
             <div className="flex justify-between text-sm mb-1">
-              <span>Progress to {data.nextTier.nextTier}</span>
-              <span>{data.affiliate.total_conversions} / {(data.affiliate.total_conversions + (data.nextTier.conversionsNeeded || 0))}</span>
+              <span>Progress to {data.nextTier.nextTier} this month</span>
+              <span>{data.nextTier.monthlyConversions} / {(data.nextTier.monthlyConversions + (data.nextTier.conversionsNeeded || 0))}</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div 
                 className="bg-blue-600 h-2 rounded-full transition-all duration-500"
                 style={{ 
-                  width: `${(data.affiliate.total_conversions / (data.affiliate.total_conversions + (data.nextTier.conversionsNeeded || 1))) * 100}%` 
+                  width: `${(data.nextTier.monthlyConversions / (data.nextTier.monthlyConversions + (data.nextTier.conversionsNeeded || 1))) * 100}%` 
                 }}
               />
             </div>
           </div>
         )}
       </div>
+
+      <AffiliatePayoutSetup />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -406,9 +410,9 @@ export default function AffiliateDashboard() {
                 <div className={`p-4 rounded-lg border-2 ${data.affiliate.tier === 'standard' ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}>
                   <div className="flex justify-between items-center mb-2">
                     <span className="font-semibold">Standard</span>
-                    <span className="text-lg font-bold text-green-600">15%</span>
+                    <span className="text-lg font-bold text-green-600">20%</span>
                   </div>
-                  <p className="text-sm text-gray-600">0-9 conversions</p>
+                  <p className="text-sm text-gray-600">Default rate</p>
                   {data.affiliate.tier === 'standard' && (
                     <span className="inline-block mt-2 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Current Tier</span>
                   )}
@@ -416,9 +420,9 @@ export default function AffiliateDashboard() {
                 <div className={`p-4 rounded-lg border-2 ${data.affiliate.tier === 'pro' ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}>
                   <div className="flex justify-between items-center mb-2">
                     <span className="font-semibold">Pro</span>
-                    <span className="text-lg font-bold text-green-600">20%</span>
+                    <span className="text-lg font-bold text-green-600">25%</span>
                   </div>
-                  <p className="text-sm text-gray-600">10-49 conversions</p>
+                  <p className="text-sm text-gray-600">5+ paid conversions this month</p>
                   {data.affiliate.tier === 'pro' && (
                     <span className="inline-block mt-2 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Current Tier</span>
                   )}
@@ -426,9 +430,9 @@ export default function AffiliateDashboard() {
                 <div className={`p-4 rounded-lg border-2 ${data.affiliate.tier === 'partner' ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}>
                   <div className="flex justify-between items-center mb-2">
                     <span className="font-semibold">Partner</span>
-                    <span className="text-lg font-bold text-green-600">25%</span>
+                    <span className="text-lg font-bold text-green-600">30%</span>
                   </div>
-                  <p className="text-sm text-gray-600">50+ conversions</p>
+                  <p className="text-sm text-gray-600">10+ paid conversions this month</p>
                   {data.affiliate.tier === 'partner' && (
                     <span className="inline-block mt-2 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Current Tier</span>
                   )}
