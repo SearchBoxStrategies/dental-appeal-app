@@ -3,9 +3,11 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Lock, LogIn, AlertCircle, CheckCircle, Send } from 'lucide-react';
 import AdminVerification from '../components/AdminVerification';
+import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
   const navigate = useNavigate();
+  const { startSession } = useAuth();
   const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -43,11 +45,13 @@ export default function Login() {
 
       // Successful login with token (regular user)
       if (response.ok && data.token) {
-        localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
+        // Load the session into the auth context first; otherwise the redirect below sees
+        // no user and sends the visitor straight back to /login.
+        await startSession(data.token);
         // Redirect to root - RoleBasedRedirect will handle destination
         navigate('/');
-      } 
+      }
       // Admin 2FA flow - requires verification code (old admin verification)
       else if (data.requiresAdminVerification) {
         setAdminVerification({ userId: data.userId, email: data.email });

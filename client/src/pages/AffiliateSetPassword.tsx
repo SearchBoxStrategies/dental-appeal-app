@@ -14,6 +14,7 @@ export default function AffiliateSetPassword() {
 
   const email = searchParams.get('email');
   const verified = searchParams.get('verified');
+  const token = searchParams.get('token');
 
   useEffect(() => {
     if (!email) {
@@ -45,6 +46,7 @@ export default function AffiliateSetPassword() {
       const response = await api.post('/affiliate/set-password', {
         email,
         password,
+        token,
       });
 
       if (response.data.success) {

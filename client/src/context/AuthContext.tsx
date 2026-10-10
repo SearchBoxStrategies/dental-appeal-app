@@ -12,6 +12,7 @@ interface AuthContextValue {
   register: (practiceName: string, name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   refreshPractice: () => Promise<void>;
+  startSession: (token: string) => Promise<void>;
   isAuthenticated: boolean;
 }
 
@@ -73,6 +74,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { requiresTwoFactor: false };
   }
 
+  // Start a session from a token obtained outside this context (e.g. the Login page) and
+  // load the full user profile, so route guards see the user before any redirect.
+  async function startSession(newToken: string) {
+    localStorage.setItem('token', newToken);
+    setToken(newToken);
+    await refreshPractice();
+  }
+
   async function verify2FA(userId: number, code: string) {
     const { data } = await api.post('/auth/verify-2fa', { userId, code });
     localStorage.setItem('token', data.token);
@@ -114,6 +123,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         register,
         logout: doLogout,
         refreshPractice,
+        startSession,
         isAuthenticated: !!token && !isTokenExpired(token ?? ''),
       }}
     >
