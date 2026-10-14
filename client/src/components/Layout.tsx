@@ -57,6 +57,8 @@ export default function Layout({ children }: LayoutProps) {
 
   const isActive = (path: string) => {
     if (path === '/dashboard' && location.pathname === '/dashboard') return true;
+    // New Claim has its own menu item; don't also light up All Claims.
+    if (path === '/claims' && location.pathname === '/claims/new') return false;
     if (path !== '/dashboard' && location.pathname.startsWith(path)) return true;
     return false;
   };

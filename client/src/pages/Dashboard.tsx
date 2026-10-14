@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import api from '../lib/api';
 import RecoveryDashboard from '../components/RecoveryDashboard';
+import NeedsAttention from '../components/NeedsAttention';
 
 interface DashboardStats {
   totalClaims: number;
@@ -122,6 +123,8 @@ export default function Dashboard() {
           New Claim
         </Link>
       </div>
+
+      <NeedsAttention />
 
       <RecoveryDashboard />
 

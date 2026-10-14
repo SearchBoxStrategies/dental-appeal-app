@@ -14,10 +14,15 @@ import {
   Activity,
   Download,
   Copy,
-  Printer
+  Printer,
+  Pencil,
+  RefreshCw,
+  CalendarClock
 } from 'lucide-react';
 import api from '../lib/api';
 import DocumentUpload from '../components/DocumentUpload';
+import AppealPrep from '../components/AppealPrep';
+import { Letterhead, downloadLetterPdf, printLetter, letterWithLetterhead } from '../lib/letterPdf';
 
 interface Claim {
   id: number;
@@ -34,6 +39,9 @@ interface Claim {
   amount_recovered?: number | null;
   status: string;
   created_at: string;
+  denial_date?: string | null;
+  appeal_deadline?: string | null;
+  appealed_at?: string | null;
   appeals?: Appeal[];
 }
 
@@ -44,8 +52,22 @@ interface Appeal {
   content?: string;
   status: string;
   created_at: string;
+  edited_at?: string | null;
   model_used?: string;
 }
+
+interface PracticeProfile extends Letterhead {
+  provider_name?: string | null;
+}
+
+const DAY = 24 * 60 * 60 * 1000;
+
+// Whole days from today to a YYYY-MM-DD date (negative when past).
+const daysUntil = (isoDate: string) => {
+  const [y, m, d] = isoDate.slice(0, 10).split('-').map(Number);
+  const today = new Date();
+  return Math.round((new Date(y, m - 1, d).getTime() - new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()) / DAY);
+};
 
 export default function ClaimDetail() {
   const { id } = useParams();
@@ -59,15 +81,28 @@ export default function ClaimDetail() {
   const [error, setError] = useState('');
   const [showLetter, setShowLetter] = useState(false);
   const [selectedAppeal, setSelectedAppeal] = useState<Appeal | null>(null);
+  const [practice, setPractice] = useState<PracticeProfile>({});
+  const [editingLetter, setEditingLetter] = useState(false);
+  const [letterDraft, setLetterDraft] = useState('');
+  const [savingLetter, setSavingLetter] = useState(false);
+  const [editingDeadline, setEditingDeadline] = useState(false);
+  const [denialDateInput, setDenialDateInput] = useState('');
+  const [deadlineInput, setDeadlineInput] = useState('');
 
   useEffect(() => {
     fetchClaimDetails();
   }, [id]);
 
-  const getLetterContent = (appeal: Appeal | null): string => {
+  useEffect(() => {
+    api.get('/practice/profile').then((r) => setPractice(r.data || {})).catch(() => {});
+  }, []);
+
+  const hasAppeal = selectedAppeal !== null && getLetterContent(selectedAppeal) !== '';
+
+  function getLetterContent(appeal: Appeal | null): string {
     if (!appeal) return '';
     return appeal.generated_letter || appeal.letter_content || appeal.content || '';
-  };
+  }
 
   const fetchClaimDetails = async () => {
     try {
@@ -84,7 +119,9 @@ export default function ClaimDetail() {
   };
 
   const generateAppeal = async () => {
+    if (hasAppeal && !confirm('Write a new letter? The current one stays in the history below.')) return;
     setGenerating(true);
+    setEditingLetter(false);
     setError('');
     try {
       const response = await api.post(`/appeals/generate/${id}`);
@@ -213,33 +250,84 @@ export default function ClaimDetail() {
     alert('Copied to clipboard!');
   };
 
+  const letterFileName = (ext: string) =>
+    `appeal_letter_${claim?.id}_${new Date().toISOString().split('T')[0]}.${ext}`;
+
+  const downloadPdf = async () => {
+    const letterContent = getLetterContent(selectedAppeal);
+    if (!letterContent) return;
+    try {
+      await downloadLetterPdf({ ...practice, name: practice.name || 'Dental Practice' }, letterContent, letterFileName('pdf'));
+    } catch (err) {
+      console.error('PDF error:', err);
+      alert('Could not create the PDF. Try Print instead.');
+    }
+  };
+
   const downloadLetter = () => {
     const letterContent = getLetterContent(selectedAppeal);
     if (!letterContent) return;
-    const blob = new Blob([letterContent], { type: 'text/plain' });
+    const blob = new Blob([letterWithLetterhead(practice, letterContent)], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `appeal_letter_${claim?.id}_${new Date().toISOString().split('T')[0]}.txt`;
+    a.download = letterFileName('txt');
     a.click();
     URL.revokeObjectURL(url);
   };
 
-  const printLetter = () => {
+  const printWithLetterhead = () => {
     const letterContent = getLetterContent(selectedAppeal);
     if (!letterContent) return;
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(`
-        <html>
-          <head><title>Appeal Letter - ${claim?.patient_name}</title></head>
-          <body style="font-family: Arial, sans-serif; padding: 40px; line-height: 1.6;">
-            <pre style="white-space: pre-wrap; font-family: inherit;">${letterContent.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-      printWindow.print();
+    printLetter(practice, letterContent, `Appeal Letter - ${claim?.patient_name}`);
+  };
+
+  const startEditingLetter = () => {
+    setLetterDraft(getLetterContent(selectedAppeal));
+    setEditingLetter(true);
+    setShowLetter(true);
+  };
+
+  const saveLetter = async () => {
+    if (!selectedAppeal) return;
+    setSavingLetter(true);
+    try {
+      const response = await api.patch(`/appeals/${selectedAppeal.id}`, { letterContent: letterDraft });
+      setSelectedAppeal({ ...selectedAppeal, ...response.data });
+      setClaim(prev => prev ? {
+        ...prev,
+        appeals: prev.appeals?.map(a => (a.id === selectedAppeal.id ? { ...a, ...response.data } : a)),
+      } : prev);
+      setEditingLetter(false);
+    } catch (err: any) {
+      alert(err.response?.data?.error || 'Could not save the letter');
+    } finally {
+      setSavingLetter(false);
+    }
+  };
+
+  const startEditingDeadline = () => {
+    setDenialDateInput(claim?.denial_date?.slice(0, 10) || '');
+    setDeadlineInput(claim?.appeal_deadline?.slice(0, 10) || '');
+    setEditingDeadline(true);
+  };
+
+  const saveDeadline = async () => {
+    const body: Record<string, string | null> = {};
+    const denialChanged = denialDateInput !== (claim?.denial_date?.slice(0, 10) || '');
+    if (denialChanged) body.denialDate = denialDateInput || null;
+    // A changed denial date recalculates the deadline unless the deadline was also edited.
+    if (deadlineInput && deadlineInput !== (claim?.appeal_deadline?.slice(0, 10) || '')) body.appealDeadline = deadlineInput;
+    if (!Object.keys(body).length) {
+      setEditingDeadline(false);
+      return;
+    }
+    try {
+      const response = await api.patch(`/claims/${id}/deadline`, body);
+      setClaim(prev => prev ? { ...prev, ...response.data, appeals: prev.appeals } : prev);
+      setEditingDeadline(false);
+    } catch (err: any) {
+      alert(err.response?.data?.error || 'Could not save the dates');
     }
   };
 
@@ -260,7 +348,11 @@ export default function ClaimDetail() {
   }
 
   const statusConfig = getStatusBadge(claim.status);
-  const hasAppeal = selectedAppeal !== null && getLetterContent(selectedAppeal) !== '';
+  const appealSent = claim.status === 'appealed' || claim.status === 'under_review';
+  const resolved = ['won', 'lost', 'paid'].includes(claim.status);
+  const deadlineDays = claim.appeal_deadline ? daysUntil(claim.appeal_deadline) : null;
+  const followUpDate = claim.appealed_at ? new Date(new Date(claim.appealed_at).getTime() + 30 * DAY) : null;
+  const followUpDue = followUpDate ? followUpDate.getTime() <= Date.now() : false;
 
   return (
     <div className="space-y-6">
@@ -284,7 +376,7 @@ export default function ClaimDetail() {
             </div>
             <p className="text-gray-500 mt-1">Claim #{claim.id} • {claim.insurance_company}</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-3 flex-wrap">
             {!hasAppeal && (
               <button
                 onClick={generateAppeal}
@@ -292,7 +384,10 @@ export default function ClaimDetail() {
                 className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50"
               >
                 {generating ? (
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    Writing letter… (up to a minute)
+                  </>
                 ) : (
                   <>
                     <FileText className="w-5 h-5" />
@@ -302,16 +397,16 @@ export default function ClaimDetail() {
               </button>
             )}
             {hasAppeal && (
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 <button
-                  onClick={downloadLetter}
-                  className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white font-semibold px-4 py-2 rounded-lg transition-all"
+                  onClick={downloadPdf}
+                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg transition-all"
                 >
                   <Download className="w-4 h-4" />
-                  Download
+                  Download PDF
                 </button>
                 <button
-                  onClick={printLetter}
+                  onClick={printWithLetterhead}
                   className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white font-semibold px-4 py-2 rounded-lg transition-all"
                 >
                   <Printer className="w-4 h-4" />
@@ -389,6 +484,60 @@ export default function ClaimDetail() {
           </div>
 
           <div className="mt-6 pt-6 border-t">
+            <div className={`mb-6 p-4 rounded-lg border flex items-start gap-3 ${
+              !resolved && !appealSent && deadlineDays !== null && deadlineDays <= 14
+                ? 'bg-red-50 border-red-200'
+                : appealSent && followUpDue ? 'bg-amber-50 border-amber-200' : 'bg-slate-50 border-slate-200'
+            }`}>
+              <CalendarClock className="w-5 h-5 text-gray-500 mt-0.5 shrink-0" />
+              <div className="flex-1 min-w-0">
+                {editingDeadline ? (
+                  <div className="flex flex-wrap items-end gap-3">
+                    <div>
+                      <label htmlFor="denial-date" className="block text-xs text-gray-600 mb-1">Date on the denial</label>
+                      <input id="denial-date" type="date" value={denialDateInput} onChange={(e) => setDenialDateInput(e.target.value)}
+                        className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm" />
+                    </div>
+                    <div>
+                      <label htmlFor="deadline" className="block text-xs text-gray-600 mb-1">Appeal deadline</label>
+                      <input id="deadline" type="date" value={deadlineInput} onChange={(e) => setDeadlineInput(e.target.value)}
+                        className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm" />
+                    </div>
+                    <button onClick={saveDeadline} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg">Save</button>
+                    <button onClick={() => setEditingDeadline(false)} className="px-2 py-1.5 text-sm text-gray-600">Cancel</button>
+                    <p className="w-full text-xs text-gray-500">Change the denial date and the deadline is recalculated from the insurer's appeal window.</p>
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="text-sm">
+                      {resolved ? (
+                        <p className="text-gray-700">Appeal closed.</p>
+                      ) : appealSent && followUpDate ? (
+                        <p className={followUpDue ? 'text-amber-800 font-medium' : 'text-gray-700'}>
+                          Appeal sent {formatDate(claim.appealed_at || undefined)}.{' '}
+                          {followUpDue
+                            ? 'No answer after 30 days: call the insurer for a status update.'
+                            : `Follow up on ${followUpDate.toLocaleDateString()} if there is no answer.`}
+                        </p>
+                      ) : claim.appeal_deadline && deadlineDays !== null ? (
+                        <p className={deadlineDays <= 14 ? 'text-red-700 font-medium' : 'text-gray-700'}>
+                          {deadlineDays < 0
+                            ? `Appeal deadline passed on ${formatCalendarDate(claim.appeal_deadline)}.`
+                            : `Appeal by ${formatCalendarDate(claim.appeal_deadline)} (${deadlineDays === 0 ? 'today' : `${deadlineDays} day${deadlineDays === 1 ? '' : 's'} left`}).`}
+                        </p>
+                      ) : (
+                        <p className="text-gray-700">No appeal deadline set.</p>
+                      )}
+                      {claim.denial_date && <p className="text-xs text-gray-500 mt-0.5">Denied {formatCalendarDate(claim.denial_date)}</p>}
+                      {!appealSent && !resolved && hasAppeal && (
+                        <p className="text-xs text-gray-500 mt-0.5">Set the status to Appeal Sent once it is mailed or faxed; we'll remind you to follow up in 30 days.</p>
+                      )}
+                    </div>
+                    <button onClick={startEditingDeadline} className="text-sm text-blue-600 hover:text-blue-800">Edit dates</button>
+                  </div>
+                )}
+              </div>
+            </div>
             <div className="flex items-center justify-between flex-wrap gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Appeal Status</label>
@@ -460,6 +609,8 @@ export default function ClaimDetail() {
         </div>
       </div>
 
+      <AppealPrep claimId={claim.id} providerName={practice.provider_name} />
+
       <DocumentUpload claimId={claim.id} onUploadComplete={fetchClaimDetails} />
 
       {hasAppeal && selectedAppeal && (
@@ -468,16 +619,35 @@ export default function ClaimDetail() {
             <div>
               <h2 className="font-semibold text-gray-900">Generated Appeal Letter</h2>
               <p className="text-sm text-gray-500">
-                Generated using {selectedAppeal.model_used || 'AI'} on {formatDate(selectedAppeal.created_at)}
+                Written {formatDate(selectedAppeal.created_at)}
+                {selectedAppeal.edited_at ? ` · edited ${formatDate(selectedAppeal.edited_at)}` : ''}
               </p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-4 flex-wrap">
+              {!editingLetter && (
+                <button onClick={startEditingLetter} className="flex items-center gap-1 text-gray-600 hover:text-gray-900 text-sm">
+                  <Pencil className="w-4 h-4" />
+                  Edit
+                </button>
+              )}
               <button
-                onClick={() => copyToClipboard(getLetterContent(selectedAppeal))}
+                onClick={() => copyToClipboard(letterWithLetterhead(practice, getLetterContent(selectedAppeal)))}
                 className="flex items-center gap-1 text-gray-600 hover:text-gray-900 text-sm"
               >
                 <Copy className="w-4 h-4" />
                 Copy
+              </button>
+              <button onClick={downloadLetter} className="flex items-center gap-1 text-gray-600 hover:text-gray-900 text-sm">
+                <Download className="w-4 h-4" />
+                .txt
+              </button>
+              <button
+                onClick={generateAppeal}
+                disabled={generating || editingLetter}
+                className="flex items-center gap-1 text-gray-600 hover:text-gray-900 text-sm disabled:opacity-50"
+              >
+                <RefreshCw className={`w-4 h-4 ${generating ? 'animate-spin' : ''}`} />
+                {generating ? 'Writing…' : 'Rewrite'}
               </button>
               <button
                 onClick={() => setShowLetter(!showLetter)}
@@ -489,11 +659,45 @@ export default function ClaimDetail() {
           </div>
           {showLetter && (
             <div className="p-6">
-              <div className="bg-gray-50 rounded-lg p-6 max-h-[600px] overflow-y-auto">
-                <pre className="whitespace-pre-wrap font-sans text-gray-700 leading-relaxed">
-                  {getLetterContent(selectedAppeal)}
-                </pre>
-              </div>
+              {editingLetter ? (
+                <div className="space-y-3">
+                  <textarea
+                    value={letterDraft}
+                    onChange={(e) => setLetterDraft(e.target.value)}
+                    rows={24}
+                    className="w-full border border-gray-300 rounded-lg p-4 font-serif text-sm leading-relaxed focus:ring-2 focus:ring-blue-500"
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      onClick={saveLetter}
+                      disabled={savingLetter || letterDraft.trim().length < 20}
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg disabled:opacity-50"
+                    >
+                      {savingLetter ? 'Saving…' : 'Save letter'}
+                    </button>
+                    <button onClick={() => setEditingLetter(false)} disabled={savingLetter} className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900">
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-white border rounded-lg shadow-inner p-8 max-h-[700px] overflow-y-auto">
+                  <div className="text-center border-b-2 border-blue-900 pb-3 mb-6">
+                    <p className="font-bold text-lg text-blue-900">{practice.name || 'Your Practice'}</p>
+                    {[practice.address, [practice.city, [practice.state, practice.zip].filter(Boolean).join(' ')].filter(Boolean).join(', '),
+                      [practice.phone && `Tel ${practice.phone}`, practice.fax && `Fax ${practice.fax}`].filter(Boolean).join('   ')]
+                      .filter(Boolean).map((line, i) => <p key={i} className="text-xs text-slate-600">{line}</p>)}
+                  </div>
+                  <pre className="whitespace-pre-wrap font-serif text-gray-800 leading-relaxed text-[15px]">
+                    {getLetterContent(selectedAppeal)}
+                  </pre>
+                  {/\[[^\]]+\]/.test(getLetterContent(selectedAppeal)) && (
+                    <p className="mt-6 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-3">
+                      This letter has [bracketed] details to fill in. Click Edit to complete them before sending.
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </div>
