@@ -4,21 +4,26 @@ import api from '../lib/api';
 
 export default function BulkUpload() {
   const [uploading, setUploading] = useState(false);
-  const [result, setResult] = useState<{ successful: number; failed: number; total: number } | null>(null);
+  const [result, setResult] = useState<{
+    successful: number;
+    failed: number;
+    total: number;
+    errors?: { row: number; message: string }[];
+  } | null>(null);
   const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    
+
     const formData = new FormData();
     formData.append('file', file);
-    
+
     setUploading(true);
     setResult(null);
     setError('');
-    
+
     try {
       const response = await api.post('/bulk/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
@@ -36,16 +41,18 @@ export default function BulkUpload() {
     const headers = [
       'patient_name', 'patient_dob', 'insurance_company', 'policy_number',
       'claim_number', 'procedure_codes', 'denial_reason', 'service_date',
-      'amount_claimed', 'amount_denied'
+      'amount_claimed', 'amount_denied', 'denial_date'
     ];
-    
+
     const exampleRow = [
       'John Smith', '1980-01-15', 'Delta Dental', 'POL123456',
-      'CLM789012', 'D2740,D2750', 'Procedure not medically necessary',
-      '2024-01-15', '1250.00', '1250.00'
+      'CLM789012', 'D2740 D2750', 'Procedure not medically necessary',
+      '2026-09-15', '1250.00', '1250.00', '2026-10-01'
     ];
-    
-    const csvContent = [headers.join(','), exampleRow.join(',')].join('\n');
+
+    // Quote every field so commas inside a value never shift the columns.
+    const line = (cells: string[]) => cells.map(c => `"${c.replace(/"/g, '""')}"`).join(',');
+    const csvContent = [line(headers), line(exampleRow)].join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -76,7 +83,7 @@ export default function BulkUpload() {
             Download Template
           </button>
         </div>
-        
+
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
           <input
             ref={fileInputRef}
@@ -88,6 +95,7 @@ export default function BulkUpload() {
           <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <p className="text-gray-600 mb-2">Drag and drop your CSV file here, or click to browse</p>
           <p className="text-gray-400 text-sm">Supports up to 10,000 claims per file</p>
+          <p className="text-gray-400 text-xs mt-1">Dates as YYYY-MM-DD. Separate several procedure codes with spaces.</p>
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
@@ -96,7 +104,7 @@ export default function BulkUpload() {
             {uploading ? 'Uploading...' : 'Select File'}
           </button>
         </div>
-        
+
         {result && (
           <div className="mt-4 p-4 rounded-lg border">
             <h3 className="font-medium mb-2">Upload Complete</h3>
@@ -105,9 +113,19 @@ export default function BulkUpload() {
               <p className="text-red-600">✗ Failed: {result.failed}</p>
               <p className="text-gray-600">Total processed: {result.total}</p>
             </div>
+            {result.errors && result.errors.length > 0 && (
+              <div className="mt-3">
+                <p className="text-sm font-medium text-gray-800 mb-1">Rows not imported (fix them in the file and upload just those rows again):</p>
+                <ul className="text-sm text-red-700 max-h-60 overflow-y-auto space-y-0.5">
+                  {result.errors.map(e => (
+                    <li key={e.row}>Row {e.row}: {e.message}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         )}
-        
+
         {error && (
           <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
             {error}

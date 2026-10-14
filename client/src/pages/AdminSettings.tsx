@@ -66,6 +66,11 @@ export default function AdminSettings() {
         <p className="text-gray-600 mt-1">System configuration and preferences</p>
       </div>
 
+      <div className="bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-lg p-4">
+        These values are read-only. They are set in the server configuration (price in Stripe, trial
+        length in TRIAL_DAYS), so changing them here would have no effect.
+      </div>
+
       <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
         <div className="px-6 py-4 border-b bg-gray-50">
           <h2 className="font-semibold text-gray-900 flex items-center gap-2">
@@ -73,7 +78,7 @@ export default function AdminSettings() {
             General Settings
           </h2>
         </div>
-        <div className="p-6 space-y-5">
+        <fieldset disabled className="p-6 space-y-5 opacity-75">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Site Name</label>
@@ -150,10 +155,10 @@ export default function AdminSettings() {
               <span className="text-sm text-gray-700">Enable Weekly Digest</span>
             </label>
           </div>
-        </div>
+        </fieldset>
       </div>
 
-      <div className="flex justify-end">
+      <div className="hidden">
         <button
           onClick={handleSave}
           disabled={saving}

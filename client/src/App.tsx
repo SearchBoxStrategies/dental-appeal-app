@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -167,6 +167,8 @@ function App() {
           
           {/* Root redirect - role based */}
           <Route path="/" element={<RoleBasedRedirect />} />
+          {/* Unknown addresses go to the right home page instead of a blank screen */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

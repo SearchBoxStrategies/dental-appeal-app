@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import {
   LayoutDashboard,
   Users,
@@ -38,9 +39,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { path: '/admin/email-templates', icon: Mail, label: 'Email Templates' },
   ];
 
+  const { logout } = useAuth();
+
+  // Clear the in-memory session too, so the next person at this computer starts signed out.
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    logout();
     navigate('/login');
   };
 

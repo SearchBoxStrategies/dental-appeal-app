@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../lib/api';
@@ -12,6 +12,8 @@ export default function Admin2FA() {
   const [resendSuccess, setResendSuccess] = useState(false);
   const { verify2FA, user } = useAuth();
   const navigate = useNavigate();
+  // The address the code was sent to, passed from the login screen.
+  const sentTo = (useLocation().state as { email?: string } | null)?.email;
   
   const userId = searchParams.get('userId') || user?.id;
 
@@ -64,7 +66,7 @@ export default function Admin2FA() {
           <p className="text-gray-600 mt-2">
             Enter the 6-digit code sent to your email
           </p>
-          <p className="text-sm text-gray-500 mt-1">{user?.email}</p>
+          {sentTo && <p className="text-sm text-gray-500 mt-1">{sentTo}</p>}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">

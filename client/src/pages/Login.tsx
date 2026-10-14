@@ -60,7 +60,7 @@ export default function Login() {
       else if (data.requiresTwoFactor === true) {
         // Only redirect if the user is an admin
         if (data.is_admin) {
-          navigate(`/admin/2fa?userId=${data.userId}`);
+          navigate(`/admin/2fa?userId=${data.userId}`, { state: { email: data.email || email } });
         } else {
           console.error('2FA triggered for non-admin user:', data);
           setError('Login error. Please try again.');
