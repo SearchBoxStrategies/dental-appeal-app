@@ -17,6 +17,7 @@ interface Extracted {
   amountClaimed: number | null;
   amountDenied: number | null;
   denialReason: string | null;
+  appealsAddress: string | null;
   uncertainFields: string[];
 }
 
@@ -53,6 +54,7 @@ export default function NewClaim() {
     procedureCodes: [] as string[],
     denialReason: '',
     denialDate: '',
+    insurerAppealsAddress: '',
   });
 
   // Upload the insurer's denial (EOB); the AI reads it and fills in the form for review.
@@ -90,6 +92,7 @@ export default function NewClaim() {
         procedureCodes: data.procedureCodes.length ? data.procedureCodes : prev.procedureCodes,
         denialReason: data.denialReason ?? prev.denialReason,
         denialDate: data.denialDate ?? prev.denialDate,
+        insurerAppealsAddress: data.appealsAddress ?? prev.insurerAppealsAddress,
       }));
       // Flag fields the AI was unsure of, plus required fields it could not find.
       const missing = (['patientName', 'patientDob', 'serviceDate', 'denialReason'] as const).filter(f => !data[f]);
@@ -153,6 +156,7 @@ export default function NewClaim() {
         procedureCodes: formData.procedureCodes,
         denialReason: formData.denialReason.trim(),
         denialDate: formData.denialDate || null,
+        insurerAppealsAddress: formData.insurerAppealsAddress.trim() || null,
       });
 
       if (response.status >= 200 && response.status < 300) {
@@ -423,6 +427,19 @@ export default function NewClaim() {
             placeholder="Paste the denial reason from the insurance EOB..."
           />
           {checkHint('denialReason')}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Where to send the appeal</label>
+          <textarea
+            name="insurerAppealsAddress"
+            rows={3}
+            value={formData.insurerAppealsAddress}
+            onChange={handleChange}
+            className={fieldClass('appealsAddress')}
+            placeholder="Appeals address printed on the denial notice (optional)"
+          />
+          {checkHint('appealsAddress') || <p className="text-xs text-gray-500 mt-1">Used as the address on the appeal letter. Leave blank to use the insurer's address on file.</p>}
         </div>
 
         <div className="flex gap-4">

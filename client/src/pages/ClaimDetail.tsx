@@ -40,6 +40,8 @@ interface Claim {
   status: string;
   created_at: string;
   denial_date?: string | null;
+  insurance_company_id?: number | null;
+  insurer_appeals_address?: string | null;
   appeal_deadline?: string | null;
   appealed_at?: string | null;
   appeals?: Appeal[];
@@ -88,6 +90,8 @@ export default function ClaimDetail() {
   const [editingDeadline, setEditingDeadline] = useState(false);
   const [denialDateInput, setDenialDateInput] = useState('');
   const [deadlineInput, setDeadlineInput] = useState('');
+  // What the letter would be missing, shown before generating so the clinic can fix it first.
+  const [letterGaps, setLetterGaps] = useState<{ label: string; fix?: 'note' | 'profile' }[] | null>(null);
 
   useEffect(() => {
     fetchClaimDetails();
@@ -118,7 +122,44 @@ export default function ClaimDetail() {
     }
   };
 
-  const generateAppeal = async () => {
+  const findLetterGaps = async () => {
+    const gaps: { label: string; fix?: 'note' | 'profile' }[] = [];
+    try {
+      const { data } = await api.get(`/claims/${id}/workflow`);
+      if (!data.dentistNoteApprovedAt) {
+        gaps.push({
+          label: data.dentistNote
+            ? "The dentist's note is drafted but not approved, so the letter can't use its clinical details."
+            : "There is no approved dentist's note, so clinical details will be blanks.",
+          fix: 'note',
+        });
+      }
+    } catch {
+      // If the check fails, don't block the letter.
+    }
+    const missing = [
+      !practice.provider_name && "treating dentist's name",
+      !practice.address && 'practice address',
+      !practice.phone && 'practice phone',
+    ].filter(Boolean);
+    if (missing.length) {
+      gaps.push({ label: `Your practice profile is missing the ${missing.join(', ')}.`, fix: 'profile' });
+    }
+    if (!claim?.insurer_appeals_address && !claim?.insurance_company_id) {
+      gaps.push({ label: "We don't have this insurer's appeals address; the letter will leave a blank for it." });
+    }
+    return gaps;
+  };
+
+  const generateAppeal = async (skipCheck = false) => {
+    if (!skipCheck) {
+      const gaps = await findLetterGaps();
+      if (gaps.length) {
+        setLetterGaps(gaps);
+        return;
+      }
+    }
+    setLetterGaps(null);
     if (hasAppeal && !confirm('Write a new letter? The current one stays in the history below.')) return;
     setGenerating(true);
     setEditingLetter(false);
@@ -379,7 +420,7 @@ export default function ClaimDetail() {
           <div className="flex gap-3 flex-wrap">
             {!hasAppeal && (
               <button
-                onClick={generateAppeal}
+                onClick={() => generateAppeal()}
                 disabled={generating}
                 className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50"
               >
@@ -609,7 +650,47 @@ export default function ClaimDetail() {
         </div>
       </div>
 
-      <AppealPrep claimId={claim.id} providerName={practice.provider_name} />
+      {letterGaps && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
+          <p className="font-semibold text-amber-900 mb-2">Before you write the letter</p>
+          <ul className="space-y-2 text-sm text-amber-900">
+            {letterGaps.map((gap, i) => (
+              <li key={i} className="flex flex-wrap items-center gap-2">
+                <span>• {gap.label}</span>
+                {gap.fix === 'note' && (
+                  <button
+                    onClick={() => { setLetterGaps(null); document.getElementById('appeal-prep')?.scrollIntoView({ behavior: 'smooth' }); }}
+                    className="text-blue-700 underline"
+                  >
+                    Go to the dentist's note
+                  </button>
+                )}
+                {gap.fix === 'profile' && (
+                  <button onClick={() => navigate('/practice/profile')} className="text-blue-700 underline">
+                    Complete practice profile
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+          <div className="flex gap-3 mt-4">
+            <button
+              onClick={() => generateAppeal(true)}
+              disabled={generating}
+              className="px-4 py-2 bg-white border border-amber-300 text-amber-900 text-sm font-medium rounded-lg hover:bg-amber-100 disabled:opacity-50"
+            >
+              {generating ? 'Writing…' : 'Write it anyway (fill blanks later)'}
+            </button>
+            <button onClick={() => setLetterGaps(null)} className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900">
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div id="appeal-prep">
+        <AppealPrep claimId={claim.id} providerName={practice.provider_name} />
+      </div>
 
       <DocumentUpload claimId={claim.id} onUploadComplete={fetchClaimDetails} />
 
@@ -642,7 +723,7 @@ export default function ClaimDetail() {
                 .txt
               </button>
               <button
-                onClick={generateAppeal}
+                onClick={() => generateAppeal()}
                 disabled={generating || editingLetter}
                 className="flex items-center gap-1 text-gray-600 hover:text-gray-900 text-sm disabled:opacity-50"
               >
