@@ -25,6 +25,7 @@ interface InsuranceCompany {
   id: number;
   name: string;
   code: string;
+  country?: string;
 }
 
 export default function NewClaim() {
@@ -303,10 +304,16 @@ export default function NewClaim() {
               className={fieldClass('insuranceCompany')}
             >
               <option value="">Select Insurance Company</option>
-              {insuranceCompanies.map((ic: InsuranceCompany) => (
-                <option key={ic.id} value={ic.name}>
-                  {ic.name}
-                </option>
+              {[['US', 'United States'], ['CA', 'Canada']].map(([country, label]) => (
+                <optgroup key={country} label={label}>
+                  {insuranceCompanies
+                    .filter((ic: InsuranceCompany) => (ic.country || 'US') === country)
+                    .map((ic: InsuranceCompany) => (
+                      <option key={ic.id} value={ic.name}>
+                        {ic.name}
+                      </option>
+                    ))}
+                </optgroup>
               ))}
               <option value="other">Other (Not Listed)</option>
             </select>

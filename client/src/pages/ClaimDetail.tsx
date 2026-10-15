@@ -145,8 +145,18 @@ export default function ClaimDetail() {
     if (missing.length) {
       gaps.push({ label: `Your practice profile is missing the ${missing.join(', ')}.`, fix: 'profile' });
     }
-    if (!claim?.insurer_appeals_address && !claim?.insurance_company_id) {
-      gaps.push({ label: "We don't have this insurer's appeals address; the letter will leave a blank for it." });
+    // The address on the denial notice wins; otherwise use one on file for a listed insurer.
+    let hasAddress = !!claim?.insurer_appeals_address;
+    if (!hasAddress && claim?.insurance_company_id) {
+      try {
+        const { data } = await api.get(`/insurance/${claim.insurance_company_id}`);
+        hasAddress = !!data?.appeals_address;
+      } catch {
+        // Treat as unknown.
+      }
+    }
+    if (!hasAddress) {
+      gaps.push({ label: "We don't have this insurer's appeals address; the letter will leave a blank for it. It's usually printed on the denial notice." });
     }
     return gaps;
   };
@@ -567,7 +577,9 @@ export default function ClaimDetail() {
                             : `Appeal by ${formatCalendarDate(claim.appeal_deadline)} (${deadlineDays === 0 ? 'today' : `${deadlineDays} day${deadlineDays === 1 ? '' : 's'} left`}).`}
                         </p>
                       ) : (
-                        <p className="text-gray-700">No appeal deadline set.</p>
+                        <p className="text-gray-700">
+                          No appeal deadline set. Check the denial notice for the deadline and add it with Edit dates.
+                        </p>
                       )}
                       {claim.denial_date && <p className="text-xs text-gray-500 mt-0.5">Denied {formatCalendarDate(claim.denial_date)}</p>}
                       {!appealSent && !resolved && hasAppeal && (
