@@ -13,7 +13,8 @@ import {
   Bell,
   TrendingUp,
   Upload,
-  Building2
+  Building2,
+  Users
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -46,6 +47,7 @@ export default function Layout({ children }: LayoutProps) {
         { path: '/analytics', icon: TrendingUp, label: 'Analytics' },
         { path: '/bulk-upload', icon: Upload, label: 'Bulk Upload' },
         { path: '/practice/profile', icon: Building2, label: 'Practice Profile' },
+        { path: '/settings/team', icon: Users, label: 'Team & Security' },
         { path: '/settings/notifications', icon: Bell, label: 'Notifications' },
         { path: '/billing', icon: CreditCard, label: 'Billing' },
       ];
@@ -199,9 +201,9 @@ export default function Layout({ children }: LayoutProps) {
             <div className="text-center">
               <p>
                 © {new Date().getFullYear()}{' '}
-                <a 
-                  href="https://searchboxstrategies.com" 
-                  target="_blank" 
+                <a
+                  href="https://searchboxstrategies.com"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-gray-700 hover:underline transition-all"
                 >

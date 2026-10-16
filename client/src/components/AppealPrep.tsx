@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { ClipboardCheck, Stethoscope, Sparkles, CheckCircle, Pencil } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import api from '../lib/api';
+import { useAuth } from '../context/AuthContext';
 
 interface ChecklistItem {
   id: string;
@@ -19,11 +21,12 @@ interface Workflow {
 const PLACEHOLDER = /\[[^\]]+\]/g;
 
 // What to enclose with the appeal, and the dentist's clinical note for sign-off.
-export default function AppealPrep({ claimId, providerName }: { claimId: number; providerName?: string | null }) {
+export default function AppealPrep({ claimId }: { claimId: number; providerName?: string | null }) {
+  const { user } = useAuth();
+  const canApprove = user?.is_dentist === true;
   const [workflow, setWorkflow] = useState<Workflow | null>(null);
   const [noteDraft, setNoteDraft] = useState('');
   const [editingNote, setEditingNote] = useState(false);
-  const [approverName, setApproverName] = useState(providerName || '');
   const [busy, setBusy] = useState<'' | 'draft' | 'save' | 'approve'>('');
   const [error, setError] = useState('');
 
@@ -35,10 +38,6 @@ export default function AppealPrep({ claimId, providerName }: { claimId: number;
   useEffect(() => {
     api.get(`/claims/${claimId}/workflow`).then((r) => apply(r.data)).catch(() => setError('Could not load the checklist'));
   }, [claimId]);
-
-  useEffect(() => {
-    if (providerName && !approverName) setApproverName(providerName);
-  }, [providerName]);
 
   if (!workflow) {
     return error ? <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg">{error}</div> : null;
@@ -74,7 +73,7 @@ export default function AppealPrep({ claimId, providerName }: { claimId: number;
     try {
       apply((await api.put(`/claims/${claimId}/dentist-note`, {
         note: noteDraft,
-        ...(approve ? { approve: true, approverName: approverName.trim() } : {}),
+        ...(approve ? { approve: true } : {}),
       })).data);
       setEditingNote(false);
     } catch (err: any) {
@@ -183,24 +182,23 @@ export default function AppealPrep({ claimId, providerName }: { claimId: number;
                 </p>
               )}
               <div className="flex flex-wrap items-end gap-3">
-                <div>
-                  <label htmlFor="approver" className="block text-xs text-gray-600 mb-1">Dentist approving</label>
-                  <input
-                    id="approver"
-                    value={approverName}
-                    onChange={(e) => setApproverName(e.target.value)}
-                    placeholder="Dr. Name"
-                    className="w-48 border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                  />
-                </div>
-                <button
-                  onClick={() => saveNote(true)}
-                  disabled={busy !== '' || !noteDraft.trim() || placeholders.length > 0 || approverName.trim().length < 2}
-                  className="flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded-lg disabled:opacity-50"
-                >
-                  <CheckCircle className="w-4 h-4" />
-                  {busy === 'approve' ? 'Approving…' : 'Approve note'}
-                </button>
+                {canApprove ? (
+                  <button
+                    onClick={() => saveNote(true)}
+                    disabled={busy !== '' || !noteDraft.trim() || placeholders.length > 0}
+                    className="flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded-lg disabled:opacity-50"
+                  >
+                    <CheckCircle className="w-4 h-4" />
+                    {busy === 'approve' ? 'Approving…' : `Approve as ${user?.name || 'dentist'}`}
+                  </button>
+                ) : (
+                  <p className="text-xs text-gray-600 py-2">
+                    A dentist on your team approves this note.
+                    {user?.practice_role === 'owner' && (
+                      <> If you're the dentist, mark yourself as one on <Link to="/settings/team" className="text-blue-600 underline">Team & Security</Link>.</>
+                    )}
+                  </p>
+                )}
                 <button
                   onClick={() => saveNote(false)}
                   disabled={busy !== '' || !noteDraft.trim()}

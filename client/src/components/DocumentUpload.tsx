@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Upload, X, FileText, Image, File } from 'lucide-react';
+import { Upload, X, FileText, Image, File, Eye, Download } from 'lucide-react';
 import api from '../lib/api';
 
 interface Document {
@@ -76,6 +76,27 @@ export default function DocumentUpload({ claimId, onUploadComplete }: DocumentUp
     return <File className="w-5 h-5 text-gray-500" />;
   };
 
+  // Files are only served to signed-in team members, so fetch with the session and open locally.
+  const openDocument = async (doc: { id: number; file_name: string }, download: boolean) => {
+    const viewer = download ? null : window.open('', '_blank');
+    try {
+      const { data } = await api.get(`/documents/${doc.id}/file`, { responseType: 'blob' });
+      const url = URL.createObjectURL(data);
+      if (download) {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = doc.file_name;
+        a.click();
+      } else if (viewer) {
+        viewer.location.href = url;
+      }
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    } catch {
+      viewer?.close();
+      alert('Could not open this document.');
+    }
+  };
+
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
@@ -124,12 +145,22 @@ export default function DocumentUpload({ claimId, onUploadComplete }: DocumentUp
                   </p>
                 </div>
               </div>
-              <button
-                onClick={() => handleDelete(doc.id)}
-                className="text-gray-400 hover:text-red-500"
-              >
-                <X className="w-4 h-4" />
-              </button>
+              <div className="flex items-center gap-3">
+                <button onClick={() => openDocument(doc, false)} className="text-gray-500 hover:text-blue-600" aria-label={`View ${doc.file_name}`} title="View">
+                  <Eye className="w-4 h-4" />
+                </button>
+                <button onClick={() => openDocument(doc, true)} className="text-gray-500 hover:text-blue-600" aria-label={`Download ${doc.file_name}`} title="Download">
+                  <Download className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => handleDelete(doc.id)}
+                  className="text-gray-400 hover:text-red-500"
+                  aria-label={`Delete ${doc.file_name}`}
+                  title="Delete"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           ))}
         </div>

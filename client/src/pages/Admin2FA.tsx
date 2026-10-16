@@ -14,7 +14,7 @@ export default function Admin2FA() {
   const navigate = useNavigate();
   // The address the code was sent to, passed from the login screen.
   const sentTo = (useLocation().state as { email?: string } | null)?.email;
-  
+
   const userId = searchParams.get('userId') || user?.id;
 
   useEffect(() => {
@@ -29,13 +29,14 @@ export default function Admin2FA() {
       setError('Invalid session. Please log in again.');
       return;
     }
-    
+
     setLoading(true);
     setError('');
 
     try {
       await verify2FA(parseInt(userId as string), code);
-      navigate('/admin');
+      // The home route sends admins, clinics and affiliates to their own dashboards.
+      navigate('/');
     } catch (err: any) {
       setError(err.response?.data?.error || 'Invalid code. Please try again.');
     } finally {
@@ -45,7 +46,7 @@ export default function Admin2FA() {
 
   const handleResend = async () => {
     if (!userId) return;
-    
+
     setError('');
     setResendSuccess(false);
 

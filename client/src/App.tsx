@@ -35,6 +35,8 @@ import AffiliateVerify from './pages/AffiliateVerify';
 import AffiliateSetPassword from './pages/AffiliateSetPassword';
 // 2FA import
 import Admin2FA from './pages/Admin2FA';
+import Team from './pages/Team';
+import AcceptInvite from './pages/AcceptInvite';
 
 function App() {
   return (
@@ -49,16 +51,18 @@ function App() {
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/calculator" element={<Calculator />} />
-          
+
           {/* Affiliate public routes */}
           <Route path="/affiliate/signup" element={<AffiliateSignup />} />
           <Route path="/affiliate/stats/:code" element={<AffiliatePublicStats />} />
           <Route path="/affiliate/verify" element={<AffiliateVerify />} />
           <Route path="/affiliate/set-password" element={<AffiliateSetPassword />} />
-          
+
           {/* 2FA route */}
           <Route path="/admin/2fa" element={<Admin2FA />} />
-          
+          <Route path="/verify-code" element={<Admin2FA />} />
+          <Route path="/accept-invite" element={<AcceptInvite />} />
+
           {/* Clinic-only routes (core product) */}
           <Route path="/dashboard" element={
             <ProtectedRoute allowedTypes={['clinic']}>
@@ -95,6 +99,11 @@ function App() {
               <EmailPreferences />
             </ProtectedRoute>
           } />
+          <Route path="/settings/team" element={
+            <ProtectedRoute allowedTypes={['clinic']}>
+              <Team />
+            </ProtectedRoute>
+          } />
           <Route path="/analytics" element={
             <ProtectedRoute allowedTypes={['clinic']}>
               <AnalyticsReport />
@@ -110,14 +119,14 @@ function App() {
               <Help />
             </ProtectedRoute>
           } />
-          
+
           {/* Affiliate-only routes */}
           <Route path="/affiliate/dashboard" element={
             <ProtectedRoute allowedTypes={['affiliate']}>
               <AffiliateDashboard />
             </ProtectedRoute>
           } />
-          
+
           {/* Admin routes */}
           <Route path="/admin/email-templates" element={
             <AdminRoute>
@@ -163,8 +172,8 @@ function App() {
             <AdminRoute>
               <AdminPayments />
             </AdminRoute>
-          } />        
-          
+          } />
+
           {/* Root redirect - role based */}
           <Route path="/" element={<RoleBasedRedirect />} />
           {/* Unknown addresses go to the right home page instead of a blank screen */}

@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
 import { CreditCard, CheckCircle, AlertCircle, ExternalLink } from 'lucide-react';
 import api from '../lib/api';
+import { useAuth } from '../context/AuthContext';
 
 export default function Billing() {
+  const { user } = useAuth();
+  const isOwner = user?.practice_role === 'owner';
   const [subscription, setSubscription] = useState({
     status: 'inactive',
     stripeCustomerId: null,
@@ -20,7 +23,7 @@ export default function Billing() {
 
   useEffect(() => {
     fetchSubscriptionStatus();
-    
+
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('success') === 'true') {
       alert('Payment successful! Your subscription is now active.');
@@ -45,7 +48,7 @@ export default function Billing() {
     setActionLoading(true);
     try {
       const referralCode = getReferralCode(); // ADDED - capture referral code
-      const response = await api.post('/billing/checkout', { 
+      const response = await api.post('/billing/checkout', {
         referralCode // ADDED - send referral code to backend
       });
       window.location.href = response.data.url;
@@ -109,21 +112,25 @@ export default function Billing() {
             </div>
           </div>
         </div>
-        
+
         <div className="p-6 space-y-4">
           <div className="flex justify-between items-baseline">
             <span className="text-3xl font-bold text-gray-900">$199</span>
             <span className="text-gray-600">/month</span>
           </div>
-          
+
           <ul className="space-y-2 text-sm text-gray-600">
             <li className="flex items-center gap-2">✓ Unlimited claim submissions</li>
             <li className="flex items-center gap-2">✓ AI-powered appeal generation</li>
             <li className="flex items-center gap-2">✓ CDT code selector</li>
             <li className="flex items-center gap-2">✓ Priority support</li>
           </ul>
-          
-          {isActive ? (
+
+          {!isOwner ? (
+            <p className="text-sm text-gray-600 bg-gray-50 border rounded-lg p-3 text-center">
+              Only a practice owner can manage billing.
+            </p>
+          ) : isActive ? (
             <button
               onClick={handleManageSubscription}
               disabled={actionLoading}

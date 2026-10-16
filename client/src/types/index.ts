@@ -6,6 +6,9 @@ export interface User {
   is_admin?: boolean;
   email_verified?: boolean;
   user_type?: 'clinic' | 'affiliate' | 'admin';
+  practice_role?: 'owner' | 'staff' | null;
+  is_dentist?: boolean;
+  two_factor_enabled?: boolean;
   affiliate?: {
     code: string;
     is_active: boolean;

@@ -55,23 +55,19 @@ export default function Login() {
       // Admin 2FA flow - requires verification code (old admin verification)
       else if (data.requiresAdminVerification) {
         setAdminVerification({ userId: data.userId, email: data.email });
-      } 
+      }
       // NEW: Regular 2FA flow - ONLY if requiresTwoFactor is explicitly true
       else if (data.requiresTwoFactor === true) {
-        // Only redirect if the user is an admin
-        if (data.is_admin) {
-          navigate(`/admin/2fa?userId=${data.userId}`, { state: { email: data.email || email } });
-        } else {
-          console.error('2FA triggered for non-admin user:', data);
-          setError('Login error. Please try again.');
-        }
+        navigate(`${data.is_admin ? '/admin/2fa' : '/verify-code'}?userId=${data.userId}`, {
+          state: { email: data.email || email },
+        });
       }
       // Email not verified flow
       else if (response.status === 401 && data.requiresVerification) {
         setRequiresVerification(true);
         setUnverifiedEmail(data.email || email);
         setError(`Please verify your email address before logging in. A verification link was sent to ${data.email || email}.`);
-      } 
+      }
       // Other errors
       else {
         setError(data.error || 'Login failed');
