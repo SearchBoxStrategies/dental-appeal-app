@@ -301,8 +301,10 @@ export default function AffiliateDashboard() {
             <Users className="w-8 h-8 text-green-500" />
           </div>
           <p className="text-xs text-gray-500 mt-2">
-            Conversion rate: {data.affiliate.total_clicks > 0 
-              ? Math.round((data.affiliate.total_signups / data.affiliate.total_clicks) * 100) 
+            {/* Some sign-ups arrive without a tracked click (forwarded link, typed code, blocked
+                tracking), so never show more than 100%. */}
+            Conversion rate: {data.affiliate.total_clicks > 0
+              ? Math.min(100, Math.round((data.affiliate.total_signups / data.affiliate.total_clicks) * 100))
               : 0}%
           </p>
         </div>

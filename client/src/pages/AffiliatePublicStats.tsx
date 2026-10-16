@@ -111,7 +111,8 @@ export default function AffiliatePublicStats() {
     );
   }
 
-  const conversionRate = stats.clicks > 0 ? ((stats.signups / stats.clicks) * 100).toFixed(1) : 0;
+  // Capped: some sign-ups arrive without a tracked click.
+  const conversionRate = stats.clicks > 0 ? Math.min(100, (stats.signups / stats.clicks) * 100).toFixed(1) : 0;
   const signupToConversionRate = stats.signups > 0 ? ((stats.conversions / stats.signups) * 100).toFixed(1) : 0;
 
   return (
