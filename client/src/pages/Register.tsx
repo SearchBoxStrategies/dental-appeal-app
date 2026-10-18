@@ -2,11 +2,13 @@ import { API_BASE_URL } from '../lib/api';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Mail, Lock, User, Building2, UserPlus, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { getRememberedReferral, forgetReferral } from '../lib/referral';
 
 export default function Register() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const referralCodeFromUrl = searchParams.get('ref');
+  // From the link, or remembered from a link clicked in the last 90 days (main.tsx counts the click).
+  const referralCode = searchParams.get('ref')?.trim() || getRememberedReferral();
   
   const [formData, setFormData] = useState({
     practiceName: '',
@@ -14,7 +16,7 @@ export default function Register() {
     email: '',
     password: '',
     confirmPassword: '',
-    referralCode: referralCodeFromUrl || ''
+    referralCode: referralCode || ''
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -22,21 +24,12 @@ export default function Register() {
   const [passwordFocused, setPasswordFocused] = useState(false);
   const [affiliateInfo, setAffiliateInfo] = useState<{ code: string; clicks?: number } | null>(null);
 
-  // Track affiliate click when page loads with referral code
-  useEffect(() => {
-    if (referralCodeFromUrl) {
-      fetch(`${API_BASE_URL}/affiliate/track/${referralCodeFromUrl}`, {
-        method: 'GET',
-      }).catch(err => console.log('Tracking error:', err));
-    }
-  }, [referralCodeFromUrl]);
-
   // Fetch affiliate stats if referral code is present
   useEffect(() => {
-    if (referralCodeFromUrl) {
-      fetchAffiliateStats(referralCodeFromUrl);
+    if (referralCode) {
+      fetchAffiliateStats(referralCode);
     }
-  }, [referralCodeFromUrl]);
+  }, [referralCode]);
 
   const fetchAffiliateStats = async (code: string) => {
     try {
@@ -111,6 +104,7 @@ export default function Register() {
       const data = await response.json();
 
       if (response.ok) {
+        forgetReferral();
         setSuccess(`Verification email sent to ${formData.email}. Please check your inbox to complete registration.`);
         setFormData({
           practiceName: '',
