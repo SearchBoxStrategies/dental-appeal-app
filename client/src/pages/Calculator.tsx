@@ -114,7 +114,7 @@ export default function Calculator() {
             <div className="flex items-center gap-4 text-sm">
               <div className="hidden md:flex items-center gap-1 text-green-600">
                 <Shield className="w-4 h-4" />
-                <span>HIPAA Compliant</span>
+                <span>Encrypted &amp; Private</span>
               </div>
               <div className="hidden md:flex items-center gap-1 text-blue-600">
                 <Clock className="w-4 h-4" />
@@ -334,8 +334,8 @@ export default function Calculator() {
             <div className="inline-flex items-center justify-center w-12 h-12 bg-purple-100 rounded-full mb-3">
               <Shield className="w-6 h-6 text-purple-600" />
             </div>
-            <h3 className="font-semibold text-gray-900">HIPAA Compliant</h3>
-            <p className="text-sm text-gray-500">Secure & Private</p>
+            <h3 className="font-semibold text-gray-900">Encrypted &amp; Private</h3>
+            <p className="text-sm text-gray-500">Encrypted in transit and at rest</p>
           </div>
         </div>
       </div>

@@ -135,7 +135,7 @@ export default function Help() {
     { q: 'How long does it take to generate an appeal letter?', a: 'Typically 3-5 seconds using Claude AI.' },
     { q: 'What file types can I upload?', a: 'PDF, JPG, JPEG, PNG files up to 10MB.' },
     { q: 'Do you guarantee appeal success?', a: 'No. Success depends on clinical justification and insurance policies.' },
-    { q: 'Is my data HIPAA compliant?', a: 'Yes. DentalAppeal is fully HIPAA-compliant with encryption and Business Associate Agreements.' },
+    { q: 'Is DentalAppeal HIPAA compliant?', a: 'Not yet. Your data is encrypted and stored in the United States, but we do not currently sign Business Associate Agreements. US practices covered by HIPAA should not enter real patient information until a BAA is in place; Canadian practices can use DentalAppeal now. See our Terms of Service and Privacy Policy for details.' },
     { q: 'Can I cancel my subscription anytime?', a: 'Yes. Cancel anytime from the Billing page.' },
     { q: 'How do I get support?', a: 'Email support@dentalappeal.claims for assistance.' }
   ];
