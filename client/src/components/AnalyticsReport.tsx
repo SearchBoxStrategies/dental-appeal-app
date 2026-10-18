@@ -262,8 +262,8 @@ export default function AnalyticsReport() {
       <div className="bg-blue-50 rounded-xl p-6 border border-blue-200">
         <h3 className="font-semibold text-blue-900 mb-2">💡 Insight</h3>
         <p className="text-blue-800 text-sm">
-          Based on your success rate of {report.successRate}%, you're recovering significantly more than manual appeals.
-          Continue submitting appeals within 14 days of denial for best results.
+          Your appeals are succeeding {report.successRate}% of the time so far. Appealing soon after a denial, with the
+          supporting documents attached, gives each appeal its best chance and keeps you well inside insurer deadlines.
         </p>
       </div>
     </div>

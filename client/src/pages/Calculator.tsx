@@ -118,7 +118,7 @@ export default function Calculator() {
               </div>
               <div className="hidden md:flex items-center gap-1 text-blue-600">
                 <Clock className="w-4 h-4" />
-                <span>30-Second Appeals</span>
+                <span>Appeals in Minutes</span>
               </div>
               <a 
                 href="/" 
@@ -255,7 +255,7 @@ export default function Calculator() {
                   {formatCurrency(potentialRecovery)}<span className="text-lg font-normal text-green-600">/year</span>
                 </p>
                 <p className="text-sm text-green-600 text-center mt-2">
-                  Based on {recoveryRate}% average recovery rate from appealed denials
+                  Estimate only: assumes {recoveryRate}% of appealed denials are recovered. Actual results vary by insurer and claim.
                 </p>
               </div>
             </div>
@@ -321,14 +321,14 @@ export default function Calculator() {
               <CheckCircle className="w-6 h-6 text-blue-600" />
             </div>
             <h3 className="font-semibold text-gray-900">AI-Powered Appeals</h3>
-            <p className="text-sm text-gray-500">Generate appeal letters in 30 seconds</p>
+            <p className="text-sm text-gray-500">Draft appeal letters in minutes</p>
           </div>
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-3">
               <TrendingUp className="w-6 h-6 text-green-600" />
             </div>
-            <h3 className="font-semibold text-gray-900">60%+ Success Rate</h3>
-            <p className="text-sm text-gray-500">Industry average is 40-50%</p>
+            <h3 className="font-semibold text-gray-900">Deadlines Tracked</h3>
+            <p className="text-sm text-gray-500">Reminders before every appeal deadline</p>
           </div>
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-12 h-12 bg-purple-100 rounded-full mb-3">
