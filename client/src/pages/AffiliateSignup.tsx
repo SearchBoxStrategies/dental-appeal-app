@@ -288,7 +288,7 @@ export default function AffiliateSignup() {
         <div className="text-center mt-8 text-sm text-gray-500">
           <p>
             By applying, you agree to our{' '}
-            <Link to="/terms" className="text-blue-600 hover:underline">Terms of Service</Link>
+            <Link to="/terms#affiliate-program" className="text-blue-600 hover:underline">Terms of Service</Link>
             {' '}and{' '}
             <Link to="/privacy" className="text-blue-600 hover:underline">Privacy Policy</Link>
           </p>
