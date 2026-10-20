@@ -14,7 +14,8 @@ import {
   TrendingUp,
   Upload,
   Building2,
-  Users
+  Users,
+  PlayCircle
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -38,6 +39,7 @@ export default function Layout({ children }: LayoutProps) {
   const navItems = isAffiliate
     ? [
         { path: '/affiliate/dashboard', icon: LayoutDashboard, label: 'Affiliate Dashboard' },
+        { path: '/tutorials', icon: PlayCircle, label: 'Video Tutorials' },
         { path: '/help', icon: HelpCircle, label: 'Help' },
       ]
     : [
@@ -50,6 +52,7 @@ export default function Layout({ children }: LayoutProps) {
         { path: '/settings/team', icon: Users, label: 'Team & Security' },
         { path: '/settings/notifications', icon: Bell, label: 'Notifications' },
         { path: '/billing', icon: CreditCard, label: 'Billing' },
+        { path: '/tutorials', icon: PlayCircle, label: 'Video Tutorials' },
       ];
 
   const handleLogout = () => {

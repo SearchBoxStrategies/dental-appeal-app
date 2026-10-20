@@ -18,6 +18,7 @@ import PracticeProfile from './components/PracticeProfile';
 import EmailPreferences from './components/EmailPreferences';
 import AnalyticsReport from './components/AnalyticsReport';
 import Help from './pages/Help';
+import Tutorials from './pages/Tutorials';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
 import TermsOfService from './pages/TermsOfService';
@@ -117,6 +118,13 @@ function App() {
           <Route path="/help" element={
             <ProtectedRoute allowedTypes={['clinic', 'affiliate']}>
               <Help />
+            </ProtectedRoute>
+          } />
+
+          {/* Tutorials are for signed-in clinics and affiliates only */}
+          <Route path="/tutorials" element={
+            <ProtectedRoute allowedTypes={['clinic', 'affiliate']}>
+              <Tutorials />
             </ProtectedRoute>
           } />
 
