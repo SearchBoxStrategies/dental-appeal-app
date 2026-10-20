@@ -30,6 +30,7 @@ interface AffiliateData {
     converted_at: string | null;
     practice_name: string | null;
     subscription_status: string | null;
+    at_risk?: 'payment_failed' | 'inactive' | null;
   }>;
   commissions: Array<{
     id: number;
@@ -39,6 +40,7 @@ interface AffiliateData {
     status: string;
     paid_at: string | null;
     practice_name: string | null;
+    kind?: 'commission' | 'signon_bonus' | 'loyalty_6' | 'loyalty_12';
   }>;
   monthlyEarnings: Array<{
     month: string;
@@ -48,8 +50,8 @@ interface AffiliateData {
   nextTier: {
     nextTier: string | null;
     nextRate: number | null;
-    conversionsNeeded: number | null;
-    monthlyConversions: number;
+    clinicsNeeded: number | null;
+    activeClinics: number;
   };
 }
 
@@ -242,7 +244,7 @@ export default function AffiliateDashboard() {
               <div>
                 <p className="text-sm font-medium">Next Tier: {data.nextTier.nextTier}</p>
                 <p className="text-2xl font-bold">{data.nextTier.nextRate}%</p>
-                <p className="text-sm">{data.nextTier.conversionsNeeded} more paid conversions this month</p>
+                <p className="text-sm">{data.nextTier.clinicsNeeded} more active paying clinic{data.nextTier.clinicsNeeded === 1 ? '' : 's'}</p>
               </div>
               <TrendingUp className="w-5 h-5 text-gray-400 ml-2" />
             </div>
@@ -263,14 +265,14 @@ export default function AffiliateDashboard() {
         {data.nextTier.nextTier && (
           <div className="mt-4">
             <div className="flex justify-between text-sm mb-1">
-              <span>Progress to {data.nextTier.nextTier} this month</span>
-              <span>{data.nextTier.monthlyConversions} / {(data.nextTier.monthlyConversions + (data.nextTier.conversionsNeeded || 0))}</span>
+              <span>Progress to {data.nextTier.nextTier}</span>
+              <span>{data.nextTier.activeClinics} / {(data.nextTier.activeClinics + (data.nextTier.clinicsNeeded || 0))} active clinics</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div 
                 className="bg-blue-600 h-2 rounded-full transition-all duration-500"
                 style={{ 
-                  width: `${(data.nextTier.monthlyConversions / (data.nextTier.monthlyConversions + (data.nextTier.conversionsNeeded || 1))) * 100}%` 
+                  width: `${(data.nextTier.activeClinics / (data.nextTier.activeClinics + (data.nextTier.clinicsNeeded || 1))) * 100}%` 
                 }}
               />
             </div>
@@ -400,6 +402,24 @@ export default function AffiliateDashboard() {
         </nav>
       </div>
 
+      {/* Clinics that may need a call */}
+      {data.referrals.some((r) => r.at_risk) && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
+          <p className="font-semibold text-amber-900 mb-2">These clinics may need a call from you</p>
+          <ul className="text-sm text-amber-900 space-y-1">
+            {data.referrals.filter((r) => r.at_risk).map((r) => (
+              <li key={r.id}>
+                <strong>{r.practice_name || 'A referred clinic'}</strong>:{' '}
+                {r.at_risk === 'payment_failed'
+                  ? 'their last payment did not go through. Ask them to update their card under Billing.'
+                  : 'no claims started recently. A quick check-in or a walk-through of the tutorials can help.'}
+              </li>
+            ))}
+          </ul>
+          <p className="text-xs text-amber-800 mt-2">You only see whether a clinic is active, never any claim or patient details.</p>
+        </div>
+      )}
+
       {/* Tab Content */}
       <div>
         {/* Overview Tab */}
@@ -412,9 +432,9 @@ export default function AffiliateDashboard() {
                 <div className={`p-4 rounded-lg border-2 ${data.affiliate.tier === 'standard' ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}>
                   <div className="flex justify-between items-center mb-2">
                     <span className="font-semibold">Standard</span>
-                    <span className="text-lg font-bold text-green-600">20%</span>
+                    <span className="text-lg font-bold text-green-600">25%</span>
                   </div>
-                  <p className="text-sm text-gray-600">Default rate</p>
+                  <p className="text-sm text-gray-600">1 to 4 active paying clinics</p>
                   {data.affiliate.tier === 'standard' && (
                     <span className="inline-block mt-2 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Current Tier</span>
                   )}
@@ -422,9 +442,9 @@ export default function AffiliateDashboard() {
                 <div className={`p-4 rounded-lg border-2 ${data.affiliate.tier === 'pro' ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}>
                   <div className="flex justify-between items-center mb-2">
                     <span className="font-semibold">Pro</span>
-                    <span className="text-lg font-bold text-green-600">25%</span>
+                    <span className="text-lg font-bold text-green-600">30%</span>
                   </div>
-                  <p className="text-sm text-gray-600">5+ paid conversions this month</p>
+                  <p className="text-sm text-gray-600">5 to 14 active paying clinics</p>
                   {data.affiliate.tier === 'pro' && (
                     <span className="inline-block mt-2 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Current Tier</span>
                   )}
@@ -432,14 +452,27 @@ export default function AffiliateDashboard() {
                 <div className={`p-4 rounded-lg border-2 ${data.affiliate.tier === 'partner' ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}>
                   <div className="flex justify-between items-center mb-2">
                     <span className="font-semibold">Partner</span>
-                    <span className="text-lg font-bold text-green-600">30%</span>
+                    <span className="text-lg font-bold text-green-600">35%</span>
                   </div>
-                  <p className="text-sm text-gray-600">10+ paid conversions this month</p>
+                  <p className="text-sm text-gray-600">15 or more active paying clinics</p>
                   {data.affiliate.tier === 'partner' && (
                     <span className="inline-block mt-2 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Current Tier</span>
                   )}
                 </div>
               </div>
+            </div>
+
+            {/* Bonuses */}
+            <div className="bg-white rounded-xl shadow-sm border p-6">
+              <h3 className="text-md font-semibold text-gray-900 mb-2">Bonuses</h3>
+              <p className="text-sm text-gray-600 mb-3">
+                Added automatically and paid out with your commissions. Each is US$50 per referred clinic.
+              </p>
+              <ul className="text-sm text-gray-700 space-y-1">
+                <li><strong>Sign-on bonus:</strong> once the clinic's first payment has cleared the 30-day hold.</li>
+                <li><strong>6-month loyalty bonus:</strong> when the clinic is still paying 6 months after its first payment.</li>
+                <li><strong>12-month loyalty bonus:</strong> when it is still paying after 12 months.</li>
+              </ul>
             </div>
 
             {/* Monthly Earnings Chart */}
@@ -494,6 +527,8 @@ export default function AffiliateDashboard() {
                           <span className="text-xs text-green-600">Active</span>
                         ) : ref.subscription_status === 'cancelled' ? (
                           <span className="text-xs text-red-600">Cancelled</span>
+                        ) : ref.subscription_status === 'past_due' ? (
+                          <span className="text-xs text-amber-600">Payment failed</span>
                         ) : (
                           <span className="text-xs text-gray-500">—</span>
                         )}
@@ -533,7 +568,14 @@ export default function AffiliateDashboard() {
                       <td className="px-6 py-4 text-sm text-gray-600">
                         {formatDate(comm.period_start)} - {formatDate(comm.period_end)}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{comm.practice_name || '—'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        {comm.practice_name || '—'}
+                        {comm.kind && comm.kind !== 'commission' && (
+                          <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-purple-100 text-purple-700">
+                            {comm.kind === 'signon_bonus' ? 'Sign-on bonus' : comm.kind === 'loyalty_6' ? '6-month bonus' : '12-month bonus'}
+                          </span>
+                        )}
+                      </td>
                       <td className="px-6 py-4 text-sm font-medium text-green-600">
                         {formatCurrency(comm.amount)}
                       </td>

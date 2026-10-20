@@ -101,7 +101,7 @@ export default function AffiliateSignup() {
             </h1>
           </div>
           <p className="text-gray-600 text-lg">
-            Earn up to 30% recurring commission by referring dental practices
+            Earn up to 35% recurring commission, for as long as your clinics stay
           </p>
         </div>
 
@@ -118,16 +118,16 @@ export default function AffiliateSignup() {
                 <h3 className="font-semibold text-gray-900 mb-2">Commission Tiers</h3>
                 <div className="space-y-2">
                   <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                    <span>Standard Tier</span>
-                    <span className="font-semibold text-green-600">20%</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                    <span>Pro Tier (5+ paid referrals/month)</span>
+                    <span>Standard (1 to 4 active clinics)</span>
                     <span className="font-semibold text-green-600">25%</span>
                   </div>
                   <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                    <span>Partner Tier (10+ paid referrals/month)</span>
+                    <span>Pro (5 to 14 active clinics)</span>
                     <span className="font-semibold text-green-600">30%</span>
+                  </div>
+                  <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                    <span>Partner (15+ active clinics)</span>
+                    <span className="font-semibold text-green-600">35%</span>
                   </div>
                 </div>
               </div>
@@ -137,7 +137,15 @@ export default function AffiliateSignup() {
                 <ul className="space-y-2 text-gray-600">
                   <li className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-green-500" />
-                    Recurring monthly commissions
+                    Recurring commission on every payment, for as long as the clinic pays
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    US$50 sign-on bonus per clinic, plus US$50 loyalty bonuses at 6 and 12 months
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    Alerts when a clinic you referred needs a check-in
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-green-500" />

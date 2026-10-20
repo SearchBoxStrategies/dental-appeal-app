@@ -136,9 +136,19 @@ export default function TermsOfService() {
               </li>
               <li>
                 <strong>Commission.</strong> You earn a percentage of every subscription payment a credited practice makes, for as
-                long as it remains a paying customer. The rate depends on how many new paying practices you referred in that
-                calendar month: 20% (Standard), 25% with 5 or more (Pro), or 30% with 10 or more (Partner). Free trials earn nothing;
-                commission starts with the first paid month.
+                long as it remains a paying customer. The rate depends on how many of the practices you referred are paying
+                customers at the time of each payment: 25% (Standard, 1 to 4 paying practices), 30% (Pro, 5 to 14) or 35% (Partner,
+                15 or more). Free trials earn nothing; commission starts with the first paid month.
+              </li>
+              <li>
+                <strong>Bonuses.</strong> For each practice you refer, you also earn a US$50 sign-on bonus once its first payment has
+                cleared the 30-day hold, and a US$50 loyalty bonus at 6 months and again at 12 months if the practice is still a
+                paying customer on those dates. Bonuses are added automatically and paid out with your commissions.
+              </li>
+              <li>
+                <strong>What you can see.</strong> Your dashboard shows whether each practice you referred is active, has a failed
+                payment, or has not started a claim recently, so you can check in with them. It never shows claim, patient or
+                clinical information.
               </li>
               <li>
                 <strong>Refunds and chargebacks.</strong> If a payment is refunded or disputed, the commission on it is reversed.

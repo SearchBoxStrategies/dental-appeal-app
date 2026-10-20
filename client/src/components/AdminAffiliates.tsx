@@ -483,7 +483,7 @@ export default function AdminAffiliates() {
                           </button>
                           {!affiliate.deleted_at && !affiliate.is_active && (
                             <button
-                              onClick={() => approveAffiliate(affiliate.id, 15, 'standard')}
+                              onClick={() => approveAffiliate(affiliate.id, 25, 'standard')}
                               className="p-1 text-green-600 hover:bg-green-50 rounded"
                               title="Approve"
                             >
@@ -718,7 +718,7 @@ export default function AdminAffiliates() {
                 {!selectedAffiliate.deleted_at && !selectedAffiliate.is_active && (
                   <button
                     onClick={() => {
-                      approveAffiliate(selectedAffiliate.id, 15, 'standard');
+                      approveAffiliate(selectedAffiliate.id, 25, 'standard');
                       setShowAffiliateModal(false);
                     }}
                     className="flex-1 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
