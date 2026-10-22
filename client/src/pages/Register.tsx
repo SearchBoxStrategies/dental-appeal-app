@@ -22,6 +22,7 @@ export default function Register() {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
+  const [agreed, setAgreed] = useState(false);
   const [affiliateInfo, setAffiliateInfo] = useState<{ code: string; clicks?: number } | null>(null);
 
   // Fetch affiliate stats if referral code is present
@@ -69,7 +70,7 @@ export default function Register() {
   const passwordStrength = getPasswordStrength(formData.password);
   const isPasswordValid = passwordStrength === 5;
   const doPasswordsMatch = formData.password === formData.confirmPassword;
-  const isFormValid = formData.practiceName && formData.name && formData.email && isPasswordValid && doPasswordsMatch;
+  const isFormValid = formData.practiceName && formData.name && formData.email && isPasswordValid && doPasswordsMatch && agreed;
 
   const getPasswordStrengthInfo = (): { text: string; color: string } => {
     if (passwordStrength === 0) return { text: '', color: '' };
@@ -327,6 +328,21 @@ export default function Register() {
                   </div>
                 </div>
               )}
+
+              <label className="flex items-start gap-2 text-sm text-gray-600">
+                <input
+                  type="checkbox"
+                  checked={agreed}
+                  onChange={(e) => setAgreed(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span>
+                  I agree to the{' '}
+                  <Link to="/terms" target="_blank" className="text-blue-600 hover:text-blue-700 underline">Terms of Service</Link>
+                  {' '}and{' '}
+                  <Link to="/privacy" target="_blank" className="text-blue-600 hover:text-blue-700 underline">Privacy Policy</Link>.
+                </span>
+              </label>
 
               <button
                 type="submit"
