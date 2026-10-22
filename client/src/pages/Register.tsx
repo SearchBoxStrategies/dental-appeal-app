@@ -143,7 +143,7 @@ export default function Register() {
           <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
             <div className="text-center mb-8">
               <h2 className="text-2xl font-bold text-gray-900">Create Account</h2>
-              <p className="text-gray-600 mt-2">Join thousands of dental practices</p>
+              <p className="text-gray-600 mt-2">Set up your clinic and start your 14-day free trial</p>
             </div>
 
             {/* Affiliate Referral Badge */}
