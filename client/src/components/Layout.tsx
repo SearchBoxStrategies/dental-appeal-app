@@ -15,7 +15,8 @@ import {
   Upload,
   Building2,
   Users,
-  PlayCircle
+  PlayCircle,
+  BookOpen
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -52,7 +53,7 @@ export default function Layout({ children }: LayoutProps) {
         { path: '/settings/team', icon: Users, label: 'Team & Security' },
         { path: '/settings/notifications', icon: Bell, label: 'Notifications' },
         { path: '/billing', icon: CreditCard, label: 'Billing' },
-        { path: '/tutorials', icon: PlayCircle, label: 'Video Tutorials' },
+        { path: '/tutorials', icon: BookOpen, label: 'Step-by-Step Guide' },
       ];
 
   const handleLogout = () => {

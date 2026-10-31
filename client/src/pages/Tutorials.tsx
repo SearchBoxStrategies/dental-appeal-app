@@ -1,5 +1,6 @@
 import { PlayCircle, Clock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import ClinicGuide from '../components/ClinicGuide';
 
 interface Tutorial {
   id: number;
@@ -7,73 +8,21 @@ interface Tutorial {
   minutes: number;
   summary: string;
   steps: string[];
-  audience: 'clinic' | 'affiliate';
   // YouTube video id of the UNLISTED video. Leave empty until the video is uploaded.
   youtubeId: string;
 }
 
-const TUTORIALS: Tutorial[] = [
+// Affiliates keep their own video tutorial. Clinics get the written step-by-step guide.
+const AFFILIATE_TUTORIALS: Tutorial[] = [
   {
-    id: 1, audience: 'clinic', minutes: 2, youtubeId: '',
-    title: 'Create your account and sign in',
-    summary: 'Register your clinic, verify your email and sign in for the first time.',
-    steps: ['Enter your practice name, your name and email', 'Choose a password that meets all five requirements', 'Click Create Account, then open the verification email', 'Sign in with your email and password'],
-  },
-  {
-    id: 2, audience: 'clinic', minutes: 2, youtubeId: '',
-    title: 'Set up your practice profile',
-    summary: 'Add your letterhead details once so every appeal letter carries them.',
-    steps: ['Open Practice Profile', 'Fill in the dentist name, address, phone and fax', 'Add your NPI, tax ID and licence number', 'Click Save Profile'],
-  },
-  {
-    id: 3, audience: 'clinic', minutes: 3, youtubeId: '',
-    title: 'Add your team and turn on two-step sign-in',
-    summary: 'Give each person their own sign-in, mark who is a dentist, and protect the account.',
-    steps: ['Open Team & Security', 'Enter an email, choose Staff or Owner, tick Dentist if needed', 'Click Send invitation', 'Turn on two-step sign-in and confirm the emailed code'],
-  },
-  {
-    id: 4, audience: 'clinic', minutes: 3, youtubeId: '',
-    title: 'Start a claim by uploading the denial',
-    summary: 'Upload the insurer’s denial and let the AI fill in the claim for you to check.',
-    steps: ['Click New Claim, then Upload denial', 'Wait while the document is read', 'Check every amber-highlighted field against the paper', 'Click Submit Claim'],
-  },
-  {
-    id: 5, audience: 'clinic', minutes: 3, youtubeId: '',
-    title: 'Prepare the appeal: checklist and dentist’s note',
-    summary: 'Gather the evidence and get the dentist’s clinical note approved.',
-    steps: ['Tick the items in What to include as you gather them', 'Upload X-rays and documents under Supporting Documents', 'Click Draft note with AI and fill in the bracketed details', 'A dentist clicks Approve'],
-  },
-  {
-    id: 6, audience: 'clinic', minutes: 3, youtubeId: '',
-    title: 'Generate, edit and send the appeal letter',
-    summary: 'Write the letter, review it, download it as a PDF and mark the claim as sent.',
-    steps: ['Click Generate Appeal Letter', 'Read the letter and complete any [bracketed] details with Edit', 'Click Download PDF or Print', 'Set Appeal Status to Appeal Sent'],
-  },
-  {
-    id: 7, audience: 'clinic', minutes: 3, youtubeId: '',
-    title: 'Deadlines, follow-ups and recording results',
-    summary: 'Keep track of appeal deadlines, follow up on time and record what the insurer paid.',
-    steps: ['Check the deadline banner on the claim', 'Use Edit dates if the deadline is missing or wrong', 'Follow up after 30 days if there is no answer', 'Set Won or Paid and enter the amount paid'],
-  },
-  {
-    id: 8, audience: 'clinic', minutes: 2, youtubeId: '',
-    title: 'Billing, your subscription and cancelling',
-    summary: 'Subscribe after your trial, update your card, and cancel if you need to.',
-    steps: ['Open Billing (owners only)', 'Click Subscribe Now to pay on Stripe’s secure page', 'Click Manage Subscription to update your card or cancel'],
-  },
-  {
-    id: 9, audience: 'affiliate', minutes: 4, youtubeId: '',
+    id: 9, minutes: 4, youtubeId: '',
     title: 'Affiliate program: share your link and get paid',
     summary: 'Find your link, track referrals and commissions, and set up payouts.',
     steps: ['Copy your link from the Affiliate Dashboard', 'Watch clicks, sign-ups and commissions', 'Click Set up payouts in the Get Paid card', 'Keep Pay me automatically each month ticked'],
   },
 ];
 
-export default function Tutorials() {
-  const { user } = useAuth();
-  const audience = user?.user_type === 'affiliate' ? 'affiliate' : 'clinic';
-  const videos = TUTORIALS.filter((t) => t.audience === audience);
-
+function AffiliateTutorials() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
@@ -81,12 +30,10 @@ export default function Tutorials() {
         <p className="text-gray-600 mt-1">Short step-by-step videos. Each one covers a single task.</p>
       </div>
 
-      {videos.map((t) => (
+      {AFFILIATE_TUTORIALS.map((t) => (
         <div key={t.id} className="bg-white rounded-xl shadow-sm border overflow-hidden">
           <div className="px-6 py-4 border-b bg-gray-50 flex items-center justify-between gap-3 flex-wrap">
-            <h2 className="font-semibold text-gray-900">
-              {audience === 'clinic' ? `${t.id}. ` : ''}{t.title}
-            </h2>
+            <h2 className="font-semibold text-gray-900">{t.title}</h2>
             <span className="flex items-center gap-1 text-sm text-gray-500">
               <Clock className="w-4 h-4" /> about {t.minutes} min
             </span>
@@ -127,4 +74,9 @@ export default function Tutorials() {
       </p>
     </div>
   );
+}
+
+export default function Tutorials() {
+  const { user } = useAuth();
+  return user?.user_type === 'affiliate' ? <AffiliateTutorials /> : <ClinicGuide />;
 }
