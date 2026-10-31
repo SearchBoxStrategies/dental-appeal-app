@@ -11,6 +11,7 @@ import {
 import api from '../lib/api';
 import RecoveryDashboard from '../components/RecoveryDashboard';
 import NeedsAttention from '../components/NeedsAttention';
+import TrialBanner from '../components/TrialBanner';
 
 interface DashboardStats {
   totalClaims: number;
@@ -123,6 +124,8 @@ export default function Dashboard() {
           New Claim
         </Link>
       </div>
+
+      <TrialBanner />
 
       <NeedsAttention />
 

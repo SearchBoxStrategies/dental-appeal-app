@@ -1,250 +1,56 @@
-import { useState, useRef } from 'react';
-import { 
-  BookOpen, FileText, TrendingUp, Upload, 
-  Building2, CreditCard, Bell, ChevronDown, 
-  ChevronUp, CheckCircle, Video, 
-  FileQuestion, MessageCircle
-} from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { BookOpen, PlayCircle, FileQuestion, MessageCircle, ArrowRight } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+
+const CLINIC_FAQS = [
+  { q: 'Where do I start?', a: 'Open the Step-by-Step Guide. It walks you from creating your account to sending your first appeal, one step at a time.' },
+  { q: 'How much does it cost? Is there a free trial?', a: 'Every new practice gets a 14-day free trial with no card needed. After that the Professional plan is $199 per month. An owner subscribes from the Billing page and can cancel any time from Manage Subscription.' },
+  { q: 'How long does it take to generate an appeal letter?', a: 'Usually well under a minute. The page tells you while the letter is being written. Always read the letter and fill in any [bracketed] details before you send it.' },
+  { q: 'What files can I upload?', a: 'The denial notice can be a PDF or a photo (JPG, PNG or WebP). Supporting documents can be PDF, JPG or PNG. The limit is 10 MB per file.' },
+  { q: 'Who can approve the dentist’s note?', a: 'Only a team member marked as Dentist. An owner can tick Dentist next to a name on the Team & Security page.' },
+  { q: 'Do you guarantee appeal success?', a: 'No. Success depends on the clinical case, the evidence you include and the insurance plan. The checklist and dentist’s note are there to give each appeal its best chance.' },
+  { q: 'Is DentalAppeal HIPAA compliant?', a: 'Not yet. Your data is encrypted and stored in the United States, but we do not currently sign Business Associate Agreements. US practices covered by HIPAA should not enter real patient information until a BAA is in place; Canadian practices can use DentalAppeal now. See our Terms of Service and Privacy Policy for details.' },
+  { q: 'I forgot my password. What do I do?', a: 'On the sign-in page click Forgot password? and we will email you a reset link. If it does not arrive, check your spam or junk folder.' },
+  { q: 'How do I get support?', a: 'Email support@dentalappeal.claims and we will get back to you.' },
+];
+
+const AFFILIATE_FAQS = [
+  { q: 'Where do I find my link and my earnings?', a: 'Open your Affiliate Dashboard. Your link, clicks, sign-ups and commissions are all there.' },
+  { q: 'How do I get paid?', a: 'Click Set up payouts in the Get Paid card on your dashboard and finish the secure payout set-up. Keep Pay me automatically each month ticked.' },
+  { q: 'How do I get support?', a: 'Email support@dentalappeal.claims and we will get back to you.' },
+];
 
 export default function Help() {
-  const [expandedSection, setExpandedSection] = useState<string | null>(null);
-  const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
-
-  const tutorials = [
-    {
-      id: 'getting-started',
-      title: 'Getting Started',
-      icon: BookOpen,
-      steps: [
-        '1. Complete your Practice Profile with your business information',
-        '2. Add your NPI number and license information',
-        '3. Subscribe to the Professional plan ($199/month)',
-        '4. Start creating claims and generating appeal letters'
-      ]
-    },
-    {
-      id: 'claims',
-      title: 'Creating a Claim',
-      icon: FileText,
-      steps: [
-        '1. Click "New Claim" from the sidebar menu',
-        '2. Enter patient information (name, DOB, insurance)',
-        '3. Select procedure codes from the CDT selector',
-        '4. Paste the denial reason from the insurance EOB',
-        '5. Upload supporting documents (X-rays, clinical notes)',
-        '6. Click "Submit Claim"'
-      ]
-    },
-    {
-      id: 'cdt-codes',
-      title: 'CDT Code Selector',
-      icon: FileText,
-      steps: [
-        '1. Click on a category (e.g., "Restorative") to expand',
-        '2. Check the boxes next to the procedure codes you need',
-        '3. Use "Other" to add custom codes not in the list',
-        '4. Selected codes appear at the bottom of the selector'
-      ]
-    },
-    {
-      id: 'appeal-letter',
-      title: 'Generating an Appeal Letter',
-      icon: TrendingUp,
-      steps: [
-        '1. Go to an existing claim from the Claims list',
-        '2. Click "Validate" to check for issues',
-        '3. Fix any errors or warnings shown',
-        '4. Click "Generate Appeal Letter"',
-        '5. Wait 3-5 seconds for the AI to write the letter',
-        '6. Review, copy, download, or print the letter'
-      ]
-    },
-    {
-      id: 'status-tracking',
-      title: 'Tracking Appeal Status',
-      icon: TrendingUp,
-      steps: [
-        '1. Go to the Claims list page',
-        '2. View status badges (Draft, Appeal Sent, Under Review, Won, Lost, Paid)',
-        '3. Click on a claim to see details',
-        '4. Update status from the dropdown on the claim detail page',
-        '5. Status changes trigger email notifications'
-      ]
-    },
-    {
-      id: 'analytics',
-      title: 'Analytics & Reports',
-      icon: TrendingUp,
-      steps: [
-        '1. Go to Analytics from the sidebar',
-        '2. View performance metrics (success rate, appeals won, etc.)',
-        '3. Change date range using the period selector',
-        '4. Click "Export CSV" to download your data'
-      ]
-    },
-    {
-      id: 'bulk-upload',
-      title: 'Bulk Claim Upload',
-      icon: Upload,
-      steps: [
-        '1. Go to Bulk Upload from the sidebar',
-        '2. Download the CSV template',
-        '3. Fill in your claims data following the template format',
-        '4. Upload the CSV file',
-        '5. Review the results (successful/failed counts)'
-      ]
-    },
-    {
-      id: 'practice-profile',
-      title: 'Practice Profile',
-      icon: Building2,
-      steps: [
-        '1. Go to Practice Profile from the sidebar',
-        '2. Fill in your practice information (name, address, phone, etc.)',
-        '3. Add your NPI number and license information',
-        '4. Click "Save Profile"',
-        '5. Your information will appear in all generated appeal letters'
-      ]
-    },
-    {
-      id: 'billing',
-      title: 'Billing & Subscription',
-      icon: CreditCard,
-      steps: [
-        '1. Go to Billing from the sidebar',
-        '2. View your current plan status',
-        '3. Click "Subscribe Now" to start your subscription',
-        '4. Use the test card 4242 4242 4242 4242 for testing',
-        '5. Click "Manage Subscription" to update payment method or cancel'
-      ]
-    },
-    {
-      id: 'notifications',
-      title: 'Email Notifications',
-      icon: Bell,
-      steps: [
-        '1. Go to Notifications from the sidebar',
-        '2. Toggle which emails you want to receive',
-        '3. Options include: Appeal Status Updates, Payment Receipts, Weekly Digest',
-        '4. Click "Save Preferences"'
-      ]
-    }
-  ];
-
-  const faqs = [
-    { q: 'How long does it take to generate an appeal letter?', a: 'Typically 3-5 seconds using Claude AI.' },
-    { q: 'What file types can I upload?', a: 'PDF, JPG, JPEG, PNG files up to 10MB.' },
-    { q: 'Do you guarantee appeal success?', a: 'No. Success depends on clinical justification and insurance policies.' },
-    { q: 'Is DentalAppeal HIPAA compliant?', a: 'Not yet. Your data is encrypted and stored in the United States, but we do not currently sign Business Associate Agreements. US practices covered by HIPAA should not enter real patient information until a BAA is in place; Canadian practices can use DentalAppeal now. See our Terms of Service and Privacy Policy for details.' },
-    { q: 'Can I cancel my subscription anytime?', a: 'Yes. Cancel anytime from the Billing page.' },
-    { q: 'How do I get support?', a: 'Email support@dentalappeal.claims for assistance.' }
-  ];
-
-  const toggleSection = (id: string) => {
-    setExpandedSection(expandedSection === id ? null : id);
-  };
-
-  const scrollToSection = (id: string) => {
-    // Expand the section
-    setExpandedSection(id);
-    
-    // Scroll to the section after a short delay to allow the DOM to update
-    setTimeout(() => {
-      const element = sectionRefs.current[id];
-      if (element) {
-        const elementPosition = element.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.scrollY - 100; // 100px offset from top
-        
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: 'smooth'
-        });
-      }
-    }, 150);
-  };
+  const { user } = useAuth();
+  const isAffiliate = user?.user_type === 'affiliate';
+  const faqs = isAffiliate ? AFFILIATE_FAQS : CLINIC_FAQS;
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Help & Support</h1>
-        <p className="text-gray-600 mt-1">Tutorials, guides, and frequently asked questions</p>
+        <p className="text-gray-600 mt-1">Guides, answers to common questions, and how to reach us</p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <button
-          onClick={() => scrollToSection('getting-started')}
-          className="bg-white rounded-xl shadow-sm border p-4 text-center hover:shadow-md transition-all cursor-pointer"
-        >
-          <BookOpen className="w-6 h-6 text-blue-600 mx-auto mb-2" />
-          <span className="text-sm font-medium">Getting Started</span>
-        </button>
-        <button
-          onClick={() => scrollToSection('claims')}
-          className="bg-white rounded-xl shadow-sm border p-4 text-center hover:shadow-md transition-all cursor-pointer"
-        >
-          <FileText className="w-6 h-6 text-green-600 mx-auto mb-2" />
-          <span className="text-sm font-medium">Claims</span>
-        </button>
-        <button
-          onClick={() => scrollToSection('analytics')}
-          className="bg-white rounded-xl shadow-sm border p-4 text-center hover:shadow-md transition-all cursor-pointer"
-        >
-          <TrendingUp className="w-6 h-6 text-purple-600 mx-auto mb-2" />
-          <span className="text-sm font-medium">Analytics</span>
-        </button>
-        <button
-          onClick={() => scrollToSection('billing')}
-          className="bg-white rounded-xl shadow-sm border p-4 text-center hover:shadow-md transition-all cursor-pointer"
-        >
-          <CreditCard className="w-6 h-6 text-teal-600 mx-auto mb-2" />
-          <span className="text-sm font-medium">Billing</span>
-        </button>
-      </div>
-
-      <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-        <div className="px-6 py-4 border-b bg-gray-50">
-          <h2 className="font-semibold text-gray-900 flex items-center gap-2">
-            <Video className="w-5 h-5 text-blue-600" />
-            Tutorials & Guides
-          </h2>
+      <Link
+        to="/tutorials"
+        className="flex items-center justify-between gap-4 rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-6 shadow-sm hover:shadow-md transition-all"
+      >
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-100">
+            {isAffiliate ? <PlayCircle className="h-6 w-6 text-blue-600" /> : <BookOpen className="h-6 w-6 text-blue-600" />}
+          </div>
+          <div>
+            <h2 className="font-semibold text-blue-900">{isAffiliate ? 'Video Tutorials' : 'Step-by-Step Guide'}</h2>
+            <p className="text-sm text-blue-800">
+              {isAffiliate
+                ? 'Short walkthroughs for the affiliate program.'
+                : 'From your first sign-in to a sent appeal, one clear step at a time.'}
+            </p>
+          </div>
         </div>
-        <div className="divide-y">
-          {tutorials.map((tutorial) => {
-            const Icon = tutorial.icon;
-            const isExpanded = expandedSection === tutorial.id;
-            return (
-              <div 
-                key={tutorial.id} 
-                id={tutorial.id}
-                ref={(el) => sectionRefs.current[tutorial.id] = el}
-              >
-                <button
-                  onClick={() => toggleSection(tutorial.id)}
-                  className="w-full flex justify-between items-center p-4 hover:bg-gray-50 transition-colors text-left"
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon className="w-5 h-5 text-gray-500" />
-                    <span className="font-medium text-gray-900">{tutorial.title}</span>
-                  </div>
-                  {isExpanded ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
-                </button>
-                {isExpanded && (
-                  <div className="px-4 pb-4 pl-12">
-                    <ul className="space-y-2 text-sm text-gray-600">
-                      {tutorial.steps.map((step, idx) => (
-                        <li key={idx} className="flex items-start gap-2">
-                          <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                          {step}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
+        <ArrowRight className="h-5 w-5 shrink-0 text-blue-600" />
+      </Link>
 
       <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
         <div className="px-6 py-4 border-b bg-gray-50">
